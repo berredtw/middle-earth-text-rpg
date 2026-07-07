@@ -1,0 +1,574 @@
+/* 全 21 章通關模擬 + 圖鑑/說明/存檔遷移驗證 */
+'use strict';
+const fs = require('fs');
+function fakeEl(id){ const el={id,style:{},_html:'',textContent:'',value:'',checked:false,childNodes:[],
+  classList:{add(){},remove(){},toggle(){}},appendChild(c){this.childNodes.push(c)},
+  removeChild(c){this.childNodes=this.childNodes.filter(x=>x!==c)},
+  scrollTop:0,scrollHeight:0,disabled:false};
+  Object.defineProperty(el,'innerHTML',{get(){return this._html},set(v){this._html=v;this.childNodes=[]}});
+  Object.defineProperty(el,'firstChild',{get(){return this.childNodes[0]}});
+  return el; }
+const els=new Map();
+const document={getElementById(id){if(!els.has(id))els.set(id,fakeEl(id));return els.get(id)},
+  createElement(){return fakeEl('x'+Math.random())},querySelectorAll(){return[]},querySelector(){return null}};
+const store={};
+const localStorage={getItem(k){return store[k]!==undefined?store[k]:null},setItem(k,v){store[k]=String(v)},removeItem(k){delete store[k]}};
+const window={addEventListener(){}};
+const html=fs.readFileSync('D:/魔戒文字版/index.html','utf8');
+const m=html.match(/<script>\n([\s\S]*?)<\/script>/);
+const intervalFns=[];
+const G=eval(`(function(document,localStorage,window,alert,confirm,prompt,setInterval,location){${m[1]}
+;return {get S(){return S},set S(v){S=v},get battle(){return battle},
+ fns:{newState,derive,enterGame,moveTo,explore,pAttack,challengeBoss,visitEvent,advanceChapter,
+  showItemInfo,openCodex,migrate,destroyRing,gainExp,saveGame,addItem,useScroll,castSkill,towerChallenge,
+  doEnhance,recruit,setComp,openCompList,compStats,useIt,aliveMobs,gameTick,doCraft,openCraft,invCount,
+  doGandalf,openGandalf,sortInv,checkOffline,renderTabs,autoAction,compGainExp,compLvOf,sellIt,sellPrice,enhValue,
+  towerFloor,towerReward,startNG,checkAchv,openAchv,mobInst,showItemInfo:showItemInfo},
+ data2:{ACHV},
+ data:{MOBS,MAPS,QUESTS,ITEMS,SKILLS,RACES,COMPS,RECIPES,ENCH_W,ENCH_A,ELEMS}};})`)(document,localStorage,window,()=>{},()=>true,()=>null,fn=>{intervalFns.push(fn);return 1},{reload(){}});
+const F=G.fns,D=G.data;
+let pass=0,fail=0;
+function check(n,c){if(c){pass++;console.log('  ✓',n)}else{fail++;console.log('  ✗ 失敗:',n)}}
+
+// 資料一致性檢查
+check('章節共 40 章（主線 21＋時光之門 5＋哈比人 7＋上古紀元 7）',D.QUESTS.length===40);
+check('技能共 36 招（各族 9 招）',Object.keys(D.SKILLS).length===36);
+let refOk=true;
+D.QUESTS.forEach((q,i)=>{
+  if(q.boss&&!D.MOBS[q.boss]){refOk=false;console.log('    章',i,'首領不存在',q.boss)}
+  if(q.area&&!D.MAPS[q.area]){refOk=false;console.log('    章',i,'區域不存在',q.area)}
+  if(q.visit&&!D.MAPS[q.visit]){refOk=false;console.log('    章',i,'地點不存在',q.visit)}
+  if(!q.intro&&i>0){refOk=false;console.log('    章',i,'缺 intro')}
+});
+check('所有章節的首領/區域/地點/開場劇情齊全',refOk);
+let mapOk=true;
+for(const k in D.MAPS){const mp=D.MAPS[k];
+  if(mp.mobs)for(const mb of mp.mobs)if(!D.MOBS[mb]){mapOk=false;console.log('    地圖',k,'怪物不存在',mb)}
+  if(mp.boss&&!D.MOBS[mp.boss]){mapOk=false;console.log('    地圖',k,'首領不存在',mp.boss)}}
+check('所有地圖的怪物參照正確',mapOk);
+let dropOk=true;
+for(const id in D.MOBS)for(const dr of D.MOBS[id][7])if(!D.ITEMS[dr[0]]){dropOk=false;console.log('    怪物',id,'掉落不存在',dr[0])}
+check('所有掉落物品參照正確',dropOk);
+
+// 每章 boss 都要能從某張已解鎖地圖挑戰
+let bossMapOk=true;
+D.QUESTS.forEach((q,i)=>{
+  if(!q.boss)return;
+  const mk=Object.keys(D.MAPS).find(k=>D.MAPS[k].boss===q.boss);
+  if(!mk||D.MAPS[mk].ch>i){bossMapOk=false;console.log('    章',i,'首領地圖未解鎖',q.boss,mk,D.MAPS[mk]&&D.MAPS[mk].ch)}
+});
+check('每章首領所在地圖於該章已解鎖',bossMapOk);
+// kill 章節的區域已解鎖
+let areaOk=true;
+D.QUESTS.forEach((q,i)=>{if(q.area&&D.MAPS[q.area].ch>i){areaOk=false;console.log('    章',i,'區域未解鎖',q.area)}});
+check('每章目標區域於該章已解鎖',areaOk);
+
+// 全 21 章模擬通關（以合理等級輾壓推進，驗證流程邏輯）
+G.S=F.newState('human',{str:10,dex:8,con:9,int:5,wis:5},'測試者');
+G.S.eq.weapon={id:'w_glam',e:6};G.S.eq.armor={id:'a_mithril',e:6};  // 模擬玩家有稱職裝備
+let d=F.derive();G.S.hp=d.maxHp;G.S.mp=d.maxMp;
+F.enterGame(false);
+let guard=0,stuck=false;
+while(G.S.ch<21&&guard++<200000){
+  const q=D.QUESTS[G.S.ch];
+  // 保持等級足夠（模擬玩家練功），確保能贏
+  const needLv=q.boss?D.MOBS[q.boss][1]+4:(q.area?D.MOBS[D.MAPS[q.area].mobs[0]][1]+4:G.S.lv);
+  while(G.S.lv<needLv)F.gainExp(30*G.S.lv*G.S.lv);
+  if(q.visit){F.moveTo(q.visit);F.visitEvent();continue}
+  const target=q.area||Object.keys(D.MAPS).find(k=>D.MAPS[k].boss===q.boss);
+  if(!G.battle){
+    if(G.S.loc!==target)F.moveTo(target);
+    d=F.derive();G.S.hp=d.maxHp;G.S.mp=d.maxMp;
+    if(q.boss)F.challengeBoss();else F.explore();
+  }else{
+    const dd=F.derive();
+    if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;   // 模擬玩家喝藥（活力之水商店有售）
+    F.pAttack();
+  }
+}
+check(`全 21 章通關成功（最終 Lv.${G.S.lv}）`,G.S.ch===21);
+check('通關後獲得至尊魔戒',G.S.inv.some(x=>x.id==='ring_one')||G.S.ringGone);
+check('第十章贈禮（精靈斗篷）',G.S.inv.some(x=>x.id==='c_elven')||(G.S.eq.cloak&&G.S.eq.cloak.id==='c_elven'));
+check('第二章劇情武器（西方皇族的古劍）',G.S.inv.some(x=>x.id==='w_barrow'));
+check('第十六章劇情武器（安都瑞爾）',G.S.inv.some(x=>x.id==='w_anduril'));
+// 時光之門於魔戒銷毀前隱藏
+G.S.ringGone=false;F.moveTo('t_gate');
+check('時光之門於魔戒銷毀前隱藏（無法進入）',G.S.loc!=='t_gate');
+G.S.loc='m_doom';F.destroyRing();
+check('結局：銷毀魔戒',G.S.ringGone===true);
+
+// ── 時光之門外傳 5 章通關（後日談，沿用主線模擬邏輯）──
+guard=0;
+while(G.S.ch<26&&guard++<200000){
+  const q=D.QUESTS[G.S.ch];
+  const needLv=q.boss?D.MOBS[q.boss][1]+4:(q.area?D.MOBS[D.MAPS[q.area].mobs[0]][1]+4:G.S.lv);
+  while(G.S.lv<needLv)F.gainExp(30*G.S.lv*G.S.lv);
+  if(q.visit){F.moveTo(q.visit);F.visitEvent();continue}
+  const target=q.area||Object.keys(D.MAPS).find(k=>D.MAPS[k].boss===q.boss);
+  if(!G.battle){
+    if(G.S.loc!==target)F.moveTo(target);
+    d=F.derive();G.S.hp=d.maxHp;G.S.mp=d.maxMp;
+    if(q.boss)F.challengeBoss();else F.explore();
+  }else{
+    const dd=F.derive();
+    if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;
+    F.pAttack();
+  }
+}
+check(`時光之門外傳全數通關（最終 Lv.${G.S.lv}）`,G.S.ch===26);
+check('外傳一贈禮（烏歐牟的深海披風）',G.S.inv.some(x=>x.id==='c_ulmo'));
+check('外傳二贈禮（米爾戴斯寶鑽戒）',G.S.inv.some(x=>x.id==='r_mirdain'));
+check('外傳終贈禮（吉爾加拉德的星輝徽記）',G.S.inv.some(x=>x.id==='r_gil'));
+let gDropTry=0;
+while(!['w_dramborleg','w_aeglos','w_sauronmace'].some(id=>G.S.inv.some(x=>x.id===id))&&gDropTry++<8){
+  F.moveTo('m_dagorlad');d=F.derive();G.S.hp=d.maxHp;G.S.mp=d.maxMp;F.challengeBoss();
+  while(G.battle){const dd=F.derive();if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;F.pAttack();}
+}
+check('外傳新傳說武器可掉落取得',['w_dramborleg','w_aeglos','w_sauronmace'].some(id=>G.S.inv.some(x=>x.id===id)));
+
+// ── 哈比人外傳 7 章通關（意外的旅程 → 五軍之戰）──
+guard=0;
+while(G.S.ch<33&&guard++<300000){
+  const q=D.QUESTS[G.S.ch];
+  const needLv=q.boss?D.MOBS[q.boss][1]+4:(q.area?D.MOBS[D.MAPS[q.area].mobs[0]][1]+4:G.S.lv);
+  while(G.S.lv<needLv)F.gainExp(30*G.S.lv*G.S.lv);
+  if(q.visit){F.moveTo(q.visit);F.visitEvent();continue}
+  const target=q.area||Object.keys(D.MAPS).find(k=>D.MAPS[k].boss===q.boss);
+  if(!G.battle){
+    if(G.S.loc!==target)F.moveTo(target);
+    d=F.derive();G.S.hp=d.maxHp;G.S.mp=d.maxMp;
+    if(q.boss)F.challengeBoss();else F.explore();
+  }else{
+    const dd=F.derive();
+    if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;
+    F.pAttack();
+  }
+}
+check(`哈比人外傳全數通關（最終 Lv.${G.S.lv}）`,G.S.ch===33);
+check('三食人妖藏寶洞獲得敵擊劍',G.S.inv.some(x=>x.id==='w_orcrist'));
+check('外傳六贈禮（瑟蘭督伊的森林披風）',G.S.inv.some(x=>x.id==='c_thranduil'));
+check('外傳七贈禮（黑箭）',G.S.inv.some(x=>x.id==='w_blackarrow'));
+check('哈比人外傳終章贈禮（阿肯寶石）',G.S.inv.some(x=>x.id==='r_arkenstone'));
+
+// ── 上古紀元外傳 7 章通關（雙燈→雙樹→魔苟斯）──
+G.S.eq.weapon={id:'w_gundabad',e:9};G.S.eq.armor={id:'a_erebor',e:9};   // 全破玩家的合理裝備
+guard=0;
+while(G.S.ch<40&&guard++<400000){
+  const q=D.QUESTS[G.S.ch];
+  const needLv=q.boss?D.MOBS[q.boss][1]+4:(q.area?D.MOBS[D.MAPS[q.area].mobs[0]][1]+4:G.S.lv);
+  while(G.S.lv<needLv)F.gainExp(30*G.S.lv*G.S.lv);
+  if(q.visit){F.moveTo(q.visit);F.visitEvent();continue}
+  const target=q.area||Object.keys(D.MAPS).find(k=>D.MAPS[k].boss===q.boss);
+  if(!G.battle){
+    if(G.S.loc!==target)F.moveTo(target);
+    d=F.derive();G.S.hp=d.maxHp;G.S.mp=d.maxMp;
+    if(q.boss)F.challengeBoss();else F.explore();
+  }else{
+    const dd=F.derive();
+    if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;
+    F.pAttack();
+  }
+}
+check(`上古紀元外傳全數通關·擊敗魔苟斯（最終 Lv.${G.S.lv}）`,G.S.ch===40);
+check('上古三贈禮（瓦爾妲的星幕披風）',G.S.inv.some(x=>x.id==='c_varda'));
+check('上古四贈禮（雙樹之光墜飾）',G.S.inv.some(x=>x.id==='r_tree'));
+check('上古終章贈禮（精靈寶鑽）',G.S.inv.some(x=>x.id==='r_silmaril'));
+let dropTry=0;
+while(!['w_dragonlord','w_grond','a_angband'].some(id=>G.S.inv.some(x=>x.id===id))&&dropTry++<8){
+  F.moveTo('m_angband');d=F.derive();G.S.hp=d.maxHp;G.S.mp=d.maxMp;F.challengeBoss();
+  while(G.battle){const dd=F.derive();if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;F.pAttack();}
+}
+check('上古傳說武防可掉落取得',['w_dragonlord','w_grond','a_angband'].some(id=>G.S.inv.some(x=>x.id===id)));
+
+// ── 首領戰鬥 AI：喝藥／狂暴 ──
+F.moveTo('m_isengard');F.challengeBoss();
+G.battle.mobs[0].hp=Math.floor(G.battle.mobs[0].maxHp*0.35);
+F.pAttack();
+check('首領 AI：薩魯曼血量低時喝藥回血',!G.battle||G.battle.mobs[0].heals===0);
+while(G.battle){const dd=F.derive();if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;F.pAttack();}
+F.moveTo('m_doom');F.challengeBoss();
+G.battle.mobs[0].hp=Math.floor(G.battle.mobs[0].maxHp*0.25);
+F.pAttack();
+check('首領 AI：索倫狂暴（攻擊上升）',!G.battle||G.battle.mobs[0].raged===true);
+while(G.battle){const dd=F.derive();if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;F.pAttack();}
+
+// ── 新技能實測（人類 Lv.34/42/50 三招）──
+F.moveTo('m_shire');F.explore();
+F.castSkill('h7');
+check('新技能：王者號令（加速 Buff 生效）',!!G.battle&&G.battle.buffs.some(b=>b.stat==='haste'));
+const mpBefore=G.S.mp;
+if(G.battle)F.castSkill('h8');
+check('新技能：聖劍·王者降臨（必中，MP 有消耗）',G.S.mp<mpBefore||!G.battle);
+while(G.battle){const dd=F.derive();if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;F.pAttack();}
+
+// 塔內戰鬥變多且更硬，先把模擬角色武裝到位
+while(G.S.lv<60)F.gainExp(30*G.S.lv*G.S.lv);
+G.S.eq.weapon={id:'w_anduril',e:9};
+// ── 爬塔測試：無盡階梯 1~100 層（12.5% 樓梯機率，需大量戰鬥）──
+F.moveTo('m_stair');
+let tg=0,floorFights=0,firstFloorBefore=G.S.tw['m_stair']||0;
+while((G.S.tw['m_stair']||0)<100&&tg++<800000){
+  if(!G.battle){if(G.S.loc!=='m_stair')F.moveTo('m_stair');const dd=F.derive();G.S.hp=dd.maxHp;F.towerChallenge();floorFights++;}
+  else{const dd=F.derive();if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;F.pAttack();}
+}
+check(`無盡階梯攻頂（進度 ${G.S.tw['m_stair']}/100，共戰鬥 ${floorFights} 場）`,G.S.tw['m_stair']===100);
+check(`樓梯機率生效（100 層共打了 ${floorFights} 場 > 150 場，代表不是一場一層）`,floorFights>150);
+check('百層制霸獲得【都靈之斧】',G.S.inv.some(x=>x.id==='w_durin'));
+const scrolls=G.S.inv.filter(x=>x.id==='s_wepb'||x.id==='s_armb').reduce((a,x)=>a+x.q,0);
+check(`每10層樓主獎勵祝福卷軸（目前持有 ${scrolls} 張）`,scrolls>=5);
+// 塔頂重複挑戰不重複給獎
+const durinCount=G.S.inv.filter(x=>x.id==='w_durin').length;
+if(!G.battle)F.towerChallenge();
+while(G.battle){const dd=F.derive();if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;F.pAttack();}
+check('重返100層不重複給塔頂兵器',G.S.inv.filter(x=>x.id==='w_durin').length===durinCount);
+// 歐爾桑克塔
+F.moveTo('m_tower');
+tg=0;
+while((G.S.tw['m_tower']||0)<100&&tg++<800000){
+  if(!G.battle){if(G.S.loc!=='m_tower')F.moveTo('m_tower');const dd=F.derive();G.S.hp=dd.maxHp;F.towerChallenge();}
+  else{const dd=F.derive();if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;F.pAttack();}
+}
+check(`歐爾桑克塔攻頂（進度 ${G.S.tw['m_tower']}/100）`,G.S.tw['m_tower']===100);
+check('百層制霸獲得【異界·執行者之斧】',G.S.inv.some(x=>x.id==='w_exec'));
+
+// ── 塔內多怪機率抽樣（期望 ≥2 隻約 80%）──
+G.S.tw={};F.moveTo('m_stair');
+let multi2=0,samples=0;
+for(let i=0;i<80;i++){
+  if(G.battle)continue;
+  F.towerChallenge();
+  if(!G.battle)break;
+  if(G.battle.floor%10!==0){samples++;if(G.battle.mobs.length>=2)multi2++;}
+  G.battle.mobs.forEach(m=>m.hp=0);
+  const dd=F.derive();G.S.hp=dd.maxHp;
+  F.pAttack();   // 目標全滅 → 直接結算
+}
+const ratio=Math.round(100*multi2/samples);
+check(`塔內 ≥2 隻怪比例 ${ratio}%（抽樣 ${samples} 場，期望約 80%）`,ratio>=62&&ratio<=95);
+
+// ── 多怪遭遇與範圍技＋前八章新手保護 ──
+F.moveTo('m_shire');
+let sawMulti=false,earlyOk=true,groupAtkOk=true;
+const GA=[1,1,0.8,0.68];   // 前八章的圍攻懲罰
+for(let i=0;i<80;i++){
+  if(!G.battle)F.explore();
+  const n=G.battle.mobs.length;
+  if(n>3)earlyOk=false;
+  if(n>=2)sawMulti=true;
+  for(const mb of G.battle.mobs){
+    if(mb.el||mb.fx)earlyOk=false;                    // 前八章不得有屬性/特性
+    const base=D.MOBS[mb.id][3];
+    if(mb.atk!==Math.max(1,Math.floor(base*GA[n])))groupAtkOk=false;  // 圍攻懲罰
+  }
+  if(i<79){G.battle.mobs.forEach(m=>m.hp=0);const dd=F.derive();G.S.hp=dd.maxHp;F.pAttack();}
+}
+check('前八章地區：最多 3 隻且無屬性無特性（抽樣 80 場）',earlyOk);
+check('前八章仍會遭遇 2~3 隻群體',sawMulti);
+check('圍攻懲罰：多隻時每隻攻擊力正確打折',groupAtkOk);
+if(G.battle){
+  G.S.mp=999;
+  F.castSkill('h5');   // 旋風斬（範圍技）
+  check('範圍技「旋風斬」施放正常',true);
+  while(G.battle){const dd=F.derive();if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;F.pAttack();}
+}
+// 前八章首領也無屬性/特性（水中監視者原為水屬性+暈）
+F.moveTo('m_gate');
+F.challengeBoss();
+check('前八章首領無屬性無特性（水中監視者）',G.battle&&!G.battle.mobs[0].el&&!G.battle.mobs[0].fx);
+G.battle.mobs.forEach(m=>m.hp=0);F.pAttack();
+// 第九章起（摩瑞亞）屬性恢復、可 4~5 隻
+F.moveTo('m_moria');
+let sawElem=false,sawBig=false;
+for(let i=0;i<150;i++){
+  if(!G.battle)F.explore();
+  if(G.battle.mobs.some(mb=>mb.el))sawElem=true;
+  if(G.battle.mobs.length>=4)sawBig=true;
+  G.battle.mobs.forEach(m=>m.hp=0);const dd=F.derive();G.S.hp=dd.maxHp;F.pAttack();
+  if(sawElem&&sawBig)break;
+}
+check('第九章起怪物恢復屬性（摩瑞亞哥布林=土）',sawElem);
+check('第九章起可遭遇 4~5 隻群體',sawBig);
+// ── 背包強化（未裝備武器）──
+F.addItem('w_katana',1);F.addItem('s_wepb',1);
+const kIdx=G.S.inv.findIndex(x=>x.id==='w_katana'&&!x.e);
+F.doEnhance('s_wepb','inv',kIdx,'w_katana');
+check('可對背包中未裝備的武士刀詠唱強化（+'+(G.S.inv.find(x=>x.id==='w_katana').e)+'）',G.S.inv.some(x=>x.id==='w_katana'&&x.e>=1));
+// ── 夥伴系統 ──
+G.S.gold=100000;
+for(let i=0;i<20;i++)F.recruit();
+check(`旅店招募 20 次，名冊 ${G.S.comps.length} 人、隨行 ${G.S.comp?D.COMPS[G.S.comp].n:'無'}`,G.S.comps.length>=3&&!!G.S.comp);
+const roles=new Set(G.S.comps.map(id=>D.COMPS[id].role));
+console.log('    名冊角色類型：',[...roles].join('、'));
+// 帶夥伴打一場
+F.moveTo('m_shire');
+if(!G.battle)F.explore();
+while(G.battle){const dd=F.derive();if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;F.pAttack();}
+check('夥伴隨行戰鬥正常結算',!G.battle);
+// ── 時空加速卷軸 ──
+F.addItem('s_time',1);
+const tIdx=G.S.inv.findIndex(x=>x.id==='s_time');
+F.useIt(tIdx,false);
+check('時空加速生效（10 分鐘、0.5 秒/回合）',G.S.hasteUntil>Date.now()+500000);
+
+// ── 材料掉落與工房合成 ──
+check('材料掉落表已掛載（野狼掉狼皮）',D.MOBS.wolf[7].some(x=>x[0]==='m_pelt'));
+F.addItem('m_pelt',6);F.addItem('m_silk',4);G.S.gold=Math.max(G.S.gold,50000);
+const cwBefore=G.S.inv.filter(x=>x.id==='c_wolf').length;
+const peltBefore=F.invCount('m_pelt');
+F.doCraft(0);   // 狼皮大氅
+check('合成【狼皮大氅】成功且消耗狼皮×6',G.S.inv.filter(x=>x.id==='c_wolf').length===cwBefore+1&&F.invCount('m_pelt')===peltBefore-6);
+F.addItem('m_blood',2);
+const redBefore=F.invCount('p_red');
+F.doCraft(1);   // 紅色藥水×5
+check('合成【紅色藥水】×5 成功',F.invCount('p_red')===redBefore+5);
+let recipeOk=true;
+D.RECIPES.forEach(r=>{if(!D.ITEMS[r.out])recipeOk=false;r.mats.forEach(m=>{if(!D.ITEMS[m[0]])recipeOk=false})});
+check('全部 '+D.RECIPES.length+' 張配方的物品參照正確',recipeOk);
+
+// ── 怪物屬性／攻擊特性／正義種子 ──
+check('怪物屬性已掛載（野狼=風、炎魔=火、薩魯曼=光）',D.MOBS.wolf[10]==='wind'&&D.MOBS.boss_balrog[10]==='fire'&&D.MOBS.boss_saruman[10]==='light');
+check('攻擊特性已掛載（大蜘蛛=毒、洞穴食人妖=暈）',D.MOBS.spider_s[11]==='poison'&&D.MOBS.cavetroll[11]==='stun');
+check('正義種子全怪掉落（首領必掉）',D.MOBS.wolf[7].some(x=>x[0]==='m_seed')&&D.MOBS.boss_sauron[7].some(x=>x[0]==='m_seed'&&x[1]===100));
+check('武器附魔 5 種、防具附魔 5 種',Object.keys(D.ENCH_W).length===5&&Object.keys(D.ENCH_A).length===5);
+
+// ── 甘道夫附魔 ──
+while(G.battle)F.pAttack();
+F.addItem('m_seed',15);
+const seedsBefore=F.invCount('m_seed');
+F.doGandalf('weapon');
+check('武器附魔成功：'+(G.S.eq.weapon.ench?D.ENCH_W[G.S.eq.weapon.ench].n:'無'),!!D.ENCH_W[G.S.eq.weapon.ench]);
+F.doGandalf('armor');
+check('防具附魔成功：'+(G.S.eq.armor.ench?D.ENCH_A[G.S.eq.armor.ench].n:'無'),!!D.ENCH_A[G.S.eq.armor.ench]);
+check('附魔共消耗正義種子 10 顆',F.invCount('m_seed')===seedsBefore-10);
+// 守護／活力附魔數值驗證
+G.S.eq.armor.ench=null;if(G.S.eq.cloak)G.S.eq.cloak.ench=null;
+const d0=F.derive();
+G.S.eq.armor.ench='guard';const d1=F.derive();
+check('［守護］附魔防禦 +3',d1.def===d0.def+3);
+G.S.eq.armor.ench='vital';const d2=F.derive();
+check('［活力］附魔生命 +8%',d2.maxHp===Math.floor(d0.maxHp*1.08));
+G.S.eq.armor.ench=null;
+
+// ── 視窗內連續詠唱（強化後視窗停留）──
+F.addItem('w_bree',1);F.addItem('s_wepb',3);
+for(let i=0;i<3;i++){
+  const bi=G.S.inv.findIndex(x=>x.id==='w_bree');
+  F.doEnhance('s_wepb','inv',bi,'w_bree',1);
+}
+check('物品視窗內連續詠唱 3 次 → +3',G.S.inv.find(x=>x.id==='w_bree').e===3);
+
+// ── 玩家暈眩與中毒流程 ──
+F.moveTo('m_shire');
+if(!G.battle)F.explore();
+G.battle.pStun=true;
+F.pAttack();
+check('暈眩消耗玩家一回合並解除',!G.battle||G.battle.pStun===false);
+if(!G.battle)F.explore();
+{
+  // 讓怪物打不死也殺不完，強制觀察毒發流程
+  const savedComp=G.S.comp;G.S.comp=null;
+  G.battle.mobs.forEach(m=>{m.maxHp=999999;m.hp=999999;m.atk=1});
+  const dd=F.derive();G.S.hp=dd.maxHp;
+  G.battle.pPoison=2;
+  const hpB=G.S.hp;
+  F.pAttack();
+  const afterOne=G.S.hp;
+  check('玩家中毒每回合扣血（'+hpB+'→'+afterOne+'）',afterOne<hpB&&G.battle.pPoison===1);
+  // 武器劇毒附魔：怪物毒發
+  G.S.eq.weapon.ench='poison';
+  G.battle.mobs[0].pois=2;
+  const mobHpB=G.battle.mobs[0].hp;
+  F.pAttack();
+  check('怪物中毒毒發扣血',G.battle.mobs[0].hp<mobHpB-100);
+  G.S.eq.weapon.ench=null;G.S.comp=savedComp;
+  G.battle.mobs.forEach(m=>m.hp=0);F.pAttack();   // 收尾
+}
+while(G.battle){const dd=F.derive();if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;F.pAttack();}
+// 武器附魔實戰（吸血）不噴錯
+G.S.eq.weapon.ench='leech';
+F.explore();
+while(G.battle){const dd=F.derive();if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;F.pAttack();}
+check('武器附魔（吸血）實戰正常',!G.battle);
+G.S.eq.weapon.ench=null;
+
+// ── 強化裝備售價加成＋免確認直接賣出 ──
+G.S.inv.push({id:'w_bree',q:1,e:5});
+{const wi=G.S.inv.length-1,g0=G.S.gold,expect=Math.floor(D.ITEMS.w_bree.pr/2)+400*3+700*2;
+F.sellIt(wi);
+check(`強化 +5 裝備賣出含加成（實得 ${G.S.gold-g0}，應為 ${expect}）`,G.S.gold-g0===expect);}
+
+// ── 自動補貨（v11 起僅在「自動掛機」開啟時運作，死亡回村即停止花費）──
+F.moveTo('m_shire');
+document.getElementById('auto-restock').checked=true;
+document.getElementById('auto-time').checked=true;
+document.getElementById('auto-hastepot').checked=false;
+document.getElementById('auto-battle').checked=false;
+G.S.inv=G.S.inv.filter(x=>!['p_red','p_dew','p_haste','s_time'].includes(x.id));
+G.S.gold=999999;G.S.hasteUntil=0;
+F.gameTick();
+check('掛機關閉（如死亡回村）時不自動補貨、不續用時空卷軸',F.invCount('s_time')===0&&!G.S.hasteUntil);
+document.getElementById('auto-time').checked=false;
+document.getElementById('auto-battle').checked=true;
+F.gameTick();
+check(`自動補貨：紅藥水 ${F.invCount('p_red')}、露水 ${F.invCount('p_dew')}、加速藥水 ${F.invCount('p_haste')}、加速卷軸 ${F.invCount('s_time')}（各應為 30）`,
+  F.invCount('p_red')===30&&F.invCount('p_dew')===30&&F.invCount('p_haste')===30&&F.invCount('s_time')===30);
+// ── 自動續用時空加速（需掛機開啟且身在狩獵區）──
+G.S.hasteUntil=0;
+document.getElementById('auto-time').checked=true;
+F.gameTick();
+check('時空加速自動續用',G.S.hasteUntil>Date.now());
+document.getElementById('auto-time').checked=false;
+document.getElementById('auto-battle').checked=false;
+while(G.battle){const dd=F.derive();if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;F.pAttack();}
+
+// ── 背包自動排序 ──
+G.S.inv.push({id:'w_stick',q:1,e:0});   // 故意塞一把武器在最後
+F.addItem('m_pelt',1);F.addItem('p_herb',1);
+F.renderTabs();                          // 渲染時自動排序
+const order=G.S.inv.map(x=>D.ITEMS[x.id].t);
+let sorted=true;
+const TO={weapon:1,armor:2,cloak:3,acc:4,use:5,scroll:6,mat:7,quest:8};
+for(let i=1;i<order.length;i++)if(TO[order[i]]<TO[order[i-1]])sorted=false;
+check('背包自動依類別排序（武器→防具→…→材料）',sorted&&D.ITEMS[G.S.inv[0].id].t==='weapon');
+
+// ── 離線／背景掛機收穫 ──
+G.battle&&(G.S.hp=1);
+while(G.battle)F.pAttack();
+document.getElementById('auto-battle').checked=true;
+document.getElementById('auto-restock').checked=false;
+F.moveTo('m_shire');
+const dd2=F.derive();G.S.hp=dd2.maxHp;
+G.S.lastTick=Date.now()-3600*1000;       // 假裝離線一小時
+const goldB=G.S.gold,lvB=G.S.lv,expB=G.S.exp;
+F.gameTick();
+const goldGain=G.S.gold-goldB;
+check(`離線 1 小時結算收穫（金幣 +${goldGain}）`,goldGain>2000&&(G.S.lv>lvB||G.S.exp>expB));
+G.S.lastTick=Date.now()-5000;            // 5 秒內不應觸發
+const goldB2=G.S.gold;
+document.getElementById('auto-battle').checked=false;
+F.gameTick();
+check('短暫閒置（<30秒）不重複結算',G.S.gold===goldB2);
+document.getElementById('auto-battle').checked=true;
+
+// ── 掛機智慧施法 ──
+while(G.battle)F.pAttack();
+G.S.comp=null;                            // 排除夥伴秒殺干擾
+F.moveTo('m_moria');
+let castOk=false,healOk=false;
+for(let i=0;i<30&&!castOk;i++){           // 找一場 2 隻以上的戰鬥
+  if(!G.battle)F.explore();
+  if(G.battle.mobs.length>=2){
+    G.battle.mobs.forEach(m=>{m.maxHp=99999;m.hp=99999;m.atk=1});   // 打不死，觀察行為
+    const dd=F.derive();G.S.hp=dd.maxHp;G.S.mp=dd.maxMp;
+    const mpB=G.S.mp;
+    G.battle.pStun=false;F.autoAction();
+    G.battle.pStun=false;F.autoAction();  // 第一手 Buff、第二手範圍技（清暈眩：測的是施法邏輯）
+    castOk=G.S.mp<mpB-15&&(G.battle.buffs.length>0);
+    // 血低 → 施補血技（人類 Lv12 有皇家治療）
+    G.S.mp=dd.maxMp;G.S.hp=Math.floor(dd.maxHp*0.3);
+    G.battle.pStun=false;
+    const hpB=G.S.hp;
+    F.autoAction();
+    healOk=G.S.hp>hpB;
+    G.battle.mobs.forEach(m=>m.hp=0);F.pAttack();
+  }else{G.battle.mobs.forEach(m=>m.hp=0);F.pAttack();}
+}
+check('智慧施法：開場上Buff＋多怪放範圍技（MP 有消耗、Buff 生效）',castOk);
+check('智慧施法：血低優先施放補血技能',healOk);
+
+// ── 夥伴升級與共用藥水 ──
+G.S.comp=G.S.comps[0]||null;
+if(!G.S.comp){F.recruit();}
+const cid=G.S.comp;
+G.S.compLv[cid]=5;G.S.compXp[cid]=0;
+G.S.compHp=F.compStats().maxHp;
+F.compGainExp(30*25+30*36+10);           // 足夠 5→7 級
+check(`夥伴獨立升級（Lv.5 → Lv.${G.S.compLv[cid]}）`,G.S.compLv[cid]>=6);
+// 共用藥水：夥伴血低，gameTick 自動餵藥
+F.addItem('p_red',5);
+if(!G.battle){F.moveTo('m_shire');F.explore();}
+G.battle.mobs.forEach(m=>{m.hp=99999;m.maxHp=99999;m.atk=1});
+G.S.compHp=3;
+const chB=G.S.compHp,redB=F.invCount('p_red');
+document.getElementById('auto-potion').checked=true;
+document.getElementById('auto-battle').checked=true;
+F.gameTick();
+check(`夥伴自動喝背包藥水（HP ${chB}→${G.S.compHp}、藥水 ${redB}→${F.invCount('p_red')}）`,G.S.compHp>chB);
+G.battle&&G.battle.mobs.forEach(m=>m.hp=0);G.battle&&F.pAttack();
+// ── 8 個存檔位 ──
+localStorage.setItem('lotr_save_8',JSON.stringify(G.S));
+check('第 8 存檔位可寫入',!!localStorage.getItem('lotr_save_8'));
+
+// ── 掛機不中斷測試：低血量 → 自然回血 → 自動續戰 ──
+els.get('auto-battle')||document.getElementById('auto-battle');
+document.getElementById('auto-battle').checked=true;
+document.getElementById('auto-potion').checked=false;   // 關掉喝藥，純靠自然恢復
+document.getElementById('screen-game').style.display='flex';
+G.S.inv=G.S.inv.filter(x=>!ITEMS_HEAL(x.id));           // 移除補品避免干擾
+function ITEMS_HEAL(id){const d=D.ITEMS[id];return d&&d.t==='use'&&(d.heal||d.full)}
+F.moveTo('m_shire');
+G.S.hp=1;
+let fought=0;
+for(let i=0;i<60;i++){
+  F.gameTick();
+  if(G.battle)fought++;
+}
+check(`掛機自動恢復並持續戰鬥（60 回合內戰鬥了 ${fought} 回合、HP 從 1 回升）`,fought>10&&G.S.hp>1);
+
+// 物品說明視窗與圖鑑
+let modalOk=true;
+try{for(const id in D.ITEMS)F.showItemInfo(id,2);}catch(e){modalOk=false;console.log('    showItemInfo 錯誤',e.message)}
+check('全部 '+Object.keys(D.ITEMS).length+' 種物品說明視窗正常',modalOk);
+try{F.openCodex('items');F.openCodex('mobs');check('物品／怪物圖鑑開啟正常',true)}catch(e){check('圖鑑開啟：'+e.message,false)}
+
+// ── 無盡深淵（烏塔莫）──
+if(!G.S.tw)G.S.tw={};
+G.S.tw.m_stair=100;
+check('一般塔層數上限 100（無盡階梯）',F.towerFloor('m_stair')===100);
+G.S.tw.m_utumno=149;
+check('深淵無層數上限（第 150 層可挑戰）',F.towerFloor('m_utumno')===150);
+{const prevLoc=G.S.loc;G.S.loc='m_utumno';const gB=G.S.gold;
+F.towerReward(150);   // 150 層同時是樓主層（+150×60）與里程碑（+150×300）
+check('深淵每 50 層里程碑獎勵（+54000 金）',G.S.tw.m_utumno===150&&G.S.gold===gB+150*300+150*60);
+G.S.loc=prevLoc;}
+
+// ── 裝備品質詞綴 ──
+{const invLen0=G.S.inv.length;
+for(let i=0;i<200;i++)F.addItem('w_bree',1,true);
+const rolled=G.S.inv.slice(invLen0);
+const qls=rolled.map(x=>x.ql|0);
+check(`品質詞綴：200 件掉落中出現精良以上 ${qls.filter(q=>q>0).length} 件（期望約 80）`,qls.some(q=>q>0));
+check('傳奇品質可出現（成就旗標 ql3）',!!G.S.ql3);
+G.S.inv.length=invLen0;   // 清掉測試物
+const a0=(G.S.eq.weapon={id:'w_gundabad',e:0,ql:0},F.derive().atk);
+const a3=(G.S.eq.weapon={id:'w_gundabad',e:0,ql:3},F.derive().atk);
+check(`品質加成生效：傳奇武器攻擊 +${a3-a0}（應為 ${Math.round(66*0.3)}）`,a3-a0===Math.round(66*0.3));
+G.S.eq.weapon={id:'w_gundabad',e:9};}
+
+// ── 成就系統 ──
+F.checkAchv();
+check('成就：救星/時光行者/五軍英雄/遠古傳奇皆解鎖',
+  G.S.achv&&G.S.achv.savior&&G.S.achv.walker&&G.S.achv.fivehero&&G.S.achv.ancient);
+check(`成就：已解鎖 ${G.S.achv?Object.keys(G.S.achv).length:0} / ${G.data2?'':''}${(G.data2&&G.data2.ACHV||[]).length} 個（應 ≥12）`,G.S.achv&&Object.keys(G.S.achv).length>=12);
+try{F.openAchv();check('成就視窗開啟正常',true)}catch(e){check('成就視窗：'+e.message,false)}
+
+// ── 二週目（新的輪迴）──
+{const lvKeep=G.S.lv,invKeep=G.S.inv.length;
+F.startNG();
+check('二週目：章節歸零、魔戒收回、等級與背包保留',
+  G.S.ng===1&&G.S.ch===0&&!G.S.ringGone&&G.S.lv===lvKeep&&!G.S.inv.some(x=>x.id==='ring_one'));
+const m0=F.mobInst('wolf',1,true,1);
+check(`二週目敵人強化：野狼生命 26→${m0.maxHp}、攻擊 6→${m0.atk}`,m0.maxHp===Math.floor(26*1.6)&&m0.atk===Math.floor(6*1.25));
+F.checkAchv();
+check('成就「新的輪迴」解鎖',!!G.S.achv.ng);
+G.S.ng=0;}
+
+// 舊存檔遷移
+const oldSave={v:1,ch:4,name:'舊玩家',race:'elf',lv:15,kills:5};
+const mig=F.migrate(oldSave);
+check('舊存檔第5章(摩瑞亞)遷移到新第9章(ch=8)',mig.ch===8&&mig.v===2);
+const oldDone={v:1,ch:10,name:'老玩家',race:'dwarf',lv:40};
+check('舊全破存檔遷移後仍為全破',F.migrate(oldDone).ch===21);
+
+console.log(`\n結果：${pass} 通過 / ${fail} 失敗`);
+process.exit(fail?1:0);
