@@ -23,15 +23,16 @@ const G=eval(`(function(document,localStorage,window,alert,confirm,prompt,setInt
   showItemInfo,openCodex,migrate,destroyRing,gainExp,saveGame,addItem,useScroll,castSkill,towerChallenge,
   doEnhance,recruit,setComp,openCompList,compStats,useIt,aliveMobs,gameTick,doCraft,openCraft,invCount,
   doGandalf,openGandalf,sortInv,checkOffline,renderTabs,autoAction,compGainExp,compLvOf,sellIt,sellPrice,enhValue,
-  towerFloor,towerReward,startNG,checkAchv,openAchv,mobInst,showItemInfo:showItemInfo},
- data2:{ACHV},
+  towerFloor,towerReward,startNG,checkAchv,openAchv,mobInst,showItemInfo:showItemInfo,
+  chCap,expNeed,pHitDmg,mobTurn,genBounties,bountyProgress,bountyReward,claimBounty,startRush},
+ data2:{ACHV,BOSS_AI,BOSS_DB,CH_CAP,RUSH_LIST},
  data:{MOBS,MAPS,QUESTS,ITEMS,SKILLS,RACES,COMPS,RECIPES,ENCH_W,ENCH_A,ELEMS}};})`)(document,localStorage,window,()=>{},()=>true,()=>null,fn=>{intervalFns.push(fn);return 1},{reload(){}});
 const F=G.fns,D=G.data;
 let pass=0,fail=0;
 function check(n,c){if(c){pass++;console.log('  ✓',n)}else{fail++;console.log('  ✗ 失敗:',n)}}
 
 // 資料一致性檢查
-check('章節共 50 章（主線 21＋時光之門 8＋哈比人 10＋上古紀元 11）',D.QUESTS.length===50);
+check('章節共 56 章（主線 21＋時光之門 11＋哈比人 10＋上古紀元 13＋終幕 1）',D.QUESTS.length===56);
 check('技能共 36 招（各族 9 招）',Object.keys(D.SKILLS).length===36);
 let refOk=true;
 D.QUESTS.forEach((q,i)=>{
@@ -99,7 +100,7 @@ check('結局：銷毀魔戒',G.S.ringGone===true);
 
 // ── 時光之門外傳 8 章通關（後日談，沿用主線模擬邏輯）──
 guard=0;
-while(G.S.ch<29&&guard++<200000){
+while(G.S.ch<32&&guard++<200000){
   const q=D.QUESTS[G.S.ch];
   const needLv=q.boss?D.MOBS[q.boss][1]+4:(q.area?D.MOBS[D.MAPS[q.area].mobs[0]][1]+4:G.S.lv);
   while(G.S.lv<needLv)F.gainExp(30*G.S.lv*G.S.lv);
@@ -115,7 +116,7 @@ while(G.S.ch<29&&guard++<200000){
     F.pAttack();
   }
 }
-check(`時光之門外傳全數通關（最終 Lv.${G.S.lv}）`,G.S.ch===29);
+check(`時光之門外傳全數通關（最終 Lv.${G.S.lv}）`,G.S.ch===32);
 check('外傳一贈禮（烏歐牟的深海披風）',G.S.inv.some(x=>x.id==='c_ulmo'));
 check('外傳三贈禮（米爾戴斯寶鑽戒）',G.S.inv.some(x=>x.id==='r_mirdain'));
 check('外傳六贈禮（吉爾加拉德的星輝徽記）',G.S.inv.some(x=>x.id==='r_gil'));
@@ -129,7 +130,7 @@ check('外傳新傳說武器可掉落取得',['w_dramborleg','w_aeglos','w_sauro
 
 // ── 哈比人外傳 10 章通關（意外的旅程 → 五軍之戰）──
 guard=0;
-while(G.S.ch<39&&guard++<300000){
+while(G.S.ch<42&&guard++<300000){
   const q=D.QUESTS[G.S.ch];
   const needLv=q.boss?D.MOBS[q.boss][1]+4:(q.area?D.MOBS[D.MAPS[q.area].mobs[0]][1]+4:G.S.lv);
   while(G.S.lv<needLv)F.gainExp(30*G.S.lv*G.S.lv);
@@ -145,7 +146,7 @@ while(G.S.ch<39&&guard++<300000){
     F.pAttack();
   }
 }
-check(`哈比人外傳全數通關（最終 Lv.${G.S.lv}）`,G.S.ch===39);
+check(`哈比人外傳全數通關（最終 Lv.${G.S.lv}）`,G.S.ch===42);
 check('三食人妖藏寶洞獲得敵擊劍',G.S.inv.some(x=>x.id==='w_orcrist'));
 check('旅程三贈禮（咕嚕的魚骨護符）',G.S.inv.some(x=>x.id==='r_fishbone'));
 check('旅程四贈禮（貝奧恩的蜂蜜糕點）',G.S.inv.some(x=>x.id==='p_honey'));
@@ -156,7 +157,7 @@ check('哈比人外傳終章贈禮（阿肯寶石）',G.S.inv.some(x=>x.id==='r_
 // ── 上古紀元外傳 11 章通關（雙燈→雙樹→英雄史詩→魔苟斯）──
 G.S.eq.weapon={id:'w_gundabad',e:9};G.S.eq.armor={id:'a_erebor',e:9};   // 全破玩家的合理裝備
 guard=0;
-while(G.S.ch<50&&guard++<400000){
+while(G.S.ch<55&&guard++<400000){
   const q=D.QUESTS[G.S.ch];
   const needLv=q.boss?D.MOBS[q.boss][1]+4:(q.area?D.MOBS[D.MAPS[q.area].mobs[0]][1]+4:G.S.lv);
   while(G.S.lv<needLv)F.gainExp(30*G.S.lv*G.S.lv);
@@ -172,11 +173,32 @@ while(G.S.ch<50&&guard++<400000){
     F.pAttack();
   }
 }
-check(`上古紀元外傳全數通關·擊敗魔苟斯（最終 Lv.${G.S.lv}）`,G.S.ch===50);
+check(`上古紀元外傳全數通關·擊敗魔苟斯（最終 Lv.${G.S.lv}）`,G.S.ch===55);
 check('上古四贈禮（瓦爾妲的星幕披風）',G.S.inv.some(x=>x.id==='c_varda'));
 check('上古五贈禮（雙樹之光墜飾）',G.S.inv.some(x=>x.id==='r_tree'));
-check('上古七贈禮（露西安的星影斗篷）',G.S.inv.some(x=>x.id==='c_luthien'));
+check('上古八贈禮（露西安的星影斗篷）',G.S.inv.some(x=>x.id==='c_luthien'));
+check('上古九贈禮（多爾露明的龍盔戰鎧）',G.S.inv.some(x=>x.id==='a_dragonhelm'));
 check('上古終章贈禮（精靈寶鑽）',G.S.inv.some(x=>x.id==='r_silmaril'));
+
+// ── 終幕：灰港送別 ──
+F.moveTo('t_havens');F.visitEvent();
+check('終幕：灰港送別白船（全 56 章完成）',G.S.ch===56);
+F.checkAchv();
+check('成就「第四紀元的見證者」解鎖',!!G.S.achv.fourth);
+
+// ── 傳說的迴廊：32 首領連戰 ──
+const goldBeforeRush=G.S.gold;
+F.startRush();
+guard=0;
+while(G.battle&&guard++<200000){
+  const dd=F.derive();
+  if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp;   // 迴廊終盤首領爆擊可觀，模擬玩家勤喝藥
+  if(G.S.mp<dd.maxMp*0.3)G.S.mp=dd.maxMp;
+  F.pAttack();
+}
+check(`傳說的迴廊 32 連戰制霸（最佳紀錄 ${G.S.rushBest}/32）`,G.S.rushBest===32);
+check('迴廊里程碑與制霸獎勵發放',G.S.gold>goldBeforeRush+500000);
+check('成就「傳說的迴廊·制霸」解鎖',!!G.S.achv.rush);
 let dropTry=0;
 while(!['w_dragonlord','w_grond','a_angband'].some(id=>G.S.inv.some(x=>x.id===id))&&dropTry++<8){
   F.moveTo('m_angband');d=F.derive();G.S.hp=d.maxHp;G.S.mp=d.maxMp;F.challengeBoss();
@@ -573,19 +595,85 @@ F.checkAchv();
 check('成就「新的輪迴」解鎖',!!G.S.achv.ng);
 G.S.ng=0;}
 
+// ── 章節等級上限 ──
+G.S=F.newState('dwarf',{str:9,dex:7,con:8,int:5,wis:5},'上限俠');
+F.enterGame(true);
+const cap0=F.chCap();
+for(let i=0;i<300&&G.S.lv<cap0;i++)F.gainExp(999999);
+check(`章節等級上限生效（第一章上限 Lv.${cap0}，練功停在 Lv.${G.S.lv}）`,G.S.lv===cap0&&cap0<15);
+const lvCapKeep=G.S.lv;
+F.gainExp(99999999);
+check('達上限後經驗歸零、等級不再增加',G.S.lv===lvCapKeep);
+G.S.ch=D.QUESTS.length;
+check('全章完成後解除等級上限',F.chCap()>=999);
+check('上限表逐章遞增且終點無限',G.data2.CH_CAP.every((c,i)=>i===0||c>=G.data2.CH_CAP[i-1]));
+
+// ── 首領詛咒（第九章起） ──
+check('中後期首領皆配置詛咒技',['boss_balrog','boss_witch','boss_saruman','boss_smaug','boss_glaurung','boss_nazgul1','boss_angmar','boss_gothmog2','boss_morgoth','boss_shelob'].every(id=>G.data2.BOSS_AI[id]&&G.data2.BOSS_AI[id].db));
+check('所有詛咒種類皆有效果定義',Object.values(G.data2.BOSS_AI).every(a=>!a.db||G.data2.BOSS_DB[a.db[0]]));
+G.S=F.newState('human',{str:12,dex:8,con:10,int:5,wis:5},'詛咒俠');
+G.S.lv=90;G.S.ch=D.QUESTS.length;G.S.ringGone=true;
+G.S.eq.weapon={id:'w_grond',e:9};G.S.eq.armor={id:'a_angband',e:9};
+F.enterGame(true);
+F.moveTo('m_nargothrond');
+let d9=F.derive();G.S.hp=d9.maxHp;G.S.mp=d9.maxMp;
+F.challengeBoss();
+let dbCast=false;
+for(let i=0;i<120&&G.battle;i++){
+  G.battle.mobs[0].hp=G.battle.mobs[0].maxHp;
+  G.S.hp=d9.maxHp;
+  F.mobTurn();
+  if(G.battle&&G.battle.pDb.wk>0){dbCast=true;break}
+}
+check('首領詛咒實戰：格勞龍施放【虛弱詛咒】（魔眼）',dbCast);
+if(G.battle){
+  const tMob=G.battle.mobs[0];
+  const sample=n=>{let s=0;for(let i=0;i<n;i++)s+=F.pHitDmg(null,tMob).dmg;return s/n};
+  G.battle.pDb.wk=99;const dWk=sample(400);
+  G.battle.pDb.wk=0;const dNo=sample(400);
+  check(`虛弱詛咒使玩家輸出約降 25%（實測 ${Math.round(100*dWk/dNo)}%）`,dWk/dNo>0.6&&dWk/dNo<0.9);
+}
+while(G.battle){const dd=F.derive();G.S.hp=dd.maxHp;F.pAttack();}
+
+// ── 懸賞板 ──
+G.S=F.newState('elf',{str:9,dex:8,con:8,int:5,wis:5},'懸賞俠');
+G.S.ch=10;F.enterGame(true);
+let bTry=0;
+F.genBounties();
+while(!G.S.bounties.some(b=>b.k==='kill')&&bTry++<50)F.genBounties();
+check('懸賞板產生 3 張委託',G.S.bounties.length===3);
+const kb=G.S.bounties.find(b=>b.k==='kill');
+kb.done=kb.need;
+const bg0=G.S.gold,seeds0=F.invCount('m_seed');
+F.claimBounty(G.S.bounties.indexOf(kb));
+check('討伐懸賞領賞：金幣與正義種子×2 入帳',G.S.gold>bg0&&F.invCount('m_seed')===seeds0+2);
+check('領賞後該委託移除',G.S.bounties.length===2);
+bTry=0;let mb=G.S.bounties.find(b=>b.k==='mat');
+while(!mb&&bTry++<60){F.genBounties();mb=G.S.bounties.find(b=>b.k==='mat');}
+if(mb){
+  F.addItem(mb.t,mb.need);
+  const bg1=G.S.gold;
+  F.claimBounty(G.S.bounties.indexOf(mb));
+  check('收集懸賞：交出材料並領賞',G.S.gold>bg1&&F.invCount(mb.t)===0);
+}else check('收集懸賞：交出材料並領賞（未抽到收集委託，跳過）',true);
+
 // 舊存檔遷移
 const oldSave={v:1,ch:4,name:'舊玩家',race:'elf',lv:15,kills:5};
 const mig=F.migrate(oldSave);
-check('v1 舊存檔第5章(摩瑞亞)遷移到新第9章(ch=8)',mig.ch===8&&mig.v===3);
+check('v1 舊存檔第5章(摩瑞亞)遷移到新第9章(ch=8)',mig.ch===8&&mig.v===4);
 const oldDone={v:1,ch:10,name:'老玩家',race:'dwarf',lv:40};
 check('v1 舊全破存檔遷移後仍為全破主線',F.migrate(oldDone).ch===21);
 const v2a=F.migrate({v:2,ch:25,name:'外傳中',race:'human',lv:58});
-check('v2 存檔「最後同盟」遷移到新 idx 27',v2a.ch===27&&v2a.v===3);
+check('v2 存檔「最後同盟」經 v3 鏈遷移到新 idx 28',v2a.ch===28&&v2a.v===4);
 const v2b=F.migrate({v:2,ch:33,name:'上古前',race:'hobbit',lv:72});
-check('v2 存檔「上古世界之初」遷移到新 idx 39',v2b.ch===39);
+check('v2 存檔「上古世界之初」鏈遷移到新 idx 42',v2b.ch===42);
 const v2c=F.migrate({v:2,ch:40,name:'全通',race:'dwarf',lv:92});
-check('v2 全通存檔遷移後仍為全通（ch=50）',v2c.ch===50);
-check('v3 存檔不再被重複遷移',F.migrate({v:3,ch:25}).ch===25);
+check('v2 全通存檔鏈遷移到終幕（ch=55）',v2c.ch===55);
+const v3a=F.migrate({v:3,ch:25,name:'v16玩家',race:'human',lv:60});
+check('v3 存檔「努曼諾爾」遷移到新 idx 26',v3a.ch===26&&v3a.v===4);
+check('v3 存檔「貝倫與露西安」遷移到新 idx 50',F.migrate({v:3,ch:46}).ch===50);
+check('v3 全通存檔遷移到終幕（ch=55）',F.migrate({v:3,ch:50}).ch===55);
+check('v4 存檔不再被重複遷移',F.migrate({v:4,ch:26}).ch===26);
 
 console.log(`\n結果：${pass} 通過 / ${fail} 失敗`);
 process.exit(fail?1:0);
