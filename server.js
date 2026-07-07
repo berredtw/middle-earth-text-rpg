@@ -8,8 +8,9 @@
 const http = require('http');
 const crypto = require('crypto');
 
-const PORT = parseInt(process.argv[2], 10) || 2941;
-const CODE = process.argv[3] || 'mellon';
+/* 埠號優先序：命令列參數 > PORT 環境變數（雲端平台如 Render 會指定）> 2941 */
+const PORT = parseInt(process.argv[2], 10) || parseInt(process.env.PORT, 10) || 2941;
+const CODE = process.argv[3] || process.env.CODE || 'mellon';
 const MAX_PLAYERS = 20;
 const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 

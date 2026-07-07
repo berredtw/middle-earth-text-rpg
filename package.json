@@ -1,0 +1,12 @@
+{
+  "name": "middle-earth-text-rpg-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "魔戒·中土遠征 連線伺服器（零相依）",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
