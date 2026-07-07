@@ -388,6 +388,7 @@ const ITEMS={
   w_sauronmace:{n:'索倫的黑鐵重錘',t:'weapon',atk:58,lv:48,pr:0,d:'黑暗魔君親手揮舞的巨錘，一擊便掃倒整排聯軍士兵。從時光的餘燼中撿回它的人，得時刻提防錘中殘存的惡意。（時光之門·達戈拉德首領稀有掉落）'},
   w_dragontooth:{n:'龍牙劍',t:'weapon',atk:61,lv:59,pr:40000,d:'以史矛革的龍鱗熔鑄劍身、龍牙為鋒的名劍，劍刃隱隱透著餘溫。（工房合成）'},
   w_blackarrow:{n:'黑箭·家傳的穿龍矢',t:'weapon',atk:62,lv:58,pr:0,d:'巴德家族世代相傳的漆黑長矢，為射裂龍鱗而鍛。以矛執之，無堅不摧。（哈比人外傳劇情獲得）'},
+  w_gurthang:{n:'古山格·黑劍',t:'weapon',atk:72,lv:73,pr:0,d:'以隕鐵鑄成的魔劍，圖林·圖倫拔以它刺穿龍父格勞龍的腹心。劍身漆黑如夜，據說會低聲哀歌。（上古紀元·格勞龍稀有掉落）'},
   w_thror:{n:'索爾的戰錘·山下之王',t:'weapon',atk:64,lv:62,pr:0,d:'山下之王索爾的黃金紋章戰錘，沉眠於史矛革盤踞的寶山之中。（哈比人外傳·孤山首領掉落）'},
   w_necro:{n:'死靈法師的白骨杖',t:'weapon',atk:65,mag:10,lv:63,pr:0,d:'多爾哥多塔頂的主人遺落之物——後來人們才知道，那位「死靈法師」是誰。杖身纏繞的魔力至今未散（魔力+10）。（多爾哥多 100 層制霸獎勵）'},
   w_gundabad:{n:'剛達巴滅族戰矛',t:'weapon',atk:66,lv:64,pr:0,d:'波格的染血巨矛，矛尖刻著都靈一族的名字——每殺一位矮人王族便劃去一筆。奪過它，替亡者討還。（哈比人外傳·五軍之戰首領稀有掉落）'},
@@ -419,6 +420,7 @@ const ITEMS={
   c_kings:  {n:'王者披風',t:'cloak',def:6, lv:28,pr:11000,d:'飾以白樹與七星的黑色大氅。'},
   c_ulmo:   {n:'烏歐牟的深海披風',t:'cloak',def:8,eva:14,lv:42,pr:0,d:'海洋之主烏歐牟賜予圖爾的灰藍披風，穿上它便如浪間的影子，刀劍難以捕捉（閃避+14%）。（時光之門外傳一完成獲得）'},
   c_thranduil:{n:'瑟蘭督伊的森林披風',t:'cloak',def:10,eva:16,lv:58,pr:0,d:'精靈王之子親手解下的秋色披風，落葉的紋路會隨四季變換（閃避+16%）。（哈比人外傳六完成獲得）'},
+  c_luthien:{n:'露西安的星影斗篷',t:'cloak',def:10,eva:17,lv:68,pr:0,d:'露西安以自己的秀髮與暮色織成的魔法斗篷，她曾披著它在魔苟斯的王座前隱身起舞（閃避+17%）。（上古紀元章節獎勵）'},
   c_varda:{n:'瓦爾妲的星幕披風',t:'cloak',def:12,eva:18,lv:72,pr:0,d:'星辰之后瓦爾妲以夜空織成的披風，繁星在衣褶間明滅流轉（閃避+18%）。（上古紀元外傳完成獲得）'},
   r_barrow: {n:'古墓寶石',t:'acc',mag:4,lv:5, pr:600,  d:'古墓崗出土的碧綠寶石（魔力+4）。'},
   r_str:    {n:'異界·力量戒指',t:'acc',str:3,lv:12,pr:2800,d:'異界流傳的魔法戒指（力量+3）。'},
@@ -429,6 +431,8 @@ const ITEMS={
   r_mirdain:{n:'米爾戴斯寶鑽戒',t:'acc',mag:14,str:3,dex:3,lv:44,pr:0,d:'伊瑞詹鑄戒工坊「米爾戴斯」的試作戒指，凱勒布理鵬親手打磨，未受索倫染指的純淨造物（魔力+14、力量+3、敏捷+3）。（時光之門外傳二完成獲得）'},
   r_gil:    {n:'吉爾加拉德的星輝徽記',t:'acc',mag:15,str:4,con:4,lv:48,pr:0,d:'至高王披風上的星辰徽記，凝聚著諾多精靈最後的輝光。戴上它的人，永不在黑暗中迷途（魔力+15、力量+4、體質+4）。（時光之門外傳終章完成獲得）'},
   r_arkenstone:{n:'家傳寶鑽·阿肯寶石',t:'acc',mag:18,str:5,con:5,lv:62,pr:0,d:'山之心——億萬星光凝成的寶鑽，山下王權的象徵。它曾讓一位王陷入瘋狂，願你的心比他堅定（魔力+18、力量+5、體質+5）。（哈比人外傳終章完成獲得）'},
+  r_elendilmir:{n:'伊蘭迪爾之星',t:'acc',mag:8,str:4,con:4,lv:57,pr:0,d:'北方王國王權的白色星鑽，埃西鐸殞命格拉頓平原時沒入大河。你從金鳶尾沼澤的河底把它撿了回來（魔力+8、力量+4、體質+4）。（時光之門外傳章節獎勵）'},
+  r_fishbone:{n:'咕嚕的魚骨護符',t:'acc',dex:6,eva:5,lv:58,pr:0,d:'地底湖畔撿到的大魚骨，被啃得異常光滑。不知為何，掛在身上會讓腳步變得無聲無息（敏捷+6、閃避+5%）——「我的寶貝……滑溜溜的小魚兒……」。（哈比人外傳章節獎勵）'},
   r_tree:{n:'雙樹之光墜飾',t:'acc',mag:20,str:6,dex:6,lv:74,pr:0,d:'泰爾佩瑞安的銀輝與羅瑞林的金光，在雙樹殞落前被凝入這枚墜飾（魔力+20、力量+6、敏捷+6）。（上古紀元外傳完成獲得）'},
   r_silmaril:{n:'精靈寶鑽',t:'acc',mag:25,str:8,con:8,lv:82,pr:0,d:'費諾畢生的傑作，雙樹之光最後的容器。整個第一紀元的戰爭都為它而起——如今它安靜地躺在你掌心，像一顆溫熱的星（魔力+25、力量+8、體質+8）。（上古紀元終章完成獲得）'},
   ring_one: {n:'至尊魔戒',t:'quest',d:'統御一切的至尊之戒。戰鬥中戴上可立即脫離戰鬥，但每次使用都會累積腐化……腐化滿百，戒靈將找上你。'},
@@ -437,6 +441,7 @@ const ITEMS={
   p_lembas: {n:'蘭巴斯（精靈乾糧）',t:'use',heal:160,pr:120,d:'一小口就能支撐一天的行路麵包，恢復 160 HP。'},
   p_dew:    {n:'精靈露水',t:'use',mp:40, pr:60,  d:'瑞文戴爾清晨採集的露水，恢復 40 MP。'},
   p_miruvor:{n:'米魯沃活力之水',t:'use',full:1,pr:500,d:'愛隆家傳的活力之水，完全恢復 HP 與 MP。'},
+  p_honey:{n:'貝奧恩的蜂蜜糕點',t:'use',heal:500,pr:450,d:'換皮人貝奧恩親手烤的蜂蜜糕點，扎實香甜，一塊就能讓疲憊的旅人恢復大半氣力（恢復 500 HP）。'},
   p_haste:  {n:'異界·加速藥水',t:'use',buff:'haste',turns:8,pr:150,d:'異界的綠色藥水，8 回合內每回合攻擊兩次。'},
   s_wep:    {n:'武器強化卷軸',t:'scroll',en:'weapon',pr:800,d:'對「已裝備」的武器詠唱強化。+3 以內必成功；+4~+6 六成；+7 起三成，且失敗武器會蒸發！'},
   s_wepb:   {n:'祝福的武器強化卷軸',t:'scroll',en:'weapon',bless:1,pr:3500,d:'維拉祝福過的強化卷軸，失敗也不會損毀武器。'},
@@ -526,8 +531,11 @@ const MOBS={
   boss_pharazon:['亞爾-法拉松·黃金大帝',50,7800,126,47,36000,20000,[['a_numenor',60],['s_armb',100],['p_miruvor',100]],0,1],
   orc_elite:['巴拉多禁衛半獸人',51,2200,118,44,3400,1220,[['p_red',55],['s_wep',16]],1],
   troll_war:['戰爭食人妖',52,2500,121,45,3650,1300,[['p_miruvor',22],['s_armb',16]],0],
+  orc_barad:['巴拉多攻城半獸人',52,2300,120,45,3500,1250,[['p_red',55],['s_wep',16]],1],
   naz_9:    ['尚未隕落的戒靈',53,2350,124,46,3900,1400,[['p_miruvor',25],['s_wepb',18]],0],
   boss_sauron2:['索倫·佩戴至尊魔戒的黑暗魔君',55,11500,138,52,60000,35000,[['w_aeglos',70],['w_sauronmace',25],['s_wepb',100]],0,1],
+  orc_gladden:['格拉頓伏擊半獸人',56,2650,129,48,4100,1450,[['p_red',55],['s_wep',16]],1],
+  boss_ambush:['血手酋長·高山半獸人王',57,12500,139,52,64000,38000,[['s_wepb',100],['s_armb',100],['p_miruvor',100]],1,1],
   /* ── 哈比人外傳（意外的旅程，Lv.55~66）── */
   orc_hunt: ['剛達巴半獸人獵手',55,2500,120,47,3650,1300,[['p_red',55],['s_wep',16]],1],
   troll_h:  ['荒野山地食人妖',56,2800,122,48,3900,1400,[['p_miruvor',25],['s_armb',16]],0],
@@ -536,8 +544,10 @@ const MOBS={
   goblin_h: ['哥布林鎮暴民',57,2750,123,48,4000,1450,[['p_red',55],['s_wep',16]],1],
   goblin_g: ['哥布林鎮衛兵',58,2900,125,49,4200,1500,[['p_dew',45],['s_arm',16]],1],
   boss_goblinking:['半獸人王·大哥布林',60,14000,144,54,76000,45000,[['s_wepb',100],['s_armb',100],['p_miruvor',100]],1,1],
+  warg_alpha:['大河谷地座狼頭狼',60,3050,128,50,4500,1600,[['p_haste',20],['s_arm',17]],0],
   spider_m: ['幽暗密林巨蛛',59,2950,127,50,4400,1550,[['p_lembas',35],['s_arm',17]],0],
   bat_swarm:['多爾哥多蝠群',58,2700,124,48,4100,1480,[['p_dew',45],['s_wep',17]],0],
+  boss_necroshade:['死靈法師之影',63,15500,152,56,100000,60000,[['s_wepb',100],['s_armb',100],['p_miruvor',100]],0,1],
   boss_spidermother:['密林蛛母',61,14500,148,55,84000,50000,[['a_mirkwood',50],['s_armb',100],['p_miruvor',100]],0,1],
   drake_s:  ['孤山幼火龍',61,3200,130,52,4700,1700,[['p_miruvor',28],['s_wepb',18]],0],
   orc_gund: ['剛達巴精銳戰士',62,3300,133,52,4900,1750,[['p_red',60],['s_wep',18]],1],
@@ -553,8 +563,12 @@ const MOBS={
   spider_v: ['虛空蛛裔',73,4000,145,55,6900,2450,[['p_lembas',40],['s_arm',19]],0],
   shade_u:  ['吞光暗影',74,4200,147,55,7100,2500,[['p_dew',50],['s_wepb',19]],0],
   boss_ungoliant:['昂哥立安·吞噬光明的太古魔蛛',76,22000,182,66,250000,130000,[['s_wepb',100],['s_armb',100],['p_miruvor',100]],0,1],
+  orc_mithrim:['米斯林襲擊半獸人',77,4450,152,57,7500,2650,[['p_red',65],['s_wep',20]],1],
   dragon_w: ['安格班有翼火龍',77,4500,153,58,7700,2700,[['p_miruvor',35],['s_wepb',20]],0],
   orc_ang:  ['安格班軍團精兵',78,4700,155,59,7900,2800,[['p_red',65],['s_wep',20]],1],
+  wolf_ang: ['安格班獄狼',79,4700,152,59,8100,2850,[['p_haste',22],['s_arm',20]],0],
+  boss_carcharoth:['卡黑洛斯·血口飢狼',81,27000,194,70,420000,210000,[['s_wepb',100],['s_armb',100],['p_miruvor',100]],0,1],
+  boss_glaurung:['格勞龍·龍父',83,30000,198,72,500000,250000,[['w_gurthang',35],['s_wepb',100],['s_armb',100]],0,1],
   boss_ancalagon:['安卡拉剛·黑龍之王',80,26000,192,70,400000,200000,[['w_dragonlord',60],['s_wepb',100],['s_armb',100]],0,1],
   boss_morgoth:['魔苟斯·世界的黑暗大敵',85,35000,205,75,700000,350000,[['a_angband',60],['w_grond',25],['s_wepb',100]],0,1]
 };
@@ -588,13 +602,14 @@ const MAT_DROPS={
   num_guard:[['m_iron',60],['m_dark',30]], num_priest:[['m_soul',60],['m_dark',40]],
   boss_pharazon:[['m_mithril',100],['m_soul',100]],
   orc_elite:[['m_fang',60],['m_dark',45]], troll_war:[['m_blood',65],['m_dark',35]], naz_9:[['m_shred',70],['m_dark',45]],
-  boss_sauron2:[['m_dark',100],['m_core',100]],
+  orc_barad:[['m_iron',60],['m_fang',45]], orc_gladden:[['m_fang',60],['m_badge',40]],
+  boss_sauron2:[['m_dark',100],['m_core',100]], boss_ambush:[['m_badge',100],['m_fang',100]],
   orc_hunt:[['m_fang',55],['m_badge',40]], troll_h:[['m_blood',65]], warg_gund:[['m_pelt',70]],
   boss_troll3:[['m_blood',100],['m_iron',100]],
   goblin_h:[['m_iron',60]], goblin_g:[['m_iron',55],['m_mithril',15]],
   boss_goblinking:[['m_iron',100],['m_mithril',100]],
-  spider_m:[['m_silk',75],['m_venomS',6]], bat_swarm:[['m_dust',50],['m_silk',35]],
-  boss_spidermother:[['m_venomS',100],['m_silk',100]],
+  spider_m:[['m_silk',75],['m_venomS',6]], bat_swarm:[['m_dust',50],['m_silk',35]], warg_alpha:[['m_pelt',75],['m_fang',45]],
+  boss_spidermother:[['m_venomS',100],['m_silk',100]], boss_necroshade:[['m_soul',100],['m_dark',100]],
   drake_s:[['m_scale',60],['m_core',8]], orc_gund:[['m_badge',55],['m_fang',45]],
   boss_smaug:[['m_scale',100],['m_core',100]], boss_bolg:[['m_badge',100],['m_dark',100]],
   demon_p:[['m_core',12]], orc_proto:[['m_fang',60],['m_iron',50]], balrog_e:[['m_core',15]],
@@ -603,6 +618,8 @@ const MAT_DROPS={
   spider_v:[['m_void',55],['m_silk',60]], shade_u:[['m_void',45],['m_dust',60]],
   boss_ungoliant:[['m_void',100],['m_venomS',100]],
   dragon_w:[['m_scale',40],['m_core',20]], orc_ang:[['m_badge',60],['m_dark',40]],
+  orc_mithrim:[['m_fang',60],['m_iron',55]], wolf_ang:[['m_pelt',75],['m_dark',40]],
+  boss_carcharoth:[['m_fang',100],['m_core',100]], boss_glaurung:[['m_scale',100],['m_core',100]],
   boss_ancalagon:[['m_scale',100],['m_core',100]], boss_morgoth:[['m_void',100],['m_core',100]]
 };
 for(const k in MAT_DROPS)if(MOBS[k])MOBS[k][7]=MOBS[k][7].concat(MAT_DROPS[k]);
@@ -625,24 +642,26 @@ const ELEM_MAP={
   orc_saur:'dark',wolf_saur:'dark',smith_ghost:'wind',boss_annatar:'light',
   num_guard:'earth',num_priest:'dark',boss_pharazon:'light',
   orc_elite:'dark',troll_war:'earth',naz_9:'wind',boss_sauron2:'fire',
-  troll_h:'earth',warg_gund:'wind',boss_troll3:'earth',
+  orc_barad:'earth',orc_gladden:'earth',boss_ambush:'earth',
+  troll_h:'earth',warg_gund:'wind',boss_troll3:'earth',warg_alpha:'wind',
   goblin_g:'earth',boss_goblinking:'earth',
   bat_swarm:'wind',
   drake_s:'fire',boss_smaug:'fire',boss_bolg:'earth',
   demon_p:'fire',orc_proto:'earth',balrog_e:'fire',
   wolf_w:'wind',shade_u:'wind',
-  dragon_w:'fire',orc_ang:'earth',boss_ancalagon:'fire',boss_morgoth:'fire'
+  dragon_w:'fire',orc_ang:'earth',boss_ancalagon:'fire',boss_morgoth:'fire',
+  orc_mithrim:'earth',wolf_ang:'wind',boss_carcharoth:'fire',boss_glaurung:'fire'
 };
 /* 攻擊特性 → poison：25% 使你中毒（每回合扣血 3 回合）／stun：25% 使你暈眩（下回合無法行動） */
 const MOB_FX={
   spider_s:'poison',nazrider:'poison',boss_naz:'poison',haradrim:'poison',orc_black:'poison',boss_shelob:'poison',boss_witch:'poison',
   num_priest:'poison',naz_9:'poison',boss_annatar:'poison',
   spider_m:'poison',boss_spidermother:'poison',
-  hunter_dark:'poison',spider_v:'poison',boss_ungoliant:'poison',
+  hunter_dark:'poison',spider_v:'poison',boss_ungoliant:'poison',boss_necroshade:'poison',
   wight:'stun',snowtroll:'stun',cavetroll:'stun',boss_watcher:'stun',mumakil:'stun',olog:'stun',boss_deadking:'stun',
   troll_war:'stun',boss_gothmog:'stun',boss_pharazon:'stun',boss_sauron2:'stun',
   boss_troll3:'stun',boss_goblinking:'stun',boss_bolg:'stun',
-  boss_utumno:'stun',boss_morgoth:'stun'
+  boss_utumno:'stun',boss_morgoth:'stun',boss_carcharoth:'stun',boss_glaurung:'stun'
 };
 for(const k in MOBS){MOBS[k][10]=ELEM_MAP[k]||null;MOBS[k][11]=MOB_FX[k]||null;}
 /* ───────── 首領戰鬥 AI（讓首領戰不再必贏）─────────
@@ -659,6 +678,8 @@ const BOSS_AI={
   boss_troll3:{hl:[2,45,25]}, boss_goblinking:{hl:[1,40,25],crit:12},
   boss_spidermother:{crit:12}, boss_smaug:{crit:20,rage:40},
   boss_bolg:{crit:15,rage:30,hl:[1,35,20]},
+  boss_ambush:{crit:12,rage:30}, boss_necroshade:{hl:[1,40,25],crit:14},
+  boss_carcharoth:{crit:16,rage:35}, boss_glaurung:{crit:18,rage:35,hl:[1,35,20]},
   boss_utumno:{crit:15,rage:30}, boss_ungoliant:{hl:[2,40,25],crit:15,rage:30},
   boss_ancalagon:{crit:20,rage:40}, boss_morgoth:{crit:18,rage:30,hl:[2,35,25]}
 };
@@ -667,9 +688,9 @@ const ACHV=[
  {id:'ch1',    ic:'🌱',n:'初出茅廬',    d:'完成第一章「夏爾告急」',        c:s=>s.ch>=1},
  {id:'moria',  ic:'⛏',n:'深入黑暗',    d:'進入摩瑞亞（第九章）',          c:s=>s.ch>=9},
  {id:'savior', ic:'🌋',n:'中土的救星',  d:'將至尊魔戒投入末日火焰',        c:s=>s.ringGone},
- {id:'walker', ic:'⏳',n:'時光行者',    d:'完成時光之門外傳',              c:s=>s.ch>=26},
- {id:'fivehero',ic:'🦅',n:'五軍的英雄', d:'完成哈比人外傳',                c:s=>s.ch>=33},
- {id:'ancient',ic:'✨',n:'遠古的傳奇',  d:'完成上古紀元外傳（放逐魔苟斯）', c:s=>s.ch>=40},
+ {id:'walker', ic:'⏳',n:'時光行者',    d:'完成時光之門外傳',              c:s=>s.ch>=29},
+ {id:'fivehero',ic:'🦅',n:'五軍的英雄', d:'完成哈比人外傳',                c:s=>s.ch>=39},
+ {id:'ancient',ic:'✨',n:'遠古的傳奇',  d:'完成上古紀元外傳（放逐魔苟斯）', c:s=>s.ch>=50},
  {id:'lv30',   ic:'⚔',n:'嶄露頭角',    d:'達到 Lv.30',                    c:s=>s.lv>=30},
  {id:'lv50',   ic:'🗡',n:'中土強者',    d:'達到 Lv.50',                    c:s=>s.lv>=50},
  {id:'lv70',   ic:'👑',n:'傳說境界',    d:'達到 Lv.70',                    c:s=>s.lv>=70},
@@ -777,24 +798,33 @@ const MAPS={
   t_gate:   {n:'時光之門 · 無時之廳',town:1,ch:21,tier:5,post:1,d:'瑞文戴爾最深處的白色大廳，不屬於任何時代。牆上的掛毯流轉著逝去的紀元，大廳中央矗立著一道由星光織成的門。甘道夫低聲說：「歷史尚有未曾癒合的傷口——而你，是唯一能走進去的人。」'},
   m_gondolin:{n:'剛多林的陷落 · 第一紀元',ch:21,post:1,mobs:['orc_morgoth','balrog_s','dragon_fire'],boss:'boss_gothmog',d:'隱匿之城最後的一夜。魔苟斯的大軍翻過環抱山脈傾瀉而下，白塔在火光中一座座傾倒。七大家族的號角仍在響——但這座最美的精靈之城，正在你眼前燃燒。'},
   m_eregion:{n:'伊瑞詹的淪陷 · 第二紀元',ch:22,post:1,mobs:['orc_saur','wolf_saur','smith_ghost'],boss:'boss_annatar',d:'冬青樹之地，鑄戒工坊米爾戴斯的所在。凱勒布理鵬識破了「贈禮之主」的真面目，但為時已晚——索倫的大軍已踏平原野，要奪回他親手教導鑄造的一切。'},
-  m_numenor:{n:'努曼諾爾的沉沒 · 第二紀元',ch:23,post:1,mobs:['num_guard','num_priest'],boss:'boss_pharazon',d:'人皇之島最後的黃昏。被囚的索倫以言語腐化了黃金大帝，黑暗神殿的濃煙遮蔽星辰，艦隊正朝不死之地起航——而大海，已在憤怒中立起千丈高牆。'},
-  m_dagorlad:{n:'達戈拉德 · 最後同盟之戰',ch:24,post:1,mobs:['orc_elite','troll_war','naz_9'],boss:'boss_sauron2',d:'精靈與人類最後的同盟在此列陣，旌旗連天蔽野。巴拉多的大門開了——佩戴至尊魔戒的黑暗魔君親自踏上戰場，祂每揮一錘，大地便為之震顫。'},
+  m_numenor:{n:'努曼諾爾的沉沒 · 第二紀元',ch:24,post:1,mobs:['num_guard','num_priest'],boss:'boss_pharazon',d:'人皇之島最後的黃昏。被囚的索倫以言語腐化了黃金大帝，黑暗神殿的濃煙遮蔽星辰，艦隊正朝不死之地起航——而大海，已在憤怒中立起千丈高牆。'},
+  m_barad:{n:'巴拉多圍城 · 圍攻七年',ch:25,post:1,mobs:['orc_elite','troll_war','orc_barad'],d:'黑暗魔君的巨塔在灰燼平原上直插雲霄，最後同盟的營壘將它團團圍住。圍城已進入第七年——每一天都有出擊、有偷襲、有陣亡者的名字被刻上石碑。'},
+  m_dagorlad:{n:'達戈拉德 · 最後同盟之戰',ch:26,post:1,mobs:['orc_elite','troll_war','naz_9'],boss:'boss_sauron2',d:'精靈與人類最後的同盟在此列陣，旌旗連天蔽野。巴拉多的大門開了——佩戴至尊魔戒的黑暗魔君親自踏上戰場，祂每揮一錘，大地便為之震顫。'},
+  m_gladden:{n:'格拉頓平原 · 金鳶尾沼澤',ch:27,post:1,mobs:['orc_gladden','orc_elite'],boss:'boss_ambush',d:'安都因河畔的金鳶尾花田，風景美得不像戰場。但蘆葦叢中伏著上百雙黃眼睛——高山半獸人的伏擊圈已經收攏，而埃西鐸的小隊，正毫無防備地走進來。'},
   /* ── 哈比人外傳（意外的旅程，時光之門第二段）── */
-  m_trollshaw:{n:'食人妖林地 · 六十年前',ch:26,post:1,mobs:['orc_hunt','troll_h','warg_gund'],boss:'boss_troll3',d:'東方大道旁的荒僻林地，焦木上掛著半烤的羊——和幾個矮人靴子。三隻山地食人妖圍著篝火吵架，語言粗鄙，但胃口極好。'},
-  m_goblintown:{n:'哥布林鎮 · 迷霧山脈地底',ch:27,post:1,mobs:['goblin_h','goblin_g','warg_gund'],boss:'boss_goblinking',d:'地縫深處的哥布林巢城，搖晃的木橋在火把光中縱橫交錯。骸骨王座上的肥大身影統治著這裡——而更深的黑暗中，有雙大眼睛盯著牠「不見了的寶貝」。'},
-  m_mirkwood:{n:'幽暗密林深處',ch:28,post:1,mobs:['spider_m','bat_swarm'],boss:'boss_spidermother',d:'綠葉密不透光的古老森林，樹梢間掛滿白繭。巨蛛的蛛絲黏稠如夜，而南方多爾哥多的廢塔上，正籠罩著一層不祥的陰影。'},
-  m_dolguldur:{n:'多爾哥多 · 死靈法師之塔',ch:28,post:1,tower:1,pool:['spider_m','bat_swarm','orc_gund'],baseLv:50,prize:'w_necro',d:'幽暗密林南端的廢棄要塞，「死靈法師」在此悄悄積蓄力量——後來人們才知道那是誰。塔中亡影層層盤據，塔頂封存著主人倉皇撤離時遺落的法杖。'},
-  t_laketown:{n:'長湖鎮 · 伊斯加羅',town:1,ch:29,post:1,tier:5,d:'建在湖面木樁上的水上市鎮，魚腥味與流言齊飛。鎮民們望著孤山的方向竊竊私語——矮人回山了，那麼，龍呢？'},
-  m_erebor:{n:'孤山 · 山下王國',ch:30,post:1,mobs:['drake_s','orc_gund'],boss:'boss_smaug',d:'矮人王國埃瑞玻爾的大廳深處，金山銀海綿延到黑暗盡頭。空氣灼熱——寶山的最深處，有什麼東西正隨著呼吸起伏。'},
-  m_five:{n:'五軍之戰 · 孤山戰場',ch:31,post:1,mobs:['orc_gund','warg_gund','bat_swarm'],boss:'boss_bolg',d:'孤山腳下，矮人、精靈、人類的旗幟迎著剛達巴的黑潮。號角與戰吼撕裂長空——中土第三紀元最慘烈的大戰之一，就在你腳下展開。'},
+  m_trollshaw:{n:'食人妖林地 · 六十年前',ch:29,post:1,mobs:['orc_hunt','troll_h','warg_gund'],boss:'boss_troll3',d:'東方大道旁的荒僻林地，焦木上掛著半烤的羊——和幾個矮人靴子。三隻山地食人妖圍著篝火吵架，語言粗鄙，但胃口極好。'},
+  m_goblintown:{n:'哥布林鎮 · 迷霧山脈地底',ch:30,post:1,mobs:['goblin_h','goblin_g','warg_gund'],boss:'boss_goblinking',d:'地縫深處的哥布林巢城，搖晃的木橋在火把光中縱橫交錯。骸骨王座上的肥大身影統治著這裡——而更深的黑暗中，有雙大眼睛盯著牠「不見了的寶貝」。'},
+  m_gollumcave:{n:'咕嚕的洞穴 · 地底湖',ch:31,post:1,mobs:['goblin_h','bat_swarm'],d:'哥布林鎮最深處的地底湖，黑得看不見水面。湖心的石島上住著一個瘦削的東西，牠自言自語、咳出「咕嚕、咕嚕」的怪聲——牠丟了一樣東西，正在發瘋似地找。'},
+  m_carrock:{n:'卡洛克岩 · 大河谷地',ch:32,post:1,mobs:['warg_alpha','warg_gund','orc_hunt'],d:'安都因河上游的巨岩曠野。身後的山坡上燃起一圈火眼——剛達巴的座狼群連夜追來，狼嚎一聲比一聲近。傳說這一帶住著一位會變成巨熊的隱士……'},
+  m_mirkwood:{n:'幽暗密林深處',ch:33,post:1,mobs:['spider_m','bat_swarm'],boss:'boss_spidermother',d:'綠葉密不透光的古老森林，樹梢間掛滿白繭。巨蛛的蛛絲黏稠如夜，而南方多爾哥多的廢塔上，正籠罩著一層不祥的陰影。'},
+  m_dolguldur:{n:'多爾哥多 · 死靈法師之塔',ch:33,post:1,tower:1,pool:['spider_m','bat_swarm','orc_gund'],baseLv:50,prize:'w_necro',d:'幽暗密林南端的廢棄要塞，「死靈法師」在此悄悄積蓄力量——後來人們才知道那是誰。塔中亡影層層盤據，塔頂封存著主人倉皇撤離時遺落的法杖。'},
+  t_laketown:{n:'長湖鎮 · 伊斯加羅',town:1,ch:34,post:1,tier:5,d:'建在湖面木樁上的水上市鎮，魚腥味與流言齊飛。鎮民們望著孤山的方向竊竊私語——矮人回山了，那麼，龍呢？'},
+  m_erebor:{n:'孤山 · 山下王國',ch:35,post:1,mobs:['drake_s','orc_gund'],boss:'boss_smaug',d:'矮人王國埃瑞玻爾的大廳深處，金山銀海綿延到黑暗盡頭。空氣灼熱——寶山的最深處，有什麼東西正隨著呼吸起伏。'},
+  m_dolout:{n:'多爾哥多 · 要塞前庭',ch:36,post:1,mobs:['bat_swarm','orc_gund','spider_m'],boss:'boss_necroshade',d:'死靈法師要塞的斷垣前庭。白議會的光芒正從四方壓向高塔——薩魯曼、愛隆、凱蘭崔爾聯手施法，而塔中的黑影終於露出真身：那不是什麼死靈法師，是索倫。'},
+  m_five:{n:'五軍之戰 · 孤山戰場',ch:37,post:1,mobs:['orc_gund','warg_gund','bat_swarm'],boss:'boss_bolg',d:'孤山腳下，矮人、精靈、人類的旗幟迎著剛達巴的黑潮。號角與戰吼撕裂長空——中土第三紀元最慘烈的大戰之一，就在你腳下展開。'},
   /* ── 上古紀元外傳（時光之門最終段：雙燈／雙樹時代）── */
-  m_lamps:{n:'雙燈平原 · 阿爾瑪倫的餘暉',ch:33,post:1,mobs:['demon_p','orc_proto','balrog_e'],boss:'boss_utumno',d:'世界初生的年代。巨燈伊路因與奧爾莫曾照亮整片大地，如今燈柱傾倒、光焰四散——米爾寇的爪牙正從北方的烏塔莫傾巢而出，踐踏眾神的花園。'},
-  m_utumno:{n:'烏塔莫深淵（無盡塔）',ch:33,post:1,tower:1,endless:1,pool:['demon_p','orc_proto','balrog_e'],baseLv:62,d:'米爾寇在世界之底鑿出的第一座堡壘，深不見底。每往下一層，黑暗便更濃一分，怪物便更強一分——沒有人知道盡頭在哪裡，或者根本沒有盡頭。'},
-  m_cuivienen:{n:'奎維耶能 · 甦醒之湖',ch:34,post:1,mobs:['hunter_dark','wolf_w','balrog_e'],d:'星光下的內海之濱，最初的精靈剛剛在此睜開雙眼。但黑暗中有騎影徘徊——米爾寇的獵手正在捕捉落單的初生精靈，把他們拖回烏塔莫，扭曲成別的東西。'},
-  t_valinor:{n:'維林諾 · 雙樹之地',town:1,ch:35,post:1,tier:6,d:'眾神的國度。銀樹泰爾佩瑞安與金樹羅瑞林交替綻放光芒，把整片大地染成流動的金銀。維拉的工匠在此設鋪，販售凡間不可能見到的神造之物。'},
-  m_ezellohar:{n:'伊薩洛哈 · 雙樹之丘',ch:36,post:1,mobs:['spider_v','shade_u'],boss:'boss_ungoliant',d:'雙樹佇立的綠丘。天光驟暗——米爾寇的長矛刺入樹身，而他身旁那團比黑夜更黑的存在，正張開巨口吸乾雙樹的光。那是昂哥立安，連魔王自己都怕的太古魔蛛。'},
-  m_warwrath:{n:'憤怒之戰 · 安法烏格力斯',ch:37,post:1,mobs:['dragon_w','orc_ang','balrog_e'],boss:'boss_ancalagon',d:'第一紀元的終局。維拉的大軍與魔苟斯的全部戰力在焦土平原上對撞，天空被有翼巨龍遮蔽——其中最巨大的那道黑影，是龍族之王安卡拉剛。'},
-  m_angband:{n:'安格班 · 鐵地獄深處',ch:38,post:1,mobs:['orc_ang','dragon_w','demon_p'],boss:'boss_morgoth',d:'鐵山之下的魔王座堂。王座上戴著鐵王冠的巨大身影緩緩起身，冠上的精靈寶鑽映著爐火——魔苟斯·包格力爾，世界的黑暗大敵，一切邪惡的源頭，正握起格龍德。'}
+  m_lamps:{n:'雙燈平原 · 阿爾瑪倫的餘暉',ch:39,post:1,mobs:['demon_p','orc_proto','balrog_e'],boss:'boss_utumno',d:'世界初生的年代。巨燈伊路因與奧爾莫曾照亮整片大地，如今燈柱傾倒、光焰四散——米爾寇的爪牙正從北方的烏塔莫傾巢而出，踐踏眾神的花園。'},
+  m_utumno:{n:'烏塔莫深淵（無盡塔）',ch:39,post:1,tower:1,endless:1,pool:['demon_p','orc_proto','balrog_e'],baseLv:62,d:'米爾寇在世界之底鑿出的第一座堡壘，深不見底。每往下一層，黑暗便更濃一分，怪物便更強一分——沒有人知道盡頭在哪裡，或者根本沒有盡頭。'},
+  m_cuivienen:{n:'奎維耶能 · 甦醒之湖',ch:40,post:1,mobs:['hunter_dark','wolf_w','balrog_e'],d:'星光下的內海之濱，最初的精靈剛剛在此睜開雙眼。但黑暗中有騎影徘徊——米爾寇的獵手正在捕捉落單的初生精靈，把他們拖回烏塔莫，扭曲成別的東西。'},
+  m_march:{n:'偉大旅程 · 星空下的曠野',ch:41,post:1,mobs:['hunter_dark','wolf_w','orc_proto'],d:'精靈三支宗族聽從眾神的召喚，攜家帶眷踏上橫越中土的西遷之路。星空下的隊伍綿延如河——而米爾寇的獵手與魔狼正沿途窺伺，專挑隊伍的尾端下手。'},
+  t_valinor:{n:'維林諾 · 雙樹之地',town:1,ch:42,post:1,tier:6,d:'眾神的國度。銀樹泰爾佩瑞安與金樹羅瑞林交替綻放光芒，把整片大地染成流動的金銀。維拉的工匠在此設鋪，販售凡間不可能見到的神造之物。'},
+  m_ezellohar:{n:'伊薩洛哈 · 雙樹之丘',ch:43,post:1,mobs:['spider_v','shade_u'],boss:'boss_ungoliant',d:'雙樹佇立的綠丘。天光驟暗——米爾寇的長矛刺入樹身，而他身旁那團比黑夜更黑的存在，正張開巨口吸乾雙樹的光。那是昂哥立安，連魔王自己都怕的太古魔蛛。'},
+  m_mithrim:{n:'米斯林湖 · 星光下的戰爭',ch:44,post:1,mobs:['orc_mithrim','orc_ang','balrog_e'],d:'諾多精靈的艦隊在中土靠岸，燒船的火光映紅了半邊夜空。魔苟斯的大軍趁精靈立足未穩傾巢來襲——太陽尚未誕生，第一紀元的第一場大戰在星光下爆發。'},
+  m_angbandgate:{n:'安格班大門 · 桑戈洛錐姆之下',ch:45,post:1,mobs:['wolf_ang','orc_ang','demon_p'],boss:'boss_carcharoth',d:'三座煙峰之下的黑鐵巨門。門前趴著魔苟斯親手餵大的飢狼卡黑洛斯——世界上最強的狼，牠的胃裡是不熄的烈火。有一對人影正朝這裡走來：一個凡人，和一位精靈公主。'},
+  m_nargothrond:{n:'納國斯隆德 · 隱匿的王國',ch:46,post:1,mobs:['dragon_w','orc_ang'],boss:'boss_glaurung',d:'納羅格河畔的地底精靈王國，如今大門洞開、廳堂焦黑。龍父格勞龍盤踞在劫掠來的寶堆上，牠不睡——牠在等一個把劍指向牠的人，好用魔眼扭曲他的一生。'},
+  m_warwrath:{n:'憤怒之戰 · 安法烏格力斯',ch:47,post:1,mobs:['dragon_w','orc_ang','balrog_e'],boss:'boss_ancalagon',d:'第一紀元的終局。維拉的大軍與魔苟斯的全部戰力在焦土平原上對撞，天空被有翼巨龍遮蔽——其中最巨大的那道黑影，是龍族之王安卡拉剛。'},
+  m_angband:{n:'安格班 · 鐵地獄深處',ch:48,post:1,mobs:['orc_ang','dragon_w','demon_p'],boss:'boss_morgoth',d:'鐵山之下的魔王座堂。王座上戴著鐵王冠的巨大身影緩緩起身，冠上的精靈寶鑽映著爐火——魔苟斯·包格力爾，世界的黑暗大敵，一切邪惡的源頭，正握起格龍德。'}
 };
 /* ───────── 主線章節（21 章，依原著路線） ───────── */
 const QUESTS=[
@@ -891,45 +921,71 @@ const QUESTS=[
   intro:'你踏出時光之門，撲面而來的是火。第一紀元的剛多林正在燃燒，魔苟斯的炎魔軍團踏碎白色的街道。城牆上，一位揮舞巨斧的人類戰士正獨自擋住火焰的洪流——那是圖爾，而你趕上了傳說。',
   d:'在【剛多林的陷落】擊敗炎魔之王「勾斯魔格」。',
   story:'炎魔之王的火鞭熄滅了，殘軍如退潮般撤走。圖爾朝你舉斧致意，海鷗的啼聲自遠方傳來。你轉身走回星光之門時，一襲灰藍的披風落在你肩上——海洋之主烏歐牟的目光，穿越了兩個紀元。'},
- {t:'外傳二 · 贈禮之主',boss:'boss_annatar',unlock:'努曼諾爾的沉沒',
-  intro:'第二紀元一六九七年，伊瑞詹。鑄戒工坊的爐火尚溫，屠殺已經開始。一個俊美得不似凡物的身影立於煙塵之中——「安納塔」，贈禮之主，索倫尚未捨棄的美麗面孔。他微笑著向你伸出手：「把你知道的一切交給我。」',
+ {t:'外傳二 · 戒指工坊的淪陷',area:'m_eregion',kill:10,unlock:'贈禮之主的真面目',
+  intro:'第二紀元一六九七年，伊瑞詹。冬青樹之地燃起烽火——索倫的大軍越過米斯艾塞爾河，要奪回他親手教導鑄造的一切。鑄戒工坊米爾戴斯的工匠們且戰且退，把最重要的東西一件件送出城。你握緊武器：先替他們擋住城牆缺口的敵潮。',
+  d:'在【伊瑞詹的淪陷】擊敗 10 個敵人，掩護工匠撤離。',
+  story:'最後一批工匠帶著圖紙與半成品消失在西方的密道裡。斷牆邊，凱勒布理鵬朝你點頭致意，隨即轉身走向工坊最深處——他知道有人在等他，那位「贈禮之主」。工匠們留下的補給就堆在你腳邊。'},
+ {t:'外傳三 · 贈禮之主',boss:'boss_annatar',unlock:'努曼諾爾的沉沒',
+  intro:'鑄戒工坊的爐火尚溫，屠殺已經開始。一個俊美得不似凡物的身影立於煙塵之中——「安納塔」，贈禮之主，索倫尚未捨棄的美麗面孔。他微笑著向你伸出手：「把你知道的一切交給我。」',
   d:'在【伊瑞詹的淪陷】擊敗「安納塔·贈禮之主」。',
   story:'美麗的面孔碎裂了，露出底下燃燒的憤怒。安納塔的身影化作黑煙遁走——你救不了伊瑞詹，但工坊的密室裡，凱勒布理鵬留下了一枚未受污染的試作戒指，和一行血字：「三戒已送走。告訴後世，我沒有全輸。」'},
- {t:'外傳三 · 黃金大帝的傲慢',boss:'boss_pharazon',unlock:'達戈拉德平原',
+ {t:'外傳四 · 黃金大帝的傲慢',boss:'boss_pharazon',unlock:'巴拉多圍城',
   intro:'人皇之島努曼諾爾的最後一日。黑暗神殿的濃煙直上雲霄，被索倫腐化的黃金大帝亞爾-法拉松正登上旗艦，要向不死之地宣戰。天空裂成兩半，巨浪已在海平線上立起——而癲狂的大帝擋在你與時光之門之間。',
   d:'在【努曼諾爾的沉沒】擊敗「亞爾-法拉松·黃金大帝」。',
   story:'黃金大帝跪倒在崩塌的神殿前，終於看清了自己親手招來的末日。大浪吞沒島嶼的前一刻，你躍入星光之門——身後，九艘忠貞派的船正衝出風暴。伊蘭迪爾的旗幟在浪尖上飄揚：努曼諾爾亡了，但王族的血脈渡向了中土。'},
- {t:'外傳終 · 最後同盟',boss:'boss_sauron2',unlock:'（外傳結局）',
+ {t:'外傳五 · 巴拉多圍城',area:'m_barad',kill:12,unlock:'達戈拉德平原',
+  intro:'第二紀元三四三四年，最後同盟的大軍圍住了巴拉多。這一圍，就是七年。你被門送進圍城的第五年——戰壕縱橫的灰燼平原上，每一天都有塔中守軍的突圍與夜襲，也每一天都有名字被刻上陣亡者的石碑。安那瑞安，伊蘭迪爾之子，昨天也倒下了。',
+  d:'在【巴拉多圍城】擊敗 12 個突圍的敵人，守住同盟的營線。',
+  story:'又一波突圍被打了回去，黑塔的門重新關上。營火邊，吉爾加拉德擦拭著長槍艾格洛斯，輕聲說：「他撐不了多久了。他會親自出來——用他的驕傲。」遠方的達戈拉德平原上，決戰的陣列正在成形。',
+  },
+ {t:'外傳六 · 最後同盟',boss:'boss_sauron2',unlock:'格拉頓平原',
   intro:'第二紀元三四四一年，達戈拉德平原。精靈至高王吉爾加拉德與人皇伊蘭迪爾並肩而立，身後是兩支種族最後的大軍。巴拉多的黑門轟然開啟——佩戴著至尊魔戒、力量全盛的索倫本體，親自走上了戰場。這一戰，你在傳說之中。',
   d:'在【達戈拉德】擊敗「索倫·佩戴至尊魔戒的黑暗魔君」，見證歷史的終局。',
-  story:'黑暗魔君轟然倒下，伊西鐸拾起斷劍納希爾，割下了那根戴著魔戒的手指——歷史的齒輪咬合如初。你退回星光之門。甘道夫在白色大廳裡等你，遞來一杯熱茶：「見證了三個紀元的隕落與重生……如今整個中土，再沒有人比你更配得上『時光行者』之名。」他望著仍在轉動的門，若有所思：「門的力量尚未耗盡。還有一段離現在最近的歷史在呼喚——六十年前，一場『意外的旅程』。」'},
+  story:'黑暗魔君轟然倒下，伊西鐸拾起斷劍納希爾，割下了那根戴著魔戒的手指——歷史的齒輪咬合如初。愛隆與瑟丹勸他把魔戒投入末日火山，伊西鐸卻握緊手指：「這是我父親與弟弟的贖價。」他收起魔戒，率親衛啟程北返。門輕輕震動——它要你跟上去，走完這段歷史的最後一里路。'},
+ {t:'外傳終 · 格拉頓平原的伏擊',boss:'boss_ambush',unlock:'（外傳結局）',
+  intro:'第三紀元二年，安都因河畔的金鳶尾沼澤。伊西鐸的小隊沿河北行，蘆葦叢忽然立起上百支長矛——高山半獸人的伏擊圈收攏了。「魔戒！戴上魔戒快走！」親衛長嘶吼著結陣。你拔出武器：歷史說他們全軍覆沒，但今天，你在這裡。',
+  d:'在【格拉頓平原】擊敗「血手酋長·高山半獸人王」，為埃西鐸的親衛討回血債。',
+  story:'血手酋長倒下，殘兵哀嚎著退入山影。但河面上只剩一圈漣漪——伊西鐸戴上魔戒潛入大河，而魔戒在水中背叛了他，自指間滑落，沉入千年的淤泥。你從河底撈起一點白色的星光：伊蘭迪爾之星。甘道夫在門的彼端接過它，長嘆一聲：「至此，魔戒的前史你已親眼見證。如今整個中土，再沒有人比你更配得上『時光行者』之名。」他望著仍在轉動的門：「還有一段離現在最近的歷史在呼喚——六十年前，一場『意外的旅程』。」'},
  /* ── 哈比人外傳（意外的旅程 → 五軍之戰）── */
  {t:'哈比人外傳 · 意外的旅程',visit:'t_gate',btn:'⭐ 踏入六十年前的中土',unlock:'食人妖林地',
   intro:'甘道夫把菸圈吹成一艘小船：「六十年前，我說服了一位哈比人離開他舒適的洞府，隨十三個矮人去偷一條龍的寶藏。那趟旅程埋下了魔戒現世的種子——門要帶你回去看看，路上有些麻煩，當年可沒能好好收拾。」',
   d:'在【時光之門·無時之廳】點選「踏入六十年前的中土」。',
   story:'門後是熟悉又陌生的荒野——大道還算平整，人們還不知道「索倫」這個名字何時會回來。前方林地的焦味飄了過來：三隻山地食人妖正圍著火堆，商量著怎麼料理十三個矮人和一個哈比人。'},
- {t:'外傳四 · 食人妖的篝火',boss:'boss_troll3',unlock:'哥布林鎮',
+ {t:'旅程一 · 食人妖的篝火',boss:'boss_troll3',unlock:'哥布林鎮',
   intro:'伯特、湯姆、威廉——三隻食人妖為了「先烤矮人還是先燉矮人」吵得不可開交，被綁成一串的矮人們掛在火堆邊。甘道夫還沒趕到，這次輪到你拖延時間了……或者，直接掀桌。',
   d:'在【食人妖林地】擊敗「三食人妖」。',
   story:'晨光越過山脊灑進林地，三隻食人妖僵在原地，化成了三塊面面相覷的巨石。矮人們一邊揉著手腕一邊在食人妖的藏寶洞裡翻找——「這把劍歸你了，朋友。」（食人妖的藏寶讓眾人發了筆小財）'},
- {t:'外傳五 · 哥布林鎮的王',boss:'boss_goblinking',unlock:'幽暗密林深處',
+ {t:'旅程二 · 哥布林鎮的王',boss:'boss_goblinking',unlock:'咕嚕的洞穴',
   intro:'迷霧山脈的隘口在暴風雨夜裂開了地縫，整支隊伍跌進哥布林鎮——地底洞窟中垂掛著搖搖欲墜的木橋與吊籠，肥大的半獸人王坐在骸骨王座上獰笑：「把他們的腦袋串起來！」而黑暗更深處，有個叫咕嚕的東西，正在尋找牠「不見了的寶貝」……',
   d:'在【哥布林鎮】擊敗「半獸人王」。',
-  story:'半獸人王轟然墜下深淵，整座地底城陷入混亂。你們沿著地縫逃出生天——而你知道，就在這片黑暗的某處，一枚金色的戒指正靜靜躺在一個哈比人的口袋裡，等著改寫整個時代。'},
- {t:'外傳六 · 幽暗密林的蛛網',boss:'boss_spidermother',unlock:'長湖鎮（密林旁的多爾哥多之塔也已顯現）',
+  story:'半獸人王轟然墜下深淵，整座地底城陷入混亂。你們沿著地縫逃出生天——但隊伍清點人數時發現，那位哈比人先生不見了。他掉進了更深的地方：一座黑得看不見水面的地底湖。'},
+ {t:'旅程三 · 黑暗中的謎語',visit:'m_gollumcave',btn:'⭐ 旁觀黑暗中的謎語遊戲',unlock:'大河谷地',
+  intro:'地底湖的石島上，兩個身影正隔著水面對峙——迷路的比爾博·巴金斯，和瘦得只剩皮包骨的咕嚕。「牠出謎語，寶貝，猜輸了就吃掉牠！」你屏住呼吸躲在岩石後：這場謎語遊戲的賭注，是一條命——和一枚已經換了口袋的金戒指。',
+  d:'前往【咕嚕的洞穴】，旁觀那場改變歷史的謎語遊戲。（洞穴裡的哥布林與蝠群可以順手清理）',
+  story:'「我口袋裡有什麼？」——不算謎語的謎語，救了哈比人一命。咕嚕尖叫著撲向石島摸索，隨即發出撕心裂肺的哀嚎：「不見了！我的寶貝不見了！！」比爾博摸著口袋裡冰涼的金環，悄悄戴上，隱身穿過了咕嚕的封鎖。你退回上層的地縫——身後的黑暗裡，那聲「小偷——巴金斯——」的詛咒迴盪了六十年。'},
+ {t:'旅程四 · 瓦爾格的圍獵',area:'m_carrock',kill:10,unlock:'幽暗密林深處（多爾哥多之塔同時顯現）',
+  intro:'逃出迷霧山脈，隊伍在大河谷地的曠野上狂奔——身後的山坡燃起一圈火眼，剛達巴的座狼群連夜追來，樹上待不住，前方又是斷崖。狼嚎越來越近，頭狼的眼睛在火光中發亮。',
+  d:'在【卡洛克岩·大河谷地】擊敗 10 隻追獵的座狼與半獸人。',
+  story:'狼群的包圍圈忽然亂了——一頭比座狼大上兩倍的黑色巨熊咆哮著撞進戰場，抓起頭狼摜在岩石上。追兵潰散後，巨熊在晨光中直起身，變成了一個黑髮的高大男人。「我不喜歡矮人，」貝奧恩把一盤蜂蜜糕點推到你們面前，「但我更討厭半獸人。吃吧，然後告訴我你們的故事。」'},
+ {t:'旅程五 · 幽暗密林的蛛網',boss:'boss_spidermother',unlock:'長湖鎮',
   intro:'幽暗密林名不虛傳——空氣黏稠得像蛛絲，林間掛滿了白色的繭，其中幾個還在扭動。巨蛛們從樹冠間垂降，牠們的母親正在巢穴深處吐絲。而密林南方，多爾哥多的廢棄要塞裡，一個自稱「死靈法師」的存在正悄悄積蓄力量。',
   d:'在【幽暗密林深處】擊敗「密林蛛母」。',
   story:'蛛母的哀鳴響徹林間，巨蛛們如退潮般散去。木精靈的巡邏隊踏著樹枝而來，領頭的精靈王之子挑了挑眉：「人類？在我父親的森林裡殺蜘蛛？……幹得不錯。」他解下自己的披風扔給你：「往東去長湖鎮吧，聽說矮人們正在那裡籌劃一件大事。」'},
- {t:'外傳七 · 長湖鎮的黑箭',visit:'t_laketown',btn:'⭐ 與巴德商討屠龍之策',unlock:'孤山',
+ {t:'旅程六 · 長湖鎮的黑箭',visit:'t_laketown',btn:'⭐ 與巴德商討屠龍之策',unlock:'孤山',
   intro:'建在湖面木樁上的長湖鎮瀰漫著魚腥與不安——孤山方向傳來了低沉的轟鳴，矮人們已經進山了。碼頭邊，神射手巴德望著山影喃喃自語：「他們會吵醒牠的。牠會來的，像上次燒掉河谷城那樣。」',
   d:'抵達【長湖鎮】，點選「與巴德商討屠龍之策」。',
   story:'巴德從閣樓的橫樑上取下一支通體漆黑的長矢：「家傳的黑箭，先祖用它射裂過龍鱗。傳說中巨龍的左胸缺了一片鱗甲——如果牠真的來了……」他把黑箭放進你手裡：「你去山裡幫矮人，這支箭，帶著。」'},
- {t:'外傳八 · 山下的巨龍',boss:'boss_smaug',unlock:'五軍之戰',
+ {t:'旅程七 · 山下的巨龍',boss:'boss_smaug',unlock:'多爾哥多·要塞前庭',
   intro:'孤山的大門敞開著，山腹裡是矮人王國埃瑞玻爾的無盡寶山——金幣堆成的丘陵綿延到黑暗深處。然後，丘陵動了。金幣如瀑布般滑落，一隻紅金色的巨眼在寶山之下睜開：「竊賊……我聞到你了。我是史矛革，我殺人如踏草芥——你，算什麼東西？」',
   d:'在【孤山·山下王國】擊敗「史矛革」。（提示：牠的爆擊極痛，記得帶足藥水）',
-  story:'黑箭沒入左胸缺鱗之處，巨龍的咆哮震塌了半座大廳。史矛革掙扎著飛向夜空，火光在牠身上熄滅，龐大的身軀墜入長湖，激起百丈水柱。山下王國重見天日——但寶山的消息傳得比風還快，四面八方的大軍已在路上。',
+  story:'黑箭沒入左胸缺鱗之處，巨龍的咆哮震塌了半座大廳。史矛革掙扎著飛向夜空，火光在牠身上熄滅，龐大的身軀墜入長湖，激起百丈水柱。山下王國重見天日——同一時刻，密林南方傳來白光沖天：白議會對多爾哥多動手了，甘道夫在那裡等你。',
   },
- {t:'外傳終 · 五軍之戰',boss:'boss_bolg',unlock:'（外傳結局）',
+ {t:'旅程八 · 白議會的突襲',boss:'boss_necroshade',unlock:'五軍之戰',
+  intro:'多爾哥多的斷垣前庭，白光與黑霧激烈拉鋸——薩魯曼、愛隆、凱蘭崔爾聯手施法，把要塞的黑暗一寸寸逼出來。甘道夫朝你招手：「就等你了！塔裡那位『死靈法師』根本不是什麼法師——是索倫的殘影在借屍還魂。把它趕出這座森林！」',
+  d:'在【多爾哥多·要塞前庭】擊敗「死靈法師之影」。',
+  story:'黑影發出不甘的長嘯，化作一道黑風向東方遁去——朝著魔多的方向。凱蘭崔爾望著黑風消失的天際，輕聲說：「我們只是把它趕走，沒能消滅它。」甘道夫點頭：「六十年後它會捲土重來……但那是另一個故事了，而且我們都知道結局。」白議會向你致謝，愛隆把一批祝福過的卷軸放進你手中。',
+  },
+ {t:'旅程終 · 五軍之戰',boss:'boss_bolg',unlock:'（外傳結局）',
   intro:'矮人、精靈、人類三軍在孤山前對峙之際，地平線湧來了黑潮——剛達巴的半獸人大軍與座狼、蝠群傾巢而出。恩怨在共同的敵人面前一筆勾銷，五軍之戰爆發了。敵陣中央，佩戴白色傷疤的巨大半獸人揮舞狼牙棒：波格，剛達巴之王。',
   d:'在【五軍之戰】擊敗「波格」，終結這場大戰。',
   story:'波格倒下，半獸人大軍全線崩潰。戰後的孤山前，人們掘土埋葬勇者，也分享寶山的財富。甘道夫與一個叼著菸斗的哈比人並肩走過戰場邊緣——那位比爾博·巴金斯先生的口袋裡，正裝著改變世界的東西。你穿過星光之門歸來。甘道夫望著門，神色前所未有地凝重：「它還在轉。它想帶你去的地方……在太陽與月亮誕生之前。」'},
@@ -942,20 +998,36 @@ const QUESTS=[
   intro:'燈柱伊路因在你眼前傾倒，光焰如洪水漫過平原，眾神的花園在烈火與暴風中崩毀。烏塔莫的大軍踏著灰燼南下，領軍的是一道比黑夜更古老的影子——米爾寇麾下的第一位統帥。',
   d:'在【雙燈平原】擊敗「烏塔莫統帥·遠古之影」。',
   story:'遠古之影潰散成飛灰。但雙燈已滅，世界陷入漫長的黑暗，眾神退往極西之地維林諾。星光之門輕輕震動——時間快轉了無數個年頭，門外傳來水聲：在世界東方的一片內海之濱，有誰正要醒來。'},
- {t:'上古二 · 甦醒之湖',area:'m_cuivienen',kill:10,unlock:'維林諾',
+ {t:'上古二 · 甦醒之湖',area:'m_cuivienen',kill:10,unlock:'偉大旅程',
   intro:'奎維耶能湖畔，星光落在水面上。最初的精靈在此甦醒——他們睜眼看見的第一樣東西是星辰，因此永遠愛著星光。但米爾寇的獵手也來了，落單的精靈接連失蹤，被拖往烏塔莫的深牢，扭曲成日後的半獸人。',
   d:'在【奎維耶能·甦醒之湖】擊敗 10 個黑暗獵手，守護初生的精靈。',
-  story:'最後一名獵手消失在夜色中。湖畔的精靈們用剛學會的語言向你道謝——「Elen síla lúmenn\' omentielvo，有星光照耀我們相遇之時。」遠方，眾神的號角響起：維拉們終於注意到了東方的甦醒，一場討伐米爾寇的大戰即將展開。而門，把你送往極西的維林諾。'},
- {t:'上古三 · 雙樹之地',visit:'t_valinor',btn:'⭐ 瞻仰雙聖樹的光輝',unlock:'雙樹之丘',
+  story:'最後一名獵手消失在夜色中。湖畔的精靈們用剛學會的語言向你道謝——「Elen síla lúmenn\' omentielvo，有星光照耀我們相遇之時。」遠方，眾神的號角響起：維拉們擊破了烏塔莫的大門，並向精靈發出邀請——越過大海，到雙樹之光下的維林諾定居。一場橫越整個中土的大遷徙，開始了。'},
+ {t:'上古三 · 偉大旅程',area:'m_march',kill:12,unlock:'維林諾',
+  intro:'三支精靈宗族攜家帶眷，在星空下踏上西遷之路——凡雅、諾多、帖勒瑞，數不清的火把在曠野上綿延如星河。但烏塔莫雖破，米爾寇的爪牙仍散佈山野，專挑隊伍的尾端與落單者下手。歐羅米的號角在前方開路，殿後的擔子，交給了你。',
+  d:'在【偉大旅程·星空下的曠野】擊敗 12 個襲擊遷徙隊伍的敵人。',
+  story:'最後一支魔狼被擊退，遷徙的隊伍安然越過了迷霧山脈。營火邊，精靈們唱起在路上新編的歌——後世傳唱萬年的旋律，此刻剛剛誕生。作為謝禮，他們把行路的乾糧塞滿你的行囊。門輕輕一轉：下一站，大海彼岸的維林諾。'},
+ {t:'上古四 · 雙樹之地',visit:'t_valinor',btn:'⭐ 瞻仰雙聖樹的光輝',unlock:'雙樹之丘',
   intro:'你踏上了凡人不可能踏足的土地——維林諾。銀樹與金樹交替綻放，光芒如潮水般漫過眾神的國度。維拉的工匠對你這位「時光的旅人」充滿好奇，願意用神造的兵器與你交易。',
   d:'抵達【維林諾】，點選「瞻仰雙聖樹的光輝」。',
   story:'你站在伊薩洛哈綠丘上，仰望雙樹：泰爾佩瑞安的銀露與羅瑞林的金雨在空中交織。這是阿爾達最美的年代——而你知道歷史的走向：被假釋的米爾寇正在某處微笑，一隻吞噬光明的太古魔蛛，已被他從世界南方的黑暗中喚醒。'},
- {t:'上古四 · 雙樹的殞落',boss:'boss_ungoliant',unlock:'憤怒之戰',
+ {t:'上古五 · 雙樹的殞落',boss:'boss_ungoliant',unlock:'星光下的戰爭',
   intro:'節慶之日，天光驟滅。米爾寇的長矛刺穿雙樹的樹身，而他身旁那團「比黑暗更黑的黑暗」張開巨口，將雙樹的光與樹液吸得一滴不剩——昂哥立安，連魔苟斯本人都懼怕的存在。牠吞完了光，把目光轉向了你。',
   d:'在【伊薩洛哈·雙樹之丘】擊敗「昂哥立安」。（牠會吞噬光芒回復自己，是最難纏的對手之一）',
-  story:'昂哥立安發出撕裂天地的尖嘯，拖著肥大的身軀遁入南方的黑暗，從此消失在所有記載之外。但雙樹已死，維林諾陷入黑暗；米爾寇竊走精靈寶鑽逃回中土，得到了他永遠的名字——魔苟斯，世界的黑暗大敵。費諾的誓言、諾多的流亡、第一紀元的所有戰爭，都從這一夜開始。'},
- {t:'上古五 · 憤怒之戰',boss:'boss_ancalagon',unlock:'安格班深淵',
-  intro:'門跳過了五百年的血淚——貝爾蘭的戰爭以精靈的節節敗退告終，直到航海家埃蘭迪爾帶著精靈寶鑽抵達維林諾，眾神終於出兵。憤怒之戰爆發：大地在維拉的軍勢下沉沒，魔苟斯放出了他最後的王牌——遮天蔽日的有翼龍族，領頭的是史上最巨大的黑龍，安卡拉剛。',
+  story:'昂哥立安發出撕裂天地的尖嘯，拖著肥大的身軀遁入南方的黑暗，從此消失在所有記載之外。但雙樹已死，維林諾陷入黑暗；米爾寇竊走精靈寶鑽逃回中土，得到了他永遠的名字——魔苟斯。費諾當眾立下可怕的誓言，率諾多一族出奔中土，火燒天鵝船——第一紀元的戰爭，開始了。'},
+ {t:'上古六 · 星光下的戰爭',area:'m_mithrim',kill:12,unlock:'安格班大門',
+  intro:'諾多精靈的艦隊在中土靠岸，燒船的火光映紅半邊夜空——費諾不給任何人回頭的退路。魔苟斯的大軍趁精靈立足未穩傾巢來襲，太陽尚未誕生，第一場大戰在米斯林湖畔的星光下爆發。',
+  d:'在【米斯林湖】擊敗 12 個來襲的安格班先鋒。',
+  story:'安格班的先鋒被殺得片甲不留——諾多的刀鋒在星光下勢不可擋，一路把敵人追殺回北方。但費諾追得太深，被炎魔團團圍住，傷重不治；他的軀體化作灰燼隨風而散，只留下那個燃燒的誓言。門繼續轉動，跳過數百年的圍城與戰役，停在一段傳唱最廣的故事前。'},
+ {t:'上古七 · 貝倫與露西安',boss:'boss_carcharoth',unlock:'納國斯隆德',
+  intro:'安格班大門前，人類貝倫與精靈公主露西安手牽著手走來——為了一顆聘禮，魔苟斯王冠上的精靈寶鑽。門前趴著魔王親手餵大的飢狼卡黑洛斯，世界上最強的狼。露西安的魔法使牠沉睡過一次；醒來的牠，暴怒著撲向所有活物。',
+  d:'在【安格班大門】擊敗「卡黑洛斯·血口飢狼」，為那對戀人開路。',
+  story:'飢狼倒下，安格班的大門在戀人身後緩緩閉合。再見到他們時，貝倫的手中握著從鐵王冠上剜下的精靈寶鑽——那是凡人與精靈之愛寫下的最高詩篇。露西安回眸一笑，解下肩上的星影斗篷披到你身上：「謝謝你，陌生的旅人。這段路，我們記得有你。」'},
+ {t:'上古八 · 屠龍者的哀歌',boss:'boss_glaurung',unlock:'憤怒之戰',
+  intro:'納國斯隆德的隱匿王國陷落了。龍父格勞龍盤踞在劫掠來的寶堆上，牠的魔眼能扭曲人心、詛咒人的一生——正如牠毀掉了英雄圖林·圖倫拔的一切。地底大廳的焦黑石柱間，那雙不闔的眼睛緩緩轉向你：「又一個想寫進歌謠裡的傢伙。」',
+  d:'在【納國斯隆德】擊敗「格勞龍·龍父」。（牠的魔眼與烈焰是全遊戲最兇的組合之一）',
+  story:'黑劍的宿命今天由你代筆——格勞龍腹下的軟鱗被刺穿，龍父的哀嚎震裂了納羅格河谷。牠至死不肯闔上的魔眼，終於黯淡下去。你在寶堆旁替圖林、妮諾爾與所有被這條龍毀掉的人默立片刻。門的光芒再起：五百年的血淚即將迎來清算。'},
+ {t:'上古九 · 憤怒之戰',boss:'boss_ancalagon',unlock:'安格班深淵',
+  intro:'門跳過了最後的血淚——航海家埃蘭迪爾帶著貝倫奪回的精靈寶鑽抵達維林諾，眾神終於出兵。憤怒之戰爆發：大地在維拉的軍勢下沉沒，魔苟斯放出了他最後的王牌——遮天蔽日的有翼龍族，領頭的是史上最巨大的黑龍，安卡拉剛。',
   d:'在【憤怒之戰·安法烏格力斯】擊敗「安卡拉剛·黑龍之王」。',
   story:'安卡拉剛的軀體從天空墜落，壓碎了魔苟斯堡壘上方的三座山峰——山格洛墜姆自此崩毀。龍族覆滅，魔苟斯的大軍土崩瓦解，他本人逃回安格班最深的地窖。眾神的大軍正在掘開鐵山——最後的對決，就在門後。'},
  {t:'上古終 · 黑暗大敵',boss:'boss_morgoth',unlock:'（上古結局）',
@@ -974,7 +1046,7 @@ let pendingInv={}, pendingDuel={};
 let netRoom=null, netRooms=[], lastPartySig=''; // netRoom={id,name}｜null=大廳
 
 function newState(race,base,name){
-  return {v:2,name,race,lv:1,exp:0,gold:60,base,statPts:0,
+  return {v:3,name,race,lv:1,exp:0,gold:60,base,statPts:0,
     hp:0,mp:0,cor:0,pvp:0,ch:0,kills:0,visited:{},tw:{},comps:[],comp:null,compHp:0,hasteUntil:0,ringGone:false,
     loc:'t_hobbiton',
     inv:[{id:'w_stick',q:1,e:0},{id:'a_cloth',q:1,e:0},{id:'p_herb',q:5},{id:'s_home',q:2}],
@@ -1007,10 +1079,18 @@ function derive(){
 function expNeed(lv){return 30*lv*lv}
 /* 舊版存檔（10 章版）章節對應到新版 21 章 */
 function migrate(sv){
-  if(!sv||sv.v>=2)return sv;
-  const map=[0,1,3,5,8,13,14,17,19,20,21];
-  sv.ch=map[Math.min(sv.ch||0,10)];
-  sv.kills=0;sv.v=2;
+  if(!sv)return sv;
+  if(!sv.v||sv.v<2){                      /* v1 → v2：主線 10 章 → 21 章 */
+    const map=[0,1,3,5,8,13,14,17,19,20,21];
+    sv.ch=map[Math.min(sv.ch||0,10)];
+    sv.kills=0;sv.v=2;
+  }
+  if(sv.v===2){                           /* v2 → v3：外傳 19 章 → 29 章（v16 插章位移） */
+    const m16={21:21,22:22,23:24,24:25,25:27,26:29,27:30,28:31,29:34,30:35,31:36,32:38,33:39,34:40,35:41,36:43,37:44,38:48,39:49};
+    if(sv.ch>=40)sv.ch=50;
+    else if(sv.ch>=21)sv.ch=m16[sv.ch];
+    sv.kills=0;sv.v=3;
+  }
   return sv;
 }
 function snapshot(){const d=derive();return {name:S.name,race:S.race,lv:S.lv,hp:S.hp,maxHp:d.maxHp,atk:d.atk,def:d.def,dex:d.b.dex,crit:d.crit,eva:d.eva}}
@@ -1306,6 +1386,8 @@ function renderLoc(){
       const done=bossDone(m.boss);
       h+=`<button class="${isTarget?'gold flash':''}" onclick="challengeBoss()">☠ 挑戰首領：${MOBS[m.boss][0]}${done?'（已擊敗，可再戰）':''}</button>`;
     }
+    const wvq=QUESTS[S.ch];
+    if(wvq&&wvq.visit===S.loc)h+=`<button class="gold flash" onclick="visitEvent()">${wvq.btn}</button>`;
     if(party&&party.leader===netId)h+=`<button class="purple" style="border-color:var(--purple)" onclick="partyHunt()">🤝 隊伍狩獵（連線）</button>`;
     h+=`</div>`;
     h+=`<div class="hint" style="margin-top:12px">此區敵人：${m.mobs.map(x=>MOBS[x][0]+' Lv.'+MOBS[x][1]).join('、')}</div>`;
@@ -1758,30 +1840,40 @@ function advanceChapter(){
   if(S.ch===15){addItem('w_anduril',1);
     log('<span style="color:#c9b878">愛隆之子率遊俠趕到，帶來一柄以黑布包裹的長劍——納希爾的碎片重鑄了。「聖劍重生之日，即王者歸來之時。」</span>');
     log('<span class="gold">獲得傳說武器【安都瑞爾·西方之焰】！</span>');}
-  /* 時光之門外傳獎勵 */
+  /* 時光之門外傳獎勵（idx 21~28） */
   if(S.ch===22){addItem('c_ulmo',1);log('<span class="gold">獲得傳說斗篷【烏歐牟的深海披風】！</span>');}
-  if(S.ch===23){addItem('r_mirdain',1);log('<span class="gold">獲得傳說飾品【米爾戴斯寶鑽戒】！</span>');}
-  if(S.ch===24){addItem('s_wepb',2);addItem('s_armb',2);log('<span class="gold">從忠貞派的船上獲得【祝福的武器強化卷軸】×2、【祝福的防具強化卷軸】×2！</span>');}
-  if(S.ch===25){addItem('r_gil',1);
-    log('<span class="gold">獲得傳說飾品【吉爾加拉德的星輝徽記】！</span>');
+  if(S.ch===23){S.gold+=30000;addItem('s_wep',2);addItem('s_arm',2);log('<span class="gold">工匠們留下的補給：30000 金幣與武防強化卷軸各 ×2！</span>');}
+  if(S.ch===24){addItem('r_mirdain',1);log('<span class="gold">獲得傳說飾品【米爾戴斯寶鑽戒】！</span>');}
+  if(S.ch===25){addItem('s_wepb',2);addItem('s_armb',2);log('<span class="gold">從忠貞派的船上獲得【祝福的武器強化卷軸】×2、【祝福的防具強化卷軸】×2！</span>');}
+  if(S.ch===26){S.gold+=60000;log('<span class="gold">圍城軍需官發下賞金：60000 金幣！</span>');}
+  if(S.ch===27){addItem('r_gil',1);log('<span class="gold">獲得傳說飾品【吉爾加拉德的星輝徽記】！</span>');}
+  if(S.ch===28){addItem('r_elendilmir',1);
+    log('<span class="gold">獲得傳說飾品【伊蘭迪爾之星】！</span>');
     log('<span class="gold" style="font-size:16px">★ 時光之門外傳全數完成！獲得稱號【時光行者】！ ★</span>');}
-  /* 哈比人外傳獎勵 */
-  if(S.ch===27){S.gold+=20000;log('<span class="gold">在食人妖的藏寶洞裡找到 20000 金幣！</span>');}
-  if(S.ch===28){addItem('p_miruvor',5);log('<span class="gold">獲得【米魯沃活力之水】×5！</span>');}
-  if(S.ch===29){addItem('c_thranduil',1);log('<span class="gold">獲得傳說斗篷【瑟蘭督伊的森林披風】！</span>');}
-  if(S.ch===30){addItem('w_blackarrow',1);log('<span class="gold">獲得傳說武器【黑箭·家傳的穿龍矢】！</span>');}
-  if(S.ch===31){S.gold+=100000;addItem('m_scale',5);
+  /* 哈比人外傳獎勵（idx 29~38） */
+  if(S.ch===30){S.gold+=20000;log('<span class="gold">在食人妖的藏寶洞裡找到 20000 金幣！</span>');}
+  if(S.ch===31){addItem('p_miruvor',5);log('<span class="gold">獲得【米魯沃活力之水】×5！</span>');}
+  if(S.ch===32){addItem('r_fishbone',1);log('<span class="gold">在地底湖畔撿到【咕嚕的魚骨護符】！</span>');}
+  if(S.ch===33){addItem('p_honey',8);log('<span class="gold">貝奧恩的謝禮：【貝奧恩的蜂蜜糕點】×8！</span>');}
+  if(S.ch===34){addItem('c_thranduil',1);log('<span class="gold">獲得傳說斗篷【瑟蘭督伊的森林披風】！</span>');}
+  if(S.ch===35){addItem('w_blackarrow',1);log('<span class="gold">獲得傳說武器【黑箭·家傳的穿龍矢】！</span>');}
+  if(S.ch===36){S.gold+=100000;addItem('m_scale',5);
     log('<span class="gold">矮人們與你分享史矛革的寶山：獲得 100000 金幣與【史矛革的龍鱗】×5！（工房有新的龍裝配方）</span>');}
-  if(S.ch===32){addItem('r_arkenstone',1);
+  if(S.ch===37){S.gold+=50000;addItem('s_wepb',2);addItem('s_armb',2);log('<span class="gold">白議會的謝禮：50000 金幣與祝福的武防卷軸各 ×2！</span>');}
+  if(S.ch===38){addItem('r_arkenstone',1);
     log('<span class="gold">獲得傳說飾品【家傳寶鑽·阿肯寶石】！</span>');
     log('<span class="gold" style="font-size:16px">★ 哈比人外傳全數完成！獲得稱號【五軍的英雄】！ ★</span>');}
-  /* 上古紀元外傳獎勵 */
-  if(S.ch===34){S.gold+=50000;log('<span class="gold">在烏塔莫前哨的戰利品中找到 50000 金幣！</span>');}
-  if(S.ch===35){addItem('p_miruvor',10);log('<span class="gold">初生的精靈以星光露水相贈：【米魯沃活力之水】×10！</span>');}
-  if(S.ch===36){addItem('c_varda',1);log('<span class="gold">星辰之后的贈禮：傳說斗篷【瓦爾妲的星幕披風】！</span>');}
-  if(S.ch===37){addItem('r_tree',1);log('<span class="gold">獲得傳說飾品【雙樹之光墜飾】！</span>');}
-  if(S.ch===38){S.gold+=200000;log('<span class="gold">憤怒之戰的戰利品：200000 金幣！</span>');}
-  if(S.ch===39){addItem('r_silmaril',1);
+  /* 上古紀元外傳獎勵（idx 39~49） */
+  if(S.ch===40){S.gold+=50000;log('<span class="gold">在烏塔莫前哨的戰利品中找到 50000 金幣！</span>');}
+  if(S.ch===41){addItem('p_miruvor',10);log('<span class="gold">初生的精靈以星光露水相贈：【米魯沃活力之水】×10！</span>');}
+  if(S.ch===42){S.gold+=40000;addItem('p_lembas',10);log('<span class="gold">遷徙隊伍的謝禮：40000 金幣與【蘭巴斯】×10！</span>');}
+  if(S.ch===43){addItem('c_varda',1);log('<span class="gold">星辰之后的贈禮：傳說斗篷【瓦爾妲的星幕披風】！</span>');}
+  if(S.ch===44){addItem('r_tree',1);log('<span class="gold">獲得傳說飾品【雙樹之光墜飾】！</span>');}
+  if(S.ch===45){S.gold+=120000;log('<span class="gold">星光之戰的戰利品：120000 金幣！</span>');}
+  if(S.ch===46){addItem('c_luthien',1);log('<span class="gold">獲得傳說斗篷【露西安的星影斗篷】！</span>');}
+  if(S.ch===47){S.gold+=150000;log('<span class="gold">納國斯隆德的寶堆分你一份：150000 金幣！</span>');}
+  if(S.ch===48){S.gold+=200000;log('<span class="gold">憤怒之戰的戰利品：200000 金幣！</span>');}
+  if(S.ch===49){addItem('r_silmaril',1);
     log('<span class="gold">獲得至高傳說飾品【精靈寶鑽】！</span>');
     log('<span class="gold" style="font-size:16px">★ 上古紀元外傳全數完成！獲得稱號【遠古的傳奇】！ ★</span>');}
   S.ch++;S.kills=0;
@@ -2396,7 +2488,7 @@ window.addEventListener('beforeunload',()=>{if(S)autoSave()});
 /* ═══════════════════ 連線功能 ═══════════════════
    受限定連線：需通關密語。支援聊天／組隊狩獵／PvP 決鬥。 */
 const NET_OFFICIAL='wss://middle-earth-text-rpg.onrender.com';
-if(location.protocol==='https:'){const w=$('net-https-warn');if(w)w.style.display='block';const a=$('net-addr');if(a)a.value=NET_OFFICIAL}
+if(typeof location!=='undefined'&&location.protocol==='https:'){const w=$('net-https-warn');if(w)w.style.display='block';const a=$('net-addr');if(a)a.value=NET_OFFICIAL}
 let netWant=false,netRetry=0,netRetryTimer=null;
 function netToggle(){
   if(netWS){netWant=false;clearTimeout(netRetryTimer);netWS.close();return}

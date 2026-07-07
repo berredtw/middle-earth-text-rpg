@@ -31,7 +31,7 @@ let pass=0,fail=0;
 function check(n,c){if(c){pass++;console.log('  ✓',n)}else{fail++;console.log('  ✗ 失敗:',n)}}
 
 // 資料一致性檢查
-check('章節共 40 章（主線 21＋時光之門 5＋哈比人 7＋上古紀元 7）',D.QUESTS.length===40);
+check('章節共 50 章（主線 21＋時光之門 8＋哈比人 10＋上古紀元 11）',D.QUESTS.length===50);
 check('技能共 36 招（各族 9 招）',Object.keys(D.SKILLS).length===36);
 let refOk=true;
 D.QUESTS.forEach((q,i)=>{
@@ -97,9 +97,9 @@ check('時光之門於魔戒銷毀前隱藏（無法進入）',G.S.loc!=='t_gate
 G.S.loc='m_doom';F.destroyRing();
 check('結局：銷毀魔戒',G.S.ringGone===true);
 
-// ── 時光之門外傳 5 章通關（後日談，沿用主線模擬邏輯）──
+// ── 時光之門外傳 8 章通關（後日談，沿用主線模擬邏輯）──
 guard=0;
-while(G.S.ch<26&&guard++<200000){
+while(G.S.ch<29&&guard++<200000){
   const q=D.QUESTS[G.S.ch];
   const needLv=q.boss?D.MOBS[q.boss][1]+4:(q.area?D.MOBS[D.MAPS[q.area].mobs[0]][1]+4:G.S.lv);
   while(G.S.lv<needLv)F.gainExp(30*G.S.lv*G.S.lv);
@@ -115,10 +115,11 @@ while(G.S.ch<26&&guard++<200000){
     F.pAttack();
   }
 }
-check(`時光之門外傳全數通關（最終 Lv.${G.S.lv}）`,G.S.ch===26);
+check(`時光之門外傳全數通關（最終 Lv.${G.S.lv}）`,G.S.ch===29);
 check('外傳一贈禮（烏歐牟的深海披風）',G.S.inv.some(x=>x.id==='c_ulmo'));
-check('外傳二贈禮（米爾戴斯寶鑽戒）',G.S.inv.some(x=>x.id==='r_mirdain'));
-check('外傳終贈禮（吉爾加拉德的星輝徽記）',G.S.inv.some(x=>x.id==='r_gil'));
+check('外傳三贈禮（米爾戴斯寶鑽戒）',G.S.inv.some(x=>x.id==='r_mirdain'));
+check('外傳六贈禮（吉爾加拉德的星輝徽記）',G.S.inv.some(x=>x.id==='r_gil'));
+check('外傳終贈禮（伊蘭迪爾之星）',G.S.inv.some(x=>x.id==='r_elendilmir'));
 let gDropTry=0;
 while(!['w_dramborleg','w_aeglos','w_sauronmace'].some(id=>G.S.inv.some(x=>x.id===id))&&gDropTry++<8){
   F.moveTo('m_dagorlad');d=F.derive();G.S.hp=d.maxHp;G.S.mp=d.maxMp;F.challengeBoss();
@@ -126,9 +127,9 @@ while(!['w_dramborleg','w_aeglos','w_sauronmace'].some(id=>G.S.inv.some(x=>x.id=
 }
 check('外傳新傳說武器可掉落取得',['w_dramborleg','w_aeglos','w_sauronmace'].some(id=>G.S.inv.some(x=>x.id===id)));
 
-// ── 哈比人外傳 7 章通關（意外的旅程 → 五軍之戰）──
+// ── 哈比人外傳 10 章通關（意外的旅程 → 五軍之戰）──
 guard=0;
-while(G.S.ch<33&&guard++<300000){
+while(G.S.ch<39&&guard++<300000){
   const q=D.QUESTS[G.S.ch];
   const needLv=q.boss?D.MOBS[q.boss][1]+4:(q.area?D.MOBS[D.MAPS[q.area].mobs[0]][1]+4:G.S.lv);
   while(G.S.lv<needLv)F.gainExp(30*G.S.lv*G.S.lv);
@@ -144,16 +145,18 @@ while(G.S.ch<33&&guard++<300000){
     F.pAttack();
   }
 }
-check(`哈比人外傳全數通關（最終 Lv.${G.S.lv}）`,G.S.ch===33);
+check(`哈比人外傳全數通關（最終 Lv.${G.S.lv}）`,G.S.ch===39);
 check('三食人妖藏寶洞獲得敵擊劍',G.S.inv.some(x=>x.id==='w_orcrist'));
-check('外傳六贈禮（瑟蘭督伊的森林披風）',G.S.inv.some(x=>x.id==='c_thranduil'));
-check('外傳七贈禮（黑箭）',G.S.inv.some(x=>x.id==='w_blackarrow'));
+check('旅程三贈禮（咕嚕的魚骨護符）',G.S.inv.some(x=>x.id==='r_fishbone'));
+check('旅程四贈禮（貝奧恩的蜂蜜糕點）',G.S.inv.some(x=>x.id==='p_honey'));
+check('旅程五贈禮（瑟蘭督伊的森林披風）',G.S.inv.some(x=>x.id==='c_thranduil'));
+check('旅程六贈禮（黑箭）',G.S.inv.some(x=>x.id==='w_blackarrow'));
 check('哈比人外傳終章贈禮（阿肯寶石）',G.S.inv.some(x=>x.id==='r_arkenstone'));
 
-// ── 上古紀元外傳 7 章通關（雙燈→雙樹→魔苟斯）──
+// ── 上古紀元外傳 11 章通關（雙燈→雙樹→英雄史詩→魔苟斯）──
 G.S.eq.weapon={id:'w_gundabad',e:9};G.S.eq.armor={id:'a_erebor',e:9};   // 全破玩家的合理裝備
 guard=0;
-while(G.S.ch<40&&guard++<400000){
+while(G.S.ch<50&&guard++<400000){
   const q=D.QUESTS[G.S.ch];
   const needLv=q.boss?D.MOBS[q.boss][1]+4:(q.area?D.MOBS[D.MAPS[q.area].mobs[0]][1]+4:G.S.lv);
   while(G.S.lv<needLv)F.gainExp(30*G.S.lv*G.S.lv);
@@ -169,9 +172,10 @@ while(G.S.ch<40&&guard++<400000){
     F.pAttack();
   }
 }
-check(`上古紀元外傳全數通關·擊敗魔苟斯（最終 Lv.${G.S.lv}）`,G.S.ch===40);
-check('上古三贈禮（瓦爾妲的星幕披風）',G.S.inv.some(x=>x.id==='c_varda'));
-check('上古四贈禮（雙樹之光墜飾）',G.S.inv.some(x=>x.id==='r_tree'));
+check(`上古紀元外傳全數通關·擊敗魔苟斯（最終 Lv.${G.S.lv}）`,G.S.ch===50);
+check('上古四贈禮（瓦爾妲的星幕披風）',G.S.inv.some(x=>x.id==='c_varda'));
+check('上古五贈禮（雙樹之光墜飾）',G.S.inv.some(x=>x.id==='r_tree'));
+check('上古七贈禮（露西安的星影斗篷）',G.S.inv.some(x=>x.id==='c_luthien'));
 check('上古終章贈禮（精靈寶鑽）',G.S.inv.some(x=>x.id==='r_silmaril'));
 let dropTry=0;
 while(!['w_dragonlord','w_grond','a_angband'].some(id=>G.S.inv.some(x=>x.id===id))&&dropTry++<8){
@@ -179,6 +183,12 @@ while(!['w_dragonlord','w_grond','a_angband'].some(id=>G.S.inv.some(x=>x.id===id
   while(G.battle){const dd=F.derive();if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;F.pAttack();}
 }
 check('上古傳說武防可掉落取得',['w_dragonlord','w_grond','a_angband'].some(id=>G.S.inv.some(x=>x.id===id)));
+dropTry=0;
+while(!G.S.inv.some(x=>x.id==='w_gurthang')&&dropTry++<12){
+  F.moveTo('m_nargothrond');d=F.derive();G.S.hp=d.maxHp;G.S.mp=d.maxMp;F.challengeBoss();
+  while(G.battle){const dd=F.derive();if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp;F.pAttack();}
+}
+check('古山格·黑劍可自格勞龍掉落取得',G.S.inv.some(x=>x.id==='w_gurthang'));
 
 // ── 首領戰鬥 AI：喝藥／狂暴 ──
 F.moveTo('m_isengard');F.challengeBoss();
@@ -566,9 +576,16 @@ G.S.ng=0;}
 // 舊存檔遷移
 const oldSave={v:1,ch:4,name:'舊玩家',race:'elf',lv:15,kills:5};
 const mig=F.migrate(oldSave);
-check('舊存檔第5章(摩瑞亞)遷移到新第9章(ch=8)',mig.ch===8&&mig.v===2);
+check('v1 舊存檔第5章(摩瑞亞)遷移到新第9章(ch=8)',mig.ch===8&&mig.v===3);
 const oldDone={v:1,ch:10,name:'老玩家',race:'dwarf',lv:40};
-check('舊全破存檔遷移後仍為全破',F.migrate(oldDone).ch===21);
+check('v1 舊全破存檔遷移後仍為全破主線',F.migrate(oldDone).ch===21);
+const v2a=F.migrate({v:2,ch:25,name:'外傳中',race:'human',lv:58});
+check('v2 存檔「最後同盟」遷移到新 idx 27',v2a.ch===27&&v2a.v===3);
+const v2b=F.migrate({v:2,ch:33,name:'上古前',race:'hobbit',lv:72});
+check('v2 存檔「上古世界之初」遷移到新 idx 39',v2b.ch===39);
+const v2c=F.migrate({v:2,ch:40,name:'全通',race:'dwarf',lv:92});
+check('v2 全通存檔遷移後仍為全通（ch=50）',v2c.ch===50);
+check('v3 存檔不再被重複遷移',F.migrate({v:3,ch:25}).ch===25);
 
 console.log(`\n結果：${pass} 通過 / ${fail} 失敗`);
 process.exit(fail?1:0);

@@ -36,17 +36,25 @@ const SCENARIOS=[
   ['m_gondolin', 46, {weapon:['w_anduril',7],armor:['a_mithril',7],cloak:['c_galad',0]},'p_lembas',{str:22,dex:18,con:26,int:5,wis:8}],
   ['m_eregion',  48, {weapon:['w_anduril',8],armor:['a_mithril',8],cloak:['c_galad',0]},'p_lembas',{str:23,dex:19,con:27,int:5,wis:8}],
   ['m_numenor',  50, {weapon:['w_dramborleg',7],armor:['a_gondolin',7],cloak:['c_ulmo',0]},'p_lembas',{str:24,dex:20,con:28,int:5,wis:8}],
+  ['m_barad',    52, {weapon:['w_dramborleg',8],armor:['a_gondolin',8],cloak:['c_ulmo',0]},'p_lembas',{str:25,dex:20,con:29,int:5,wis:8}],
   ['m_dagorlad', 53, {weapon:['w_dramborleg',8],armor:['a_numenor',7],cloak:['c_ulmo',0]},'p_lembas',{str:26,dex:21,con:29,int:5,wis:8}],
+  ['m_gladden',  56, {weapon:['w_aeglos',7],   armor:['a_numenor',7], cloak:['c_ulmo',0]},'p_lembas',{str:27,dex:22,con:30,int:5,wis:8}],
   // 哈比人外傳（Lv.55~66）
   ['m_trollshaw',57, {weapon:['w_aeglos',7],   armor:['a_numenor',8], cloak:['c_ulmo',0]},'p_lembas',{str:28,dex:22,con:31,int:5,wis:8}],
   ['m_goblintown',59,{weapon:['w_aeglos',8],   armor:['a_numenor',8], cloak:['c_ulmo',0]},'p_lembas',{str:29,dex:23,con:32,int:5,wis:8}],
+  ['m_carrock',  60, {weapon:['w_aeglos',8],   armor:['a_numenor',8], cloak:['c_ulmo',0]},'p_lembas',{str:29,dex:23,con:32,int:5,wis:8}],
   ['m_mirkwood', 60, {weapon:['w_aeglos',8],   armor:['a_mirkwood',7],cloak:['c_ulmo',0]},'p_lembas',{str:30,dex:23,con:33,int:5,wis:8}],
   ['m_erebor',   62, {weapon:['w_blackarrow',7],armor:['a_mirkwood',8],cloak:['c_thranduil',0]},'p_lembas',{str:31,dex:24,con:34,int:5,wis:8}],
+  ['m_dolout',   63, {weapon:['w_blackarrow',7],armor:['a_mirkwood',8],cloak:['c_thranduil',0]},'p_lembas',{str:31,dex:24,con:34,int:5,wis:8}],
   ['m_five',     64, {weapon:['w_thror',8],    armor:['a_erebor',7],  cloak:['c_thranduil',0]},'p_lembas',{str:32,dex:25,con:35,int:5,wis:8}],
   // 上古紀元（Lv.67~85）
   ['m_lamps',    68, {weapon:['w_gundabad',7], armor:['a_erebor',8],  cloak:['c_thranduil',0]},'p_lembas',{str:34,dex:26,con:37,int:5,wis:8}],
   ['m_cuivienen',70, {weapon:['w_gundabad',8], armor:['a_erebor',8],  cloak:['c_thranduil',0]},'p_lembas',{str:35,dex:27,con:38,int:5,wis:8}],
+  ['m_march',    71, {weapon:['w_gundabad',8], armor:['a_erebor',8],  cloak:['c_thranduil',0]},'p_lembas',{str:35,dex:27,con:38,int:5,wis:8}],
   ['m_ezellohar',73, {weapon:['w_valinor',7],  armor:['a_valinor',7], cloak:['c_varda',0]},'p_lembas',{str:36,dex:28,con:39,int:5,wis:8}],
+  ['m_mithrim',  77, {weapon:['w_dragonlord',7],armor:['a_voidsilk',7],cloak:['c_varda',0]},'p_lembas',{str:38,dex:29,con:41,int:5,wis:8}],
+  ['m_angbandgate',78,{weapon:['w_dragonlord',7],armor:['a_voidsilk',7],cloak:['c_luthien',0]},'p_lembas',{str:38,dex:29,con:41,int:5,wis:8}],
+  ['m_nargothrond',79,{weapon:['w_gurthang',7], armor:['a_voidsilk',8],cloak:['c_luthien',0]},'p_lembas',{str:39,dex:30,con:41,int:5,wis:8}],
   ['m_warwrath', 77, {weapon:['w_dragonlord',7],armor:['a_voidsilk',7],cloak:['c_varda',0]},'p_lembas',{str:38,dex:29,con:41,int:5,wis:8}],
   ['m_angband',  80, {weapon:['w_dragonlord',8],armor:['a_voidsilk',8],cloak:['c_varda',0]},'p_lembas',{str:39,dex:30,con:42,int:5,wis:8}],
 ];
@@ -56,7 +64,7 @@ let worstEarly=0;
 for(const [mk,lv,eq,pot,base] of SCENARIOS){
   G.battle=null;   // 清掉上一場景殘留的戰鬥，否則移動被擋、死亡數會灌水
   G.S=F.newState('human',base||{str:9,dex:7,con:8,int:5,wis:5},'模擬俠');
-  G.S.lv=lv;G.S.gold=0;G.S.ch=40;G.S.ringGone=true;   // 全圖解鎖以便測試（含全部三段外傳）
+  G.S.lv=lv;G.S.gold=0;G.S.ch=50;G.S.ringGone=true;   // 全圖解鎖以便測試（含全部三段外傳）
   G.S.eq.weapon=eq.weapon?{id:eq.weapon[0],e:eq.weapon[1]}:null;
   G.S.eq.armor=eq.armor?{id:eq.armor[0],e:eq.armor[1]}:null;
   G.S.eq.cloak=eq.cloak?{id:eq.cloak[0],e:eq.cloak[1]}:null;
