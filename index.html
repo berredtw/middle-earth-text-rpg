@@ -243,8 +243,8 @@ h1,h2,h3{color:var(--gold);font-weight:700}
           <div style="display:flex;gap:6px">
             <button id="net-btn" class="gold" style="flex:1" onclick="netToggle()">連 線</button>
           </div>
-          <div class="hint">預設密語 mellon（精靈語「朋友」——說朋友，進來吧）。伺服器需先執行「啟動連線伺服器.bat」。</div>
-          <div class="hint" id="net-https-warn" style="display:none;border:1px solid #5a4a2a;background:#1a160e;border-radius:6px;padding:8px 10px">⚠ 你正透過 https 網頁遊玩——瀏覽器禁止 https 頁面連向 ws:// 伺服器（混合內容限制），因此網頁版僅能單機遊玩。想與朋友連線組隊，請下載遊戲檔案到電腦，用本機檔案版連線（教學見遊戲說明）。單機內容完全相同，存檔碼兩邊通用。</div>
+          <div class="hint">預設密語 mellon（精靈語「朋友」——說朋友，進來吧）。區網自架伺服器請先執行「啟動連線伺服器.bat」；也可把位址改成官方伺服器 wss://middle-earth-text-rpg.onrender.com 與網頁版玩家同樂。</div>
+          <div class="hint" id="net-https-warn" style="display:none;border:1px solid #2c3a2c;background:#141a14;border-radius:6px;padding:8px 10px">🌐 已預填<b>官方伺服器</b>位址，直接按「連 線」即可進入大廳與其他玩家組隊、決鬥。伺服器閒置時會沉睡——若連線失敗，請等待約一分鐘讓它甦醒後再按一次。（https 網頁無法連自架的 ws:// 伺服器；想連區網自架伺服器請用下載版遊玩）</div>
         </div>
         <div class="dim" style="margin-top:6px">線上玩家</div>
         <div id="net-players" style="margin:6px 0"></div>
@@ -2383,7 +2383,8 @@ window.addEventListener('beforeunload',()=>{if(S)autoSave()});
 
 /* ═══════════════════ 連線功能 ═══════════════════
    受限定連線：需通關密語。支援聊天／組隊狩獵／PvP 決鬥。 */
-if(location.protocol==='https:'){const w=$('net-https-warn');if(w)w.style.display='block'}
+const NET_OFFICIAL='wss://middle-earth-text-rpg.onrender.com';
+if(location.protocol==='https:'){const w=$('net-https-warn');if(w)w.style.display='block';const a=$('net-addr');if(a)a.value=NET_OFFICIAL}
 function netToggle(){
   if(netWS){netWS.close();return}
   if(!S){return}
@@ -2399,7 +2400,10 @@ function netToggle(){
     clog('<span class="dim">── 已離線 ──</span>');
     renderNetTab();renderParty();renderLoc();
   };
-  netWS.onerror=()=>{clog('<span class="red">連線失敗：請確認伺服器已啟動、位址正確。</span>')};
+  netWS.onerror=()=>{
+    if(addr.startsWith('wss://'))clog('<span class="red">連線失敗：伺服器可能正在甦醒（閒置後首次連線需約一分鐘），請稍候再按一次「連 線」；或確認位址正確。</span>');
+    else clog('<span class="red">連線失敗：請確認伺服器已啟動、位址正確。</span>');
+  };
 }
 function netSend(o){if(netWS&&netWS.readyState===1)netWS.send(JSON.stringify(o))}
 function netSnap(){netSend({t:'snap',snap:snapshot()})}
