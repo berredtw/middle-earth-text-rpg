@@ -59,6 +59,13 @@ h1,h2,h3{color:var(--gold);font-weight:700}
 .battle-actions button{min-width:112px}
 .divider{border:none;border-top:1px dashed var(--line);margin:12px 0}
 #chatlog{height:180px;overflow-y:auto;background:#0f1218;border:1px solid var(--line);border-radius:4px;padding:8px;font-size:13px;line-height:1.7;margin:8px 0}
+.chat-me,.chat-other{display:flex;margin:4px 0}
+.chat-me{justify-content:flex-end}
+.chat-other{justify-content:flex-start}
+.chat-bubble{max-width:78%;padding:4px 10px;border-radius:10px;line-height:1.55;word-break:break-word}
+.chat-me .chat-bubble{background:#2a3550;border:1px solid #3d4d75;border-bottom-right-radius:3px}
+.chat-other .chat-bubble{background:#1d2430;border:1px solid #2e3542;border-bottom-left-radius:3px}
+.chat-name{font-size:11px;color:var(--dim);margin-bottom:1px}
 .plist-row{display:flex;justify-content:space-between;align-items:center;padding:4px 6px;border-bottom:1px solid #20242e;font-size:13px}
 .plist-row button{padding:1px 7px;font-size:12px;margin-left:4px}
 .hint{font-size:12px;color:var(--dim);line-height:1.6}
@@ -1011,6 +1018,9 @@ function log(html,cls){const el=$('log');const p=document.createElement('p');if(
   while(el.childNodes.length>200)el.removeChild(el.firstChild);el.scrollTop=el.scrollHeight;}
 function clog(html){const el=$('chatlog');const p=document.createElement('p');p.innerHTML=html;el.appendChild(p);
   while(el.childNodes.length>150)el.removeChild(el.firstChild);el.scrollTop=el.scrollHeight;}
+function chatMsg(name,msg,mine){const el=$('chatlog');const d=document.createElement('div');d.className=mine?'chat-me':'chat-other';
+  d.innerHTML=`<div class="chat-bubble">${mine?'':`<div class="chat-name">${esc(name)}</div>`}${esc(msg)}</div>`;
+  el.appendChild(d);while(el.childNodes.length>150)el.removeChild(el.firstChild);el.scrollTop=el.scrollHeight;}
 
 /* ═══════════ 標題／創角 ═══════════ */
 let crRace=null,crPts=10,crBase=null;
@@ -2385,39 +2395,64 @@ window.addEventListener('beforeunload',()=>{if(S)autoSave()});
    受限定連線：需通關密語。支援聊天／組隊狩獵／PvP 決鬥。 */
 const NET_OFFICIAL='wss://middle-earth-text-rpg.onrender.com';
 if(location.protocol==='https:'){const w=$('net-https-warn');if(w)w.style.display='block';const a=$('net-addr');if(a)a.value=NET_OFFICIAL}
+let netWant=false,netRetry=0,netRetryTimer=null;
 function netToggle(){
-  if(netWS){netWS.close();return}
+  if(netWS){netWant=false;clearTimeout(netRetryTimer);netWS.close();return}
   if(!S){return}
+  netWant=true;netRetry=0;clearTimeout(netRetryTimer);
+  netConnect();
+}
+function netConnect(){
+  if(netWS||!S)return;
   const addr=$('net-addr').value.trim(),code=$('net-code').value.trim();
-  if(location.protocol==='https:'&&addr.startsWith('ws://')){clog('<span class="red">https 網頁無法連向 ws:// 伺服器（瀏覽器混合內容限制）。請改用下載的本機檔案版連線，或改連 wss:// 伺服器。</span>');return}
+  if(location.protocol==='https:'&&addr.startsWith('ws://')){netWant=false;clog('<span class="red">https 網頁無法連向 ws:// 伺服器（瀏覽器混合內容限制）。請改用下載的本機檔案版連線，或改連 wss:// 伺服器。</span>');return}
   clog('<span class="dim">連線中……</span>');
-  try{netWS=new WebSocket(addr)}catch(e){clog('<span class="red">位址格式錯誤。</span>');netWS=null;return}
+  try{netWS=new WebSocket(addr)}catch(e){netWant=false;clog('<span class="red">位址格式錯誤。</span>');netWS=null;return}
   netWS.onopen=()=>{netSend({t:'hello',name:S.name,code,snap:snapshot()})};
   netWS.onmessage=ev=>{let m;try{m=JSON.parse(ev.data)}catch(e){return}netRecv(m)};
   netWS.onclose=()=>{
+    const wasIn=!!netId;
     netWS=null;netId=null;netPlayers=[];party=null;
     $('net-btn').textContent='連 線';$('net-btn').classList.add('gold');
-    clog('<span class="dim">── 已離線 ──</span>');
     renderNetTab();renderParty();renderLoc();
+    if(netWant&&S){
+      if(document.hidden){clog('<span class="dim">── 連線已中斷，回到遊戲時會自動重連 ──</span>');return}
+      if(netRetry<5){
+        netRetry++;
+        const d=Math.min(3*Math.pow(2,netRetry-1),24);
+        if(netRetry===1&&!wasIn&&addr.startsWith('wss://'))clog('<span class="dim">連不上——伺服器可能正在甦醒（約需一分鐘），自動重試中……</span>');
+        clog(`<span class="dim">── 連線中斷，${d} 秒後自動重連（${netRetry}/5）──</span>`);
+        netRetryTimer=setTimeout(netConnect,d*1000);
+      }else{
+        netWant=false;
+        clog('<span class="red">自動重連失敗。請確認位址正確，稍後再按「連 線」。</span>');
+      }
+    }else clog('<span class="dim">── 已離線 ──</span>');
   };
-  netWS.onerror=()=>{
-    if(addr.startsWith('wss://'))clog('<span class="red">連線失敗：伺服器可能正在甦醒（閒置後首次連線需約一分鐘），請稍候再按一次「連 線」；或確認位址正確。</span>');
-    else clog('<span class="red">連線失敗：請確認伺服器已啟動、位址正確。</span>');
-  };
+  netWS.onerror=()=>{};
 }
+/* 手機切換 App／背景分頁回來時自動重連（守衛：測試假 DOM 無 addEventListener） */
+if(document.addEventListener)document.addEventListener('visibilitychange',()=>{
+  if(!document.hidden&&netWant&&!netWS&&S){clearTimeout(netRetryTimer);netRetry=0;netConnect()}
+});
+/* 心跳：每 25 秒一則，避免閒置連線被雲端代理切斷 */
+setInterval(()=>{netSend({t:'ping'})},25000);
 function netSend(o){if(netWS&&netWS.readyState===1)netWS.send(JSON.stringify(o))}
 function netSnap(){netSend({t:'snap',snap:snapshot()})}
 function netRecv(m){
   switch(m.t){
     case 'deny':clog(`<span class="red">被拒絕連線：${esc(m.reason)}</span>`);break;
     case 'welcome':
-      netId=m.id;netPlayers=m.players;
+      netId=m.id;netPlayers=m.players;netRetry=0;
       $('net-btn').textContent='離 線';$('net-btn').classList.remove('gold');
       clog(`<span class="gold">── 密語正確，門開了。歡迎來到中土大廳，${esc(S.name)}！──</span>`);
       renderNetTab();break;
     case 'join':netPlayers.push(m.p);clog(`<span class="dim">${esc(m.p.name)} 進入了大廳。</span>`);renderNetTab();break;
     case 'quit':netPlayers=netPlayers.filter(p=>p.id!==m.id);clog(`<span class="dim">${esc(m.name)} 離開了。</span>`);renderNetTab();break;
-    case 'chat':clog(`<b class="blue">${esc(m.name)}</b>：${esc(m.msg)}`);break;
+    case 'chat':
+      if(m.from==='sys')clog(`<span class="dim">${esc(m.msg)}</span>`);
+      else chatMsg(m.name,m.msg,m.from===netId);
+      break;
     case 'plist':netPlayers=m.players;renderNetTab();break;
     case 'invite':
       pendingInv[m.from]=m.name;

@@ -43,10 +43,11 @@ function wsClient(name, onMsg) {
 const seen = [];
 function note(s){ seen.push(s); console.log('  ✓', s); }
 let A, B, idA, idB;
-let duelDone=false, huntDone=false;
+let duelDone=false, huntDone=false, pongDone=false;
 
 function router(who, m, api) {
-  if (m.t==='welcome'){ if(who==='A'){idA=m.id;} else {idB=m.id;} note(`${who} 通過密語進入大廳 (id=${m.id})`); }
+  if (m.t==='welcome'){ if(who==='A'){idA=m.id; api.send({t:'ping'});} else {idB=m.id;} note(`${who} 通過密語進入大廳 (id=${m.id})`); }
+  if (who==='A' && m.t==='pong'){ note('心跳 ping→pong 正常'); pongDone=true; finish(); }
   if (m.t==='deny'){ console.log('  ✗ 被拒絕：', m.reason); }
   if (who==='B' && m.t==='chat' && m.msg==='哈囉中土'){ note('B 收到 A 的聊天訊息'); B.send({t:'invite',to:idA? idA:'?'}); }
   if (who==='A' && m.t==='invite'){ note('A 收到組隊邀請'); A.send({t:'accept',from:m.from}); }
@@ -65,8 +66,8 @@ function router(who, m, api) {
   if (who==='A' && m.t==='hunt_result'){ note('A 收到隊伍狩獵獎勵 exp='+m.reward[idA].exp); huntDone=true; finish(); }
 }
 function finish(){
-  if (duelDone && huntDone){
-    console.log('全部通過：密語/聊天/組隊/決鬥/狩獵轉發 ✓');
+  if (duelDone && huntDone && pongDone){
+    console.log('全部通過：密語/心跳/聊天/組隊/決鬥/狩獵轉發 ✓');
     process.exit(0);
   }
 }

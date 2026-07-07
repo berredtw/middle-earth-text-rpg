@@ -103,6 +103,9 @@ function handle(id, msg) {
   }
 
   switch (msg.t) {
+    case 'ping':                         // 心跳：維持連線不被雲端代理視為閒置切斷
+      send(me, { t: 'pong' });
+      break;
     case 'snap':
       me.snap = msg.snap || me.snap;
       broadcast({ t: 'plist', players: playerList() });
