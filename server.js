@@ -15,8 +15,13 @@ const MAX_PLAYERS = 20;
 const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
 let nextId = 1;
-const clients = new Map();   // id -> {sock, name, snap, party}
+const clients = new Map();   // id -> {sock, name, snap, room, ready}
 const parties = new Map();   // partyId -> Set(memberIds)，partyId = 隊長 id
+
+/* ── 房間（大廳＝room null；房間限同房聊天/組隊/決鬥，空房自動消失）── */
+let nextRoomId = 1;
+const rooms = new Map();     // rid -> {name, pass, members:Set}
+const MAX_ROOMS = 8;
 
 /* ── WebSocket 訊框編碼（伺服器→客戶端，不加遮罩） ── */
 function encodeFrame(str) {
@@ -40,7 +45,7 @@ function send(c, obj) {
   try { c.sock.write(encodeFrame(JSON.stringify(obj))); } catch (e) {}
 }
 function broadcast(obj, exceptId) {
-  for (const [id, c] of clients) if (id !== exceptId) send(c, obj);
+  for (const [id, c] of clients) if (c.ready && id !== exceptId) send(c, obj);
 }
 function partyOf(id) {
   for (const [pid, set] of parties) if (set.has(id)) return pid;
@@ -75,8 +80,36 @@ function leaveParty(id, silent) {
     partyUpdate(pid);
   }
 }
-function playerList() {
-  return [...clients.entries()].map(([id, c]) => ({ id, name: c.name, lv: c.snap.lv, race: c.snap.race }));
+function playerList(room) {
+  return [...clients.entries()].filter(([, c]) => c.ready && c.room === room)
+    .map(([id, c]) => ({ id, name: c.name, lv: c.snap.lv, race: c.snap.race }));
+}
+function areaBroadcast(room, obj, exceptId) {
+  for (const [id, c] of clients) if (c.ready && c.room === room && id !== exceptId) send(c, obj);
+}
+function roomList() {
+  return [...rooms.entries()].map(([id, r]) => ({ id, name: r.name, n: r.members.size, lock: !!r.pass }));
+}
+function pushRooms() { broadcast({ t: 'rooms', list: roomList() }); }
+function sysMsg(me, msg) { send(me, { t: 'chat', from: 'sys', name: '系統', msg }); }
+/* 玩家移動到房間（room=null 即回大廳）：先退隊，兩邊區域各自更新名單 */
+function moveRoom(id, room) {
+  const me = clients.get(id);
+  if (!me || me.room === room) return;
+  leaveParty(id, false);
+  const old = me.room;
+  if (old !== null) {
+    const r = rooms.get(old);
+    if (r) { r.members.delete(id); if (r.members.size === 0) rooms.delete(old); }
+  }
+  me.room = room;
+  if (room !== null) rooms.get(room).members.add(id);
+  areaBroadcast(old, { t: 'quit', id, name: me.name });
+  areaBroadcast(old, { t: 'plist', players: playerList(old) });
+  areaBroadcast(room, { t: 'join', p: { id, name: me.name, lv: me.snap.lv, race: me.snap.race } }, id);
+  send(me, { t: 'room_you', id: room, name: room !== null ? rooms.get(room).name : null });
+  areaBroadcast(room, { t: 'plist', players: playerList(room) });
+  pushRooms();
 }
 
 /* ── 訊息處理 ── */
@@ -96,8 +129,9 @@ function handle(id, msg) {
     me.ready = true;
     me.name = String(msg.name || '無名旅人').slice(0, 12);
     me.snap = msg.snap || { lv: 1, race: 'human' };
-    send(me, { t: 'welcome', id, players: playerList() });
-    broadcast({ t: 'join', p: { id, name: me.name, lv: me.snap.lv, race: me.snap.race } }, id);
+    me.room = null;                      // 進場先在大廳
+    send(me, { t: 'welcome', id, players: playerList(null), rooms: roomList() });
+    areaBroadcast(null, { t: 'join', p: { id, name: me.name, lv: me.snap.lv, race: me.snap.race } }, id);
     console.log(`[+] ${me.name} 上線（目前 ${clients.size} 人）`);
     return;
   }
@@ -108,22 +142,41 @@ function handle(id, msg) {
       break;
     case 'snap':
       me.snap = msg.snap || me.snap;
-      broadcast({ t: 'plist', players: playerList() });
+      areaBroadcast(me.room, { t: 'plist', players: playerList(me.room) });
       { const pid = partyOf(id); if (pid) partyUpdate(pid); }
       break;
     case 'chat': {
       const text = String(msg.msg || '').slice(0, 120);
-      if (text) broadcast({ t: 'chat', from: id, name: me.name, msg: text });
+      if (text) areaBroadcast(me.room, { t: 'chat', from: id, name: me.name, msg: text });
       break;
     }
+    case 'room_create': {
+      const name = String(msg.name || '').trim().slice(0, 16);
+      if (!name) { sysMsg(me, '房間名稱不可為空。'); break; }
+      if (rooms.size >= MAX_ROOMS) { sysMsg(me, `房間數已達上限（${MAX_ROOMS} 間）。`); break; }
+      const rid = 'r' + (nextRoomId++);
+      rooms.set(rid, { name, pass: String(msg.pass || '').slice(0, 16), members: new Set() });
+      moveRoom(id, rid);
+      break;
+    }
+    case 'room_join': {
+      const r = rooms.get(msg.id);
+      if (!r) { sysMsg(me, '該房間已不存在。'); pushRooms(); break; }
+      if (r.pass && String(msg.pass || '') !== r.pass) { sysMsg(me, '房間密碼錯誤。'); break; }
+      moveRoom(id, msg.id);
+      break;
+    }
+    case 'room_leave':
+      if (me.room !== null) moveRoom(id, null);
+      break;
     case 'invite': {
       const tgt = clients.get(msg.to);
-      if (tgt) send(tgt, { t: 'invite', from: id, name: me.name });
+      if (tgt && tgt.room === me.room) send(tgt, { t: 'invite', from: id, name: me.name });
       break;
     }
     case 'accept': {                     // 受邀者同意加入邀請者的隊伍
       const inviter = clients.get(msg.from);
-      if (!inviter) break;
+      if (!inviter || inviter.room !== me.room) break;
       let pid = partyOf(msg.from);
       if (!pid) { pid = msg.from; parties.set(pid, new Set([msg.from])); }
       const set = parties.get(pid);
@@ -138,17 +191,17 @@ function handle(id, msg) {
       break;
     case 'duel_req': {
       const tgt = clients.get(msg.to);
-      if (tgt) send(tgt, { t: 'duel_req', from: id, name: me.name });
+      if (tgt && tgt.room === me.room) send(tgt, { t: 'duel_req', from: id, name: me.name });
       break;
     }
     case 'duel_acc': {                   // 應戰者同意 → 通知挑戰者開始模擬
       const challenger = clients.get(msg.to);
-      if (challenger) send(challenger, { t: 'duel_go', oppId: id, oppName: me.name, oppSnap: me.snap });
+      if (challenger && challenger.room === me.room) send(challenger, { t: 'duel_go', oppId: id, oppName: me.name, oppSnap: me.snap });
       break;
     }
     case 'duel_result': {
       const tgt = clients.get(msg.to);
-      if (tgt) send(tgt, { t: 'duel_result', lines: msg.lines, winner: msg.winner });
+      if (tgt && tgt.room === me.room) send(tgt, { t: 'duel_result', lines: msg.lines, winner: msg.winner });
       break;
     }
     case 'hunt_log': {
@@ -212,11 +265,17 @@ server.on('upgrade', (req, sock) => {
 
   const bye = () => {
     if (!clients.has(id)) return;
-    const name = me.name;
+    const name = me.name, room = me.room;
     leaveParty(id, true);
+    if (room !== undefined && room !== null) {
+      const r = rooms.get(room);
+      if (r) { r.members.delete(id); if (r.members.size === 0) rooms.delete(room); }
+    }
     clients.delete(id);
     if (me.ready) {
-      broadcast({ t: 'quit', id, name });
+      areaBroadcast(room, { t: 'quit', id, name });
+      areaBroadcast(room, { t: 'plist', players: playerList(room) });
+      pushRooms();
       console.log(`[-] ${name} 離線（目前 ${clients.size} 人）`);
     }
   };

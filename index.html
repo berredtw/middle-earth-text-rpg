@@ -253,7 +253,8 @@ h1,h2,h3{color:var(--gold);font-weight:700}
           <div class="hint">預設密語 mellon（精靈語「朋友」——說朋友，進來吧）。區網自架伺服器請先執行「啟動連線伺服器.bat」；也可把位址改成官方伺服器 wss://middle-earth-text-rpg.onrender.com 與網頁版玩家同樂。</div>
           <div class="hint" id="net-https-warn" style="display:none;border:1px solid #2c3a2c;background:#141a14;border-radius:6px;padding:8px 10px">🌐 已預填<b>官方伺服器</b>位址，直接按「連 線」即可進入大廳與其他玩家組隊、決鬥。伺服器閒置時會沉睡——若連線失敗，請等待約一分鐘讓它甦醒後再按一次。（https 網頁無法連自架的 ws:// 伺服器；想連區網自架伺服器請用下載版遊玩）</div>
         </div>
-        <div class="dim" style="margin-top:6px">線上玩家</div>
+        <div id="net-room-box"></div>
+        <div class="dim" style="margin-top:6px" id="net-plist-title">線上玩家</div>
         <div id="net-players" style="margin:6px 0"></div>
         <div class="dim">聊天／系統訊息</div>
         <div id="chatlog"></div>
@@ -970,6 +971,7 @@ let battle=null;     // 進行中戰鬥 {mob:{id,n,hp,maxHp,atk,def,exp,gold,dro
 let curSlot=1;
 let netWS=null, netId=null, netPlayers=[], party=null; // party={members:[{id,name,lv,race,snap}]}
 let pendingInv={}, pendingDuel={};
+let netRoom=null, netRooms=[], lastPartySig=''; // netRoom={id,name}｜null=大廳
 
 function newState(race,base,name){
   return {v:2,name,race,lv:1,exp:0,gold:60,base,statPts:0,
@@ -2412,7 +2414,7 @@ function netConnect(){
   netWS.onmessage=ev=>{let m;try{m=JSON.parse(ev.data)}catch(e){return}netRecv(m)};
   netWS.onclose=()=>{
     const wasIn=!!netId;
-    netWS=null;netId=null;netPlayers=[];party=null;
+    netWS=null;netId=null;netPlayers=[];party=null;netRoom=null;netRooms=[];lastPartySig='';
     $('net-btn').textContent='連 線';$('net-btn').classList.add('gold');
     renderNetTab();renderParty();renderLoc();
     if(netWant&&S){
@@ -2443,9 +2445,14 @@ function netRecv(m){
   switch(m.t){
     case 'deny':clog(`<span class="red">被拒絕連線：${esc(m.reason)}</span>`);break;
     case 'welcome':
-      netId=m.id;netPlayers=m.players;netRetry=0;
+      netId=m.id;netPlayers=m.players;netRetry=0;netRoom=null;netRooms=m.rooms||[];lastPartySig='';
       $('net-btn').textContent='離 線';$('net-btn').classList.remove('gold');
       clog(`<span class="gold">── 密語正確，門開了。歡迎來到中土大廳，${esc(S.name)}！──</span>`);
+      renderNetTab();break;
+    case 'rooms':netRooms=m.list||[];renderNetTab();break;
+    case 'room_you':
+      netRoom=m.id?{id:m.id,name:m.name}:null;
+      clog(netRoom?`<span class="gold">── 你走進了房間【${esc(netRoom.name)}】──</span>`:'<span class="gold">── 你回到了中土大廳 ──</span>');
       renderNetTab();break;
     case 'join':netPlayers.push(m.p);clog(`<span class="dim">${esc(m.p.name)} 進入了大廳。</span>`);renderNetTab();break;
     case 'quit':netPlayers=netPlayers.filter(p=>p.id!==m.id);clog(`<span class="dim">${esc(m.name)} 離開了。</span>`);renderNetTab();break;
@@ -2458,11 +2465,16 @@ function netRecv(m){
       pendingInv[m.from]=m.name;
       clog(`<b class="purple">${esc(m.name)}</b> 邀請你加入遠征隊！ <button onclick="acceptInvite('${m.from}')">加入</button>`);
       break;
-    case 'party':
+    case 'party':{
       party=m.members.length>1?{leader:m.leader,members:m.members}:null;
-      if(party)clog(`<span class="purple">遠征隊成員：${party.members.map(x=>esc(x.name)).join('、')}${party.leader===netId?'（你是隊長，可在野外發起隊伍狩獵）':''}</span>`);
-      else clog('<span class="dim">遠征隊已解散。</span>');
-      renderParty();renderNetTab();renderLoc();break;
+      /* 只在「成員或隊長變動」時印訊息——快照更新（每場戰鬥勝利）也會觸發 party，不去洗版 */
+      const sig=party?party.leader+'|'+party.members.map(x=>x.id).sort().join(','):'';
+      if(sig!==lastPartySig){
+        if(party)clog(`<span class="purple">遠征隊成員：${party.members.map(x=>esc(x.name)).join('、')}${party.leader===netId?'（你是隊長，可在野外發起隊伍狩獵）':''}</span>`);
+        else if(lastPartySig)clog('<span class="dim">遠征隊已解散。</span>');
+        lastPartySig=sig;
+      }
+      renderParty();renderNetTab();renderLoc();break;}
     case 'duel_req':
       pendingDuel[m.from]=m.name;
       clog(`<b class="red">${esc(m.name)}</b> 向你發起決鬥！ <button onclick="acceptDuel('${m.from}')">應戰</button>`);
@@ -2474,16 +2486,52 @@ function netRecv(m){
   }
 }
 function renderNetTab(){
-  const box=$('net-players');if(!box)return;
-  if(!netWS||!netId){box.innerHTML='<div class="hint">尚未連線。</div>';$('net-party-ctrl').innerHTML='';return}
+  const box=$('net-players'),rbox=$('net-room-box');if(!box)return;
+  if(!netWS||!netId){box.innerHTML='<div class="hint">尚未連線。</div>';$('net-party-ctrl').innerHTML='';if(rbox)rbox.innerHTML='';$('net-plist-title').textContent='線上玩家';return}
+  /* 房間區：目前位置＋房間列表（大廳才列）＋建立/離開按鈕 */
+  if(rbox){
+    let rh=`<div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+      <span class="${netRoom?'purple':'gold'}">${netRoom?'🚪 房間【'+esc(netRoom.name)+'】':'🏰 中土大廳'}</span>
+      ${netRoom?`<button onclick="netSend({t:'room_leave'})">離開房間</button>`:`<button class="gold" onclick="openRoomCreate()">🚪 建立房間</button>`}
+    </div>`;
+    const list=netRooms.filter(r=>!netRoom||r.id!==netRoom.id);
+    if(!netRoom){
+      if(list.length)rh+=list.map(r=>`<div class="plist-row"><span>🚪 ${esc(r.name)} <span class="dim">${r.n} 人</span>${r.lock?' 🔒':''}</span><button onclick="joinRoom('${r.id}',${r.lock?1:0})">進入</button></div>`).join('');
+      else rh+='<div class="hint">目前沒有房間——建一間，邀朋友進來吧。</div>';
+    }
+    rbox.innerHTML=rh;
+  }
+  $('net-plist-title').textContent=netRoom?`房內玩家（${netPlayers.length}）`:`大廳玩家（${netPlayers.length}）`;
   let h='';
   for(const p of netPlayers){
     if(p.id===netId){h+=`<div class="plist-row"><span class="gold">${esc(p.name)}（你）Lv.${p.lv}</span></div>`;continue}
     h+=`<div class="plist-row"><span>${esc(p.name)} Lv.${p.lv} <span class="dim">${RACES[p.race]?RACES[p.race].n.split('（')[0]:''}</span></span>
       <span><button onclick="invite('${p.id}')">邀請組隊</button><button onclick="duelReq('${p.id}')">決鬥</button></span></div>`;
   }
-  box.innerHTML=h||'<div class="hint">目前只有你在線上。</div>';
+  box.innerHTML=h||'<div class="hint">目前只有你在這裡。</div>';
   $('net-party-ctrl').innerHTML=party?`<button class="danger" onclick="netSend({t:'party_leave'})">離開遠征隊</button>`:'';
+}
+function openRoomCreate(){
+  openModal(`<h3 style="font-size:18px">🚪 建立房間</h3><hr class="divider">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <input id="room-name" maxlength="16" placeholder="房間名稱（必填）">
+      <input id="room-pass" maxlength="16" placeholder="房間密碼（留空＝公開）">
+      <button class="gold" onclick="doRoomCreate()">建立並進入</button>
+    </div>
+    <div class="hint" style="margin-top:8px">房間內的聊天、組隊、決鬥只有房內的人看得到；所有人離開後房間自動消失。</div>`);
+}
+function doRoomCreate(){
+  const n=$('room-name').value.trim();if(!n)return;
+  netSend({t:'room_create',name:n,pass:$('room-pass').value.trim()});
+  closeModal();
+}
+function joinRoom(id,lock){
+  if(!lock){netSend({t:'room_join',id});return}
+  openModal(`<h3 style="font-size:18px">🔒 這間房上了鎖</h3><hr class="divider">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <input id="room-pass-in" maxlength="16" placeholder="輸入房間密碼">
+      <button class="gold" onclick="netSend({t:'room_join',id:'${id}',pass:$('room-pass-in').value.trim()});closeModal()">進入</button>
+    </div>`);
 }
 function renderParty(){
   const pn=$('party-panel');
