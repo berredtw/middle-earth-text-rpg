@@ -295,42 +295,42 @@ const RACES={
 };
 /* ───────── 技能資料 ───────── */
 const SKILLS={
-  h1:{race:'human',lv:1, n:'聖劍斬',   mp:5, type:'dmg', pw:1.6, d:'凝聚劍氣的一擊，造成 160% 傷害。'},
-  h2:{race:'human',lv:6, n:'王者之風', mp:9, type:'buff',stat:'atk',mult:1.25,turns:6,d:'皇族血脈覺醒，攻擊力提升 25%，持續 6 回合。'},
-  h3:{race:'human',lv:12,n:'皇家治療', mp:12,type:'heal',pw:0.4, d:'王者之手是醫者之手，恢復 40% 最大生命。'},
-  h4:{race:'human',lv:22,n:'西方之焰', mp:22,type:'dmg', pw:2.7, d:'揮出安都瑞爾般的烈焰斬擊，造成 270% 傷害。'},
-  h5:{race:'human',lv:8, n:'旋風斬',   mp:12,type:'dmg', pw:1.1, aoe:1,d:'長劍橫掃一圈，對所有敵人造成 110% 傷害。'},
-  h6:{race:'human',lv:26,n:'聖光審判', mp:26,type:'dmg', pw:1.9, aoe:1,d:'王者的威光自天而降，對所有敵人造成 190% 傷害。'},
-  h7:{race:'human',lv:34,n:'王者號令', mp:30,type:'buff',stat:'haste',mult:2,turns:4,d:'以王者之名下令疾攻，4 回合內每回合多攻擊一次。'},
-  h8:{race:'human',lv:42,n:'聖劍·王者降臨',mp:34,type:'dmg',pw:3.6,sure:1,d:'王者之劍的最終裁決，必定命中，造成 360% 傷害。'},
-  h9:{race:'human',lv:50,n:'伊力薩的黎明',mp:44,type:'dmg',pw:2.6,aoe:1,heal:0.06,d:'黎明的王輝橫掃戰場，對所有敵人造成 260% 傷害，每命中一名敵人恢復 6% 生命。'},
-  e1:{race:'elf',lv:1,  n:'精準射擊',  mp:4, type:'dmg', pw:1.5, sure:1,d:'精靈之箭必定命中，造成 150% 傷害。'},
-  e2:{race:'elf',lv:6,  n:'精靈之歌',  mp:10,type:'heal',pw:0.35,d:'吟唱維林諾的古歌，恢復 35% 最大生命。'},
-  e3:{race:'elf',lv:12, n:'星光箭',    mp:13,type:'dmg', pw:2.1, pierce:1,d:'埃蘭迪爾之星的光輝，無視敵人一半防禦，造成 210% 傷害。'},
-  e4:{race:'elf',lv:22, n:'凱蘭崔爾之光',mp:25,type:'dmg',pw:2.4,heal:0.2,d:'聖光爆發，造成 240% 傷害並恢復 20% 生命。'},
-  e5:{race:'elf',lv:8,  n:'箭雨',      mp:12,type:'dmg', pw:1.05,aoe:1,d:'瞬息連珠箭灑向戰場，對所有敵人造成 105% 傷害。'},
-  e6:{race:'elf',lv:26, n:'星辰風暴',  mp:26,type:'dmg', pw:1.9, aoe:1,d:'召喚星光如暴雨傾瀉，對所有敵人造成 190% 傷害。'},
-  e7:{race:'elf',lv:34, n:'加拉德林的祝福',mp:26,type:'heal',pw:0.6,d:'黃金森林的星光籠罩全身，恢復 60% 最大生命。'},
-  e8:{race:'elf',lv:42, n:'風暴之箭',  mp:34,type:'dmg', pw:3.3, pierce:1,d:'挾帶風暴的貫穿之箭，無視敵人一半防禦，造成 330% 傷害。'},
-  e9:{race:'elf',lv:50, n:'維林諾的審判',mp:44,type:'dmg',pw:2.5,aoe:1,pierce:1,d:'西方聖地的光輝降臨，對所有敵人造成 250% 傷害並無視一半防禦。'},
-  d1:{race:'dwarf',lv:1, n:'戰斧猛擊', mp:5, type:'dmg', pw:1.7, d:'沉重的斧刃劈砍，造成 170% 傷害。'},
-  d2:{race:'dwarf',lv:6, n:'石膚術',   mp:9, type:'buff',stat:'def',mult:1.5,turns:6,d:'皮膚硬如摩瑞亞岩壁，防禦提升 50%，持續 6 回合。'},
-  d3:{race:'dwarf',lv:12,n:'都靈怒吼', mp:13,type:'dmg', pw:2.0, stun:.3,d:'震撼戰場的怒吼，造成 200% 傷害，30% 機率使敵人下回合無法行動。'},
-  d4:{race:'dwarf',lv:22,n:'都靈之怒', mp:24,type:'dmg', pw:2.9, d:'祖先之魂附體的毀滅一擊，造成 290% 傷害。'},
-  d5:{race:'dwarf',lv:8, n:'大地震擊', mp:12,type:'dmg', pw:1.15,aoe:1,d:'戰斧砸向地面，震波襲向所有敵人（115% 傷害）。'},
-  d6:{race:'dwarf',lv:26,n:'山崩',     mp:26,type:'dmg', pw:2.0, aoe:1,d:'如山岳崩落的全力橫掃，對所有敵人造成 200% 傷害。'},
-  d7:{race:'dwarf',lv:34,n:'戰爭狂熱', mp:28,type:'buff',stat:'atk',mult:1.45,turns:6,d:'矮人的戰吼沸騰血液，攻擊力提升 45%，持續 6 回合。'},
-  d8:{race:'dwarf',lv:42,n:'格龍德重錘',mp:34,type:'dmg',pw:3.5, stun:.35,d:'仿效遠古巨錘的全力一擊，造成 350% 傷害，35% 機率使敵人暈眩。'},
-  d9:{race:'dwarf',lv:50,n:'凱薩督姆的震怒',mp:44,type:'dmg',pw:2.7,aoe:1,d:'先王之魂隨斧齊落，對所有敵人造成 270% 傷害。'},
-  b1:{race:'hobbit',lv:1, n:'精準投石', mp:4, type:'dmg', pw:1.5, crit:.3,d:'哈比人的投石百發百中，造成 150% 傷害且爆擊率大增。'},
-  b2:{race:'hobbit',lv:6, n:'隱匿身形', mp:9, type:'buff',stat:'eva',mult:99,turns:4,d:'像哈比人一樣消失無蹤，4 回合內閃避率大幅提升。'},
-  b3:{race:'hobbit',lv:12,n:'暗影背刺', mp:13,type:'dmg', pw:2.3, d:'從敵人的影子中出手，造成 230% 傷害。'},
-  b4:{race:'hobbit',lv:22,n:'幸運滿貫', mp:22,type:'dmg', pw:0,  lucky:1,d:'把好運全押上！隨機造成 150%～400% 傷害。'},
-  b5:{race:'hobbit',lv:8, n:'石雨',    mp:12,type:'dmg', pw:1.05,aoe:1,d:'一大把石子天女散花，對所有敵人造成 105% 傷害。'},
-  b6:{race:'hobbit',lv:26,n:'甘道夫的煙火',mp:26,type:'dmg',pw:1.9,aoe:1,d:'偷藏已久的巨龍煙火！對所有敵人造成 190% 傷害。'},
-  b7:{race:'hobbit',lv:34,n:'第二頓早餐',mp:24,type:'heal',pw:0.5,d:'再危險也不能餓著肚子打仗！掏出乾糧大快朵頤，恢復 50% 最大生命。'},
-  b8:{race:'hobbit',lv:42,n:'孤注一擲', mp:34,type:'dmg', pw:1.3, lucky:1,d:'把全部好運押在這一擊！隨機造成 195%～520% 傷害。'},
-  b9:{race:'hobbit',lv:50,n:'龍炎煙火秀',mp:44,type:'dmg',pw:2.4,aoe:1,crit:.25,d:'整箱煙火一次點燃！對所有敵人造成 240% 傷害且爆擊率大增。'}
+  h1:{race:'human',lv:1, n:'聖劍斬',   mp:5, cd:5,type:'dmg', pw:1.6, d:'凝聚劍氣的一擊，造成 160% 傷害。'},
+  h2:{race:'human',lv:6, n:'王者之風', mp:9, cd:12,type:'buff',stat:'atk',mult:1.25,turns:6,d:'皇族血脈覺醒，攻擊力提升 25%，持續 12 秒。'},
+  h3:{race:'human',lv:12,n:'皇家治療', mp:12,cd:6,type:'heal',pw:0.4, d:'王者之手是醫者之手，恢復 40% 最大生命。'},
+  h4:{race:'human',lv:22,n:'西方之焰', mp:22,cd:6,type:'dmg', pw:2.7, d:'揮出安都瑞爾般的烈焰斬擊，造成 270% 傷害。'},
+  h5:{race:'human',lv:8, n:'旋風斬',   mp:12,cd:8,type:'dmg', pw:1.1, aoe:1,d:'長劍橫掃一圈，對所有敵人造成 110% 傷害。'},
+  h6:{race:'human',lv:26,n:'聖光審判', mp:26,cd:9,type:'dmg', pw:1.9, aoe:1,d:'王者的威光自天而降，對所有敵人造成 190% 傷害。'},
+  h7:{race:'human',lv:34,n:'王者號令', mp:30,cd:15,type:'buff',stat:'haste',mult:2,turns:4,d:'以王者之名下令疾攻，8 秒內攻擊速度大幅提升。'},
+  h8:{race:'human',lv:42,n:'聖劍·王者降臨',mp:34,cd:8,type:'dmg',pw:3.6,sure:1,d:'王者之劍的最終裁決，必定命中，造成 360% 傷害。'},
+  h9:{race:'human',lv:50,n:'伊力薩的黎明',mp:44,cd:10,type:'dmg',pw:2.6,aoe:1,heal:0.06,d:'黎明的王輝橫掃戰場，對所有敵人造成 260% 傷害，每命中一名敵人恢復 6% 生命。'},
+  e1:{race:'elf',lv:1,  n:'精準射擊',  mp:4, cd:5,type:'dmg', pw:1.5, sure:1,d:'精靈之箭必定命中，造成 150% 傷害。'},
+  e2:{race:'elf',lv:6,  n:'精靈之歌',  mp:10,cd:6,type:'heal',pw:0.35,d:'吟唱維林諾的古歌，恢復 35% 最大生命。'},
+  e3:{race:'elf',lv:12, n:'星光箭',    mp:13,cd:6,type:'dmg', pw:2.1, pierce:1,d:'埃蘭迪爾之星的光輝，無視敵人一半防禦，造成 210% 傷害。'},
+  e4:{race:'elf',lv:22, n:'凱蘭崔爾之光',mp:25,cd:7,type:'dmg',pw:2.4,heal:0.2,d:'聖光爆發，造成 240% 傷害並恢復 20% 生命。'},
+  e5:{race:'elf',lv:8,  n:'箭雨',      mp:12,cd:8,type:'dmg', pw:1.05,aoe:1,d:'瞬息連珠箭灑向戰場，對所有敵人造成 105% 傷害。'},
+  e6:{race:'elf',lv:26, n:'星辰風暴',  mp:26,cd:9,type:'dmg', pw:1.9, aoe:1,d:'召喚星光如暴雨傾瀉，對所有敵人造成 190% 傷害。'},
+  e7:{race:'elf',lv:34, n:'加拉德林的祝福',mp:26,cd:8,type:'heal',pw:0.6,d:'黃金森林的星光籠罩全身，恢復 60% 最大生命。'},
+  e8:{race:'elf',lv:42, n:'風暴之箭',  mp:34,cd:8,type:'dmg', pw:3.3, pierce:1,d:'挾帶風暴的貫穿之箭，無視敵人一半防禦，造成 330% 傷害。'},
+  e9:{race:'elf',lv:50, n:'維林諾的審判',mp:44,cd:10,type:'dmg',pw:2.5,aoe:1,pierce:1,d:'西方聖地的光輝降臨，對所有敵人造成 250% 傷害並無視一半防禦。'},
+  d1:{race:'dwarf',lv:1, n:'戰斧猛擊', mp:5, cd:5,type:'dmg', pw:1.7, d:'沉重的斧刃劈砍，造成 170% 傷害。'},
+  d2:{race:'dwarf',lv:6, n:'石膚術',   mp:9, cd:12,type:'buff',stat:'def',mult:1.5,turns:6,d:'皮膚硬如摩瑞亞岩壁，防禦提升 50%，持續 12 秒。'},
+  d3:{race:'dwarf',lv:12,n:'都靈怒吼', mp:13,cd:6,type:'dmg', pw:2.0, stun:.3,d:'震撼戰場的怒吼，造成 200% 傷害，30% 機率使敵人短暫暈眩。'},
+  d4:{race:'dwarf',lv:22,n:'都靈之怒', mp:24,cd:6,type:'dmg', pw:2.9, d:'祖先之魂附體的毀滅一擊，造成 290% 傷害。'},
+  d5:{race:'dwarf',lv:8, n:'大地震擊', mp:12,cd:8,type:'dmg', pw:1.15,aoe:1,d:'戰斧砸向地面，震波襲向所有敵人（115% 傷害）。'},
+  d6:{race:'dwarf',lv:26,n:'山崩',     mp:26,cd:9,type:'dmg', pw:2.0, aoe:1,d:'如山岳崩落的全力橫掃，對所有敵人造成 200% 傷害。'},
+  d7:{race:'dwarf',lv:34,n:'戰爭狂熱', mp:28,cd:12,type:'buff',stat:'atk',mult:1.45,turns:6,d:'矮人的戰吼沸騰血液，攻擊力提升 45%，持續 12 秒。'},
+  d8:{race:'dwarf',lv:42,n:'格龍德重錘',mp:34,cd:8,type:'dmg',pw:3.5, stun:.35,d:'仿效遠古巨錘的全力一擊，造成 350% 傷害，35% 機率使敵人暈眩。'},
+  d9:{race:'dwarf',lv:50,n:'凱薩督姆的震怒',mp:44,cd:10,type:'dmg',pw:2.7,aoe:1,d:'先王之魂隨斧齊落，對所有敵人造成 270% 傷害。'},
+  b1:{race:'hobbit',lv:1, n:'精準投石', mp:4, cd:5,type:'dmg', pw:1.5, crit:.3,d:'哈比人的投石百發百中，造成 150% 傷害且爆擊率大增。'},
+  b2:{race:'hobbit',lv:6, n:'隱匿身形', mp:9, cd:12,type:'buff',stat:'eva',mult:99,turns:4,d:'像哈比人一樣消失無蹤，8 秒內閃避率大幅提升。'},
+  b3:{race:'hobbit',lv:12,n:'暗影背刺', mp:13,cd:6,type:'dmg', pw:2.3, d:'從敵人的影子中出手，造成 230% 傷害。'},
+  b4:{race:'hobbit',lv:22,n:'幸運滿貫', mp:22,cd:6,type:'dmg', pw:0,  lucky:1,d:'把好運全押上！隨機造成 150%～400% 傷害。'},
+  b5:{race:'hobbit',lv:8, n:'石雨',    mp:12,cd:8,type:'dmg', pw:1.05,aoe:1,d:'一大把石子天女散花，對所有敵人造成 105% 傷害。'},
+  b6:{race:'hobbit',lv:26,n:'甘道夫的煙火',mp:26,cd:9,type:'dmg',pw:1.9,aoe:1,d:'偷藏已久的巨龍煙火！對所有敵人造成 190% 傷害。'},
+  b7:{race:'hobbit',lv:34,n:'第二頓早餐',mp:24,cd:8,type:'heal',pw:0.5,d:'再危險也不能餓著肚子打仗！掏出乾糧大快朵頤，恢復 50% 最大生命。'},
+  b8:{race:'hobbit',lv:42,n:'孤注一擲', mp:34,cd:8,type:'dmg', pw:1.3, lucky:1,d:'把全部好運押在這一擊！隨機造成 195%～520% 傷害。'},
+  b9:{race:'hobbit',lv:50,n:'龍炎煙火秀',mp:44,cd:10,type:'dmg',pw:2.4,aoe:1,crit:.25,d:'整箱煙火一次點燃！對所有敵人造成 240% 傷害且爆擊率大增。'}
 };
 /* ───────── 夥伴資料（旅店招募）─────────
    tier: low村民工匠 mid職業者 high原著英雄　role: tank盾衛 heal醫護 dps突擊 */
@@ -360,42 +360,42 @@ const COMPS={
 /* ───────── 道具資料 ─────────
    t: weapon武器 armor鎧甲 cloak斗篷 acc飾品 use消耗 scroll卷軸 quest任務 */
 const ITEMS={
-  w_stick:  {n:'旅行木杖',t:'weapon',atk:2, lv:1, pr:15,  d:'路邊撿的硬木杖，聊勝於無。'},
-  w_dagger: {n:'哈比短刀',t:'weapon',atk:4, lv:1, pr:50,  d:'夏爾鐵匠打造的小巧短刀。'},
-  w_barrow: {n:'西方皇族的古劍',t:'weapon',atk:9,lv:5,pr:0,d:'古墓崗陪葬品中的細長短劍，三千年前的西方皇族為對抗安格馬巫王所鑄，纏繞著剋制黑暗的咒文。（主線劇情獲得）'},
-  w_bree:   {n:'布理鐵劍',t:'weapon',atk:7, lv:4, pr:160, d:'躍馬旅店旁鐵鋪出品的實用鐵劍。'},
-  w_axe:    {n:'矮人手斧',t:'weapon',atk:10,lv:7, pr:380, d:'藍山矮人鍛造，斧刃刻著盧恩符文。'},
-  w_mirkwood:{n:'幽暗密林獵弓',t:'weapon',atk:12,lv:9,pr:700,d:'幽暗密林精靈的制式獵弓，弓身以密林紫杉製成。'},
-  w_ranger: {n:'遊俠長劍',t:'weapon',atk:13,lv:10,pr:750, d:'北方遊俠的制式長劍，飽經風霜卻鋒利依舊。'},
-  w_silveraxe:{n:'異界·銀斧',t:'weapon',atk:17,lv:15,pr:2100,d:'異界銀匠鍛造的戰斧，泛著月光般的冷輝。'},
-  w_sting:  {n:'刺針（精靈短劍）',t:'weapon',atk:16,lv:13,pr:1800,orcbane:1,d:'剛多林鑄造的精靈短劍，半獸人接近時泛出藍光。對半獸人類敵人傷害 +50%！'},
-  w_rohan:  {n:'洛汗騎兵劍',t:'weapon',atk:19,lv:17,pr:2600,d:'驃騎王家的馬上彎刀，劍柄飾有奔馬。'},
-  w_lorien: {n:'羅瑞安長弓',t:'weapon',atk:22,lv:20,pr:3800,d:'凱蘭崔爾親贈的加拉德林長弓，弦如星光。'},
-  w_katana: {n:'異界·武士刀',t:'weapon',atk:21,lv:19,pr:4200,dbl:.25,d:'來自異界「天堂」的名刀，揮舞極快，25% 機率連擊兩次。'},
-  w_claymore:{n:'異界·克萊摩爾大劍',t:'weapon',atk:24,lv:22,pr:5200,d:'異界傭兵最愛的雙手大劍，樸實無華且致命。'},
-  w_gondor: {n:'剛鐸精鋼劍',t:'weapon',atk:26,lv:24,pr:5600,d:'白城軍械庫的精鋼長劍，劍身刻著聖白樹。'},
-  w_elfbow: {n:'異界·妖精之弓',t:'weapon',atk:28,lv:26,pr:8800,d:'異界妖精族的魔弓，射出的箭矢帶著風之精靈的祝福。'},
-  w_damascus:{n:'異界·大馬士革刀',t:'weapon',atk:30,lv:28,pr:13000,dbl:.3,d:'異界傳說名刀，刀身流轉著大馬士革鋼的水波紋——30% 機率連擊兩次。'},
-  w_orcrist:{n:'敵擊劍（獸咬劍）',t:'weapon',atk:31,lv:28,pr:12000,orcbane:1,d:'剛多林雙聖劍之一，半獸人稱之為「咬劍」。對半獸人類敵人傷害 +50%！'},
-  w_zwei:   {n:'異界·雙手巨劍',t:'weapon',atk:34,lv:30,pr:16000,d:'異界騎士愛用的巨劍，需要驚人的臂力才能揮動。'},
-  w_numenor:{n:'努曼諾爾闊劍',t:'weapon',atk:36,lv:32,pr:22000,d:'依努曼諾爾古法鍛造的寬刃巨劍，白城軍械庫的鎮庫之寶。'},
-  w_glam:   {n:'格蘭瑞（敵錘劍）',t:'weapon',atk:37,lv:33,pr:0,  orcbane:1,d:'甘道夫之劍，剛多林國王的佩劍。對半獸人類敵人傷害 +50%！（首領掉落）'},
-  w_durin:  {n:'都靈之斧',t:'weapon',atk:42,lv:34,pr:0,d:'安放於無盡階梯頂端都靈之塔的先王遺物，斧刃映著凱薩督姆昔日的榮光。（無盡階梯 100 層制霸獎勵）'},
-  w_anduril:{n:'安都瑞爾·西方之焰',t:'weapon',atk:44,lv:36,pr:0,d:'由納希爾聖劍碎片重鑄的王者之劍，斷過索倫手指的傳奇。（主線劇情獲得）'},
-  w_exec:   {n:'異界·執行者之斧',t:'weapon',atk:47,lv:38,pr:0,d:'被封印在歐爾桑克塔頂的異界處刑兵器，斧身滲著暗紅的光。天堂的老玩家看到它會發抖。（歐爾桑克塔 100 層制霸獎勵）'},
-  w_dramborleg:{n:'鐸姆博烈格·雷擊之斧',t:'weapon',atk:50,lv:42,pr:0,d:'圖爾在剛多林城牆上揮舞的傳說巨斧，每一擊都如雷霆劈落，連炎魔的火鞭都曾被它斬斷。（時光之門·剛多林首領掉落）'},
-  w_aeglos: {n:'艾格洛斯·雪白霜矛',t:'weapon',atk:54,lv:46,pr:0,d:'至高王吉爾加拉德的長矛，「雪白之尖」。最後同盟之戰中，半獸人望見它的寒光便四散奔逃。（時光之門·達戈拉德首領掉落）'},
-  w_sauronmace:{n:'索倫的黑鐵重錘',t:'weapon',atk:58,lv:48,pr:0,d:'黑暗魔君親手揮舞的巨錘，一擊便掃倒整排聯軍士兵。從時光的餘燼中撿回它的人，得時刻提防錘中殘存的惡意。（時光之門·達戈拉德首領稀有掉落）'},
-  w_dragontooth:{n:'龍牙劍',t:'weapon',atk:61,lv:59,pr:40000,d:'以史矛革的龍鱗熔鑄劍身、龍牙為鋒的名劍，劍刃隱隱透著餘溫。（工房合成）'},
-  w_blackarrow:{n:'黑箭·家傳的穿龍矢',t:'weapon',atk:62,lv:58,pr:0,d:'巴德家族世代相傳的漆黑長矢，為射裂龍鱗而鍛。以矛執之，無堅不摧。（哈比人外傳劇情獲得）'},
-  w_gurthang:{n:'古山格·黑劍',t:'weapon',atk:72,lv:73,pr:0,d:'以隕鐵鑄成的魔劍，圖林·圖倫拔以它刺穿龍父格勞龍的腹心。劍身漆黑如夜，據說會低聲哀歌。（上古紀元·格勞龍稀有掉落）'},
-  w_thror:{n:'索爾的戰錘·山下之王',t:'weapon',atk:64,lv:62,pr:0,d:'山下之王索爾的黃金紋章戰錘，沉眠於史矛革盤踞的寶山之中。（哈比人外傳·孤山首領掉落）'},
-  w_necro:{n:'死靈法師的白骨杖',t:'weapon',atk:65,mag:10,lv:63,pr:0,d:'多爾哥多塔頂的主人遺落之物——後來人們才知道，那位「死靈法師」是誰。杖身纏繞的魔力至今未散（魔力+10）。（多爾哥多 100 層制霸獎勵）'},
-  w_gundabad:{n:'剛達巴滅族戰矛',t:'weapon',atk:66,lv:64,pr:0,d:'波格的染血巨矛，矛尖刻著都靈一族的名字——每殺一位矮人王族便劃去一筆。奪過它，替亡者討還。（哈比人外傳·五軍之戰首領稀有掉落）'},
-  w_lamplight:{n:'雙燈餘輝之槍',t:'weapon',atk:70,lv:69,pr:100000,d:'以伊路因與奧爾莫巨燈崩碎後的餘輝鍛入槍身，槍尖凝著世界初生時的光。（工房合成）'},
-  w_valinor:{n:'維林諾聖輝長劍',t:'weapon',atk:72,lv:72,pr:150000,d:'維拉的工匠奧力親傳技藝所鑄的長劍，劍身流轉著雙樹時代的金銀光暈。（維林諾商店）'},
-  w_dragonlord:{n:'安卡拉剛之牙',t:'weapon',atk:76,lv:76,pr:0,d:'史上最巨大的黑龍安卡拉剛的獠牙，牠墜落時壓碎了三座山峰——這顆牙就是那一戰的遺物。（上古紀元·憤怒之戰首領掉落）'},
-  w_grond:{n:'格龍德·地底世界之錘',t:'weapon',atk:80,lv:80,pr:0,d:'魔苟斯親手揮舞的地獄巨錘，每落下一次，大地便裂開一道深谷。芬國昐曾在它之下獨舞七創。全遊戲最強之兵。（上古紀元·魔苟斯稀有掉落）'},
+  w_stick:  {n:'旅行木杖',t:'weapon',spd:1.2,atk:2, lv:1, pr:15,  d:'路邊撿的硬木杖，聊勝於無。'},
+  w_dagger: {n:'哈比短刀',t:'weapon',spd:0.9,atk:4, lv:1, pr:50,  d:'夏爾鐵匠打造的小巧短刀。'},
+  w_barrow: {n:'西方皇族的古劍',t:'weapon',spd:1,atk:9,lv:5,pr:0,d:'古墓崗陪葬品中的細長短劍，三千年前的西方皇族為對抗安格馬巫王所鑄，纏繞著剋制黑暗的咒文。（主線劇情獲得）'},
+  w_bree:   {n:'布理鐵劍',t:'weapon',spd:1.2,atk:7, lv:4, pr:160, d:'躍馬旅店旁鐵鋪出品的實用鐵劍。'},
+  w_axe:    {n:'矮人手斧',t:'weapon',spd:1.3,atk:10,lv:7, pr:380, d:'藍山矮人鍛造，斧刃刻著盧恩符文。'},
+  w_mirkwood:{n:'幽暗密林獵弓',t:'weapon',spd:1.1,atk:12,lv:9,pr:700,d:'幽暗密林精靈的制式獵弓，弓身以密林紫杉製成。'},
+  w_ranger: {n:'遊俠長劍',t:'weapon',spd:1.2,atk:13,lv:10,pr:750, d:'北方遊俠的制式長劍，飽經風霜卻鋒利依舊。'},
+  w_silveraxe:{n:'異界·銀斧',t:'weapon',spd:1.3,atk:17,lv:15,pr:2100,d:'異界銀匠鍛造的戰斧，泛著月光般的冷輝。'},
+  w_sting:  {n:'刺針（精靈短劍）',t:'weapon',spd:1,atk:16,lv:13,pr:1800,orcbane:1,d:'剛多林鑄造的精靈短劍，半獸人接近時泛出藍光。對半獸人類敵人傷害 +50%！'},
+  w_rohan:  {n:'洛汗騎兵劍',t:'weapon',spd:1.2,atk:19,lv:17,pr:2600,d:'驃騎王家的馬上彎刀，劍柄飾有奔馬。'},
+  w_lorien: {n:'羅瑞安長弓',t:'weapon',spd:1.1,atk:22,lv:20,pr:3800,d:'凱蘭崔爾親贈的加拉德林長弓，弦如星光。'},
+  w_katana: {n:'異界·武士刀',t:'weapon',spd:1,atk:21,lv:19,pr:4200,dbl:.25,d:'來自異界「天堂」的名刀，揮舞極快，25% 機率連擊兩次。'},
+  w_claymore:{n:'異界·克萊摩爾大劍',t:'weapon',spd:1.5,atk:24,lv:22,pr:5200,d:'異界傭兵最愛的雙手大劍，樸實無華且致命。'},
+  w_gondor: {n:'剛鐸精鋼劍',t:'weapon',spd:1.2,atk:26,lv:24,pr:5600,d:'白城軍械庫的精鋼長劍，劍身刻著聖白樹。'},
+  w_elfbow: {n:'異界·妖精之弓',t:'weapon',spd:1.1,atk:28,lv:26,pr:8800,d:'異界妖精族的魔弓，射出的箭矢帶著風之精靈的祝福。'},
+  w_damascus:{n:'異界·大馬士革刀',t:'weapon',spd:1,atk:30,lv:28,pr:13000,dbl:.3,d:'異界傳說名刀，刀身流轉著大馬士革鋼的水波紋——30% 機率連擊兩次。'},
+  w_orcrist:{n:'敵擊劍（獸咬劍）',t:'weapon',spd:1.1,atk:31,lv:28,pr:12000,orcbane:1,d:'剛多林雙聖劍之一，半獸人稱之為「咬劍」。對半獸人類敵人傷害 +50%！'},
+  w_zwei:   {n:'異界·雙手巨劍',t:'weapon',spd:1.6,atk:34,lv:30,pr:16000,d:'異界騎士愛用的巨劍，需要驚人的臂力才能揮動。'},
+  w_numenor:{n:'努曼諾爾闊劍',t:'weapon',spd:1.4,atk:36,lv:32,pr:22000,d:'依努曼諾爾古法鍛造的寬刃巨劍，白城軍械庫的鎮庫之寶。'},
+  w_glam:   {n:'格蘭瑞（敵錘劍）',t:'weapon',spd:1.2,atk:37,lv:33,pr:0,  orcbane:1,d:'甘道夫之劍，剛多林國王的佩劍。對半獸人類敵人傷害 +50%！（首領掉落）'},
+  w_durin:  {n:'都靈之斧',t:'weapon',spd:1.4,atk:42,lv:34,pr:0,d:'安放於無盡階梯頂端都靈之塔的先王遺物，斧刃映著凱薩督姆昔日的榮光。（無盡階梯 100 層制霸獎勵）'},
+  w_anduril:{n:'安都瑞爾·西方之焰',t:'weapon',spd:1.2,atk:44,lv:36,pr:0,d:'由納希爾聖劍碎片重鑄的王者之劍，斷過索倫手指的傳奇。（主線劇情獲得）'},
+  w_exec:   {n:'異界·執行者之斧',t:'weapon',spd:1.5,atk:47,lv:38,pr:0,d:'被封印在歐爾桑克塔頂的異界處刑兵器，斧身滲著暗紅的光。天堂的老玩家看到它會發抖。（歐爾桑克塔 100 層制霸獎勵）'},
+  w_dramborleg:{n:'鐸姆博烈格·雷擊之斧',t:'weapon',spd:1.5,atk:50,lv:42,pr:0,d:'圖爾在剛多林城牆上揮舞的傳說巨斧，每一擊都如雷霆劈落，連炎魔的火鞭都曾被它斬斷。（時光之門·剛多林首領掉落）'},
+  w_aeglos: {n:'艾格洛斯·雪白霜矛',t:'weapon',spd:1.3,atk:54,lv:46,pr:0,d:'至高王吉爾加拉德的長矛，「雪白之尖」。最後同盟之戰中，半獸人望見它的寒光便四散奔逃。（時光之門·達戈拉德首領掉落）'},
+  w_sauronmace:{n:'索倫的黑鐵重錘',t:'weapon',spd:1.6,atk:58,lv:48,pr:0,d:'黑暗魔君親手揮舞的巨錘，一擊便掃倒整排聯軍士兵。從時光的餘燼中撿回它的人，得時刻提防錘中殘存的惡意。（時光之門·達戈拉德首領稀有掉落）'},
+  w_dragontooth:{n:'龍牙劍',t:'weapon',spd:1.2,atk:61,lv:59,pr:40000,d:'以史矛革的龍鱗熔鑄劍身、龍牙為鋒的名劍，劍刃隱隱透著餘溫。（工房合成）'},
+  w_blackarrow:{n:'黑箭·家傳的穿龍矢',t:'weapon',spd:1.3,atk:62,lv:58,pr:0,d:'巴德家族世代相傳的漆黑長矢，為射裂龍鱗而鍛。以矛執之，無堅不摧。（哈比人外傳劇情獲得）'},
+  w_gurthang:{n:'古山格·黑劍',t:'weapon',spd:1.3,atk:72,lv:73,pr:0,d:'以隕鐵鑄成的魔劍，圖林·圖倫拔以它刺穿龍父格勞龍的腹心。劍身漆黑如夜，據說會低聲哀歌。（上古紀元·格勞龍稀有掉落）'},
+  w_thror:{n:'索爾的戰錘·山下之王',t:'weapon',spd:1.5,atk:64,lv:62,pr:0,d:'山下之王索爾的黃金紋章戰錘，沉眠於史矛革盤踞的寶山之中。（哈比人外傳·孤山首領掉落）'},
+  w_necro:{n:'死靈法師的白骨杖',t:'weapon',spd:1.2,atk:65,mag:10,lv:63,pr:0,d:'多爾哥多塔頂的主人遺落之物——後來人們才知道，那位「死靈法師」是誰。杖身纏繞的魔力至今未散（魔力+10）。（多爾哥多 100 層制霸獎勵）'},
+  w_gundabad:{n:'剛達巴滅族戰矛',t:'weapon',spd:1.3,atk:66,lv:64,pr:0,d:'波格的染血巨矛，矛尖刻著都靈一族的名字——每殺一位矮人王族便劃去一筆。奪過它，替亡者討還。（哈比人外傳·五軍之戰首領稀有掉落）'},
+  w_lamplight:{n:'雙燈餘輝之槍',t:'weapon',spd:1.3,atk:70,lv:69,pr:100000,d:'以伊路因與奧爾莫巨燈崩碎後的餘輝鍛入槍身，槍尖凝著世界初生時的光。（工房合成）'},
+  w_valinor:{n:'維林諾聖輝長劍',t:'weapon',spd:1.2,atk:72,lv:72,pr:150000,d:'維拉的工匠奧力親傳技藝所鑄的長劍，劍身流轉著雙樹時代的金銀光暈。（維林諾商店）'},
+  w_dragonlord:{n:'安卡拉剛之牙',t:'weapon',spd:1.4,atk:76,lv:76,pr:0,d:'史上最巨大的黑龍安卡拉剛的獠牙，牠墜落時壓碎了三座山峰——這顆牙就是那一戰的遺物。（上古紀元·憤怒之戰首領掉落）'},
+  w_grond:{n:'格龍德·地底世界之錘',t:'weapon',spd:1.7,atk:80,lv:80,pr:0,d:'魔苟斯親手揮舞的地獄巨錘，每落下一次，大地便裂開一道深谷。芬國昐曾在它之下獨舞七創。全遊戲最強之兵。（上古紀元·魔苟斯稀有掉落）'},
   a_cloth:  {n:'旅人布衣',t:'armor',def:1, lv:1, pr:20,  d:'耐磨的粗布衣。'},
   a_leather:{n:'硬皮甲',  t:'armor',def:3, lv:3, pr:120, d:'鞣製的牛皮護甲。'},
   a_chain:  {n:'布理鎖環甲',t:'armor',def:6,lv:7, pr:450, d:'一環扣一環的鐵鎖甲。'},
@@ -470,13 +470,13 @@ const ITEMS={
   m_void:   {n:'昂哥立安的虛空之絲',t:'mat',pr:800,d:'吞噬光明的太古魔蛛吐出的黑絲，握在手裡像握著一段凝固的黑夜。'},
   /* ── 工房合成限定裝備 ── */
   c_wolf:   {n:'狼皮大氅',t:'cloak',def:3,eva:3,lv:4,pr:300,d:'厚實保暖的狼皮斗篷，比商店貨更講究（閃避+3%）。（工房合成）'},
-  w_orcfang:{n:'獸牙彎刀',t:'weapon',atk:17,lv:12,pr:1500,d:'以半獸人獠牙鑲刃的彎刀，比同級商店武器更兇悍。（工房合成）'},
+  w_orcfang:{n:'獸牙彎刀',t:'weapon',spd:1.1,atk:17,lv:12,pr:1500,d:'以半獸人獠牙鑲刃的彎刀，比同級商店武器更兇悍。（工房合成）'},
   a_troll:  {n:'食人妖皮鎧',t:'armor',def:11,lv:16,pr:2600,d:'以食人妖血硬化的皮鎧，刀劍難傷。（工房合成）'},
-  w_mithrilblade:{n:'祕銀細劍',t:'weapon',atk:29,lv:25,pr:9000,d:'摻入祕銀的細劍，輕巧且永不捲刃，勝過白城軍械庫的量產貨。（工房合成）'},
+  w_mithrilblade:{n:'祕銀細劍',t:'weapon',spd:1.0,atk:29,lv:25,pr:9000,d:'摻入祕銀的細劍，輕巧且永不捲刃，勝過白城軍械庫的量產貨。（工房合成）'},
   a_halfmithril:{n:'半祕銀鎖甲',t:'armor',def:18,lv:28,pr:11000,d:'祕銀與精鋼混織的鎖甲，米斯瑞爾甲的平民版。（工房合成）'},
   r_mammoth:{n:'象牙護符',t:'acc',str:2,wis:2,lv:30,pr:6000,d:'猛瑪象牙雕成的護符，蘊含大地之力（力量+2、精神+2）。（工房合成）'},
   c_shadow: {n:'陰影斗篷',t:'cloak',def:5,eva:11,lv:26,pr:8000,d:'以戒靈碎布織成的斗篷，行走時幾乎無影（閃避+11%）。（工房合成）'},
-  w_venom:  {n:'毒牙匕首',t:'weapon',atk:36,lv:34,pr:16000,dbl:.2,d:'淬過蛛后毒液的匕首，傷口永難癒合（20% 連擊）。強於商店名劍、僅遜於傳說兵器。（工房合成）'},
+  w_venom:  {n:'毒牙匕首',t:'weapon',spd:0.9,atk:36,lv:34,pr:16000,dbl:.2,d:'淬過蛛后毒液的匕首，傷口永難癒合（20% 連擊）。強於商店名劍、僅遜於傳說兵器。（工房合成）'},
   a_flame:  {n:'炎魔核心鎧',t:'armor',def:21,lv:36,pr:20000,d:'以炎魔之核鍛入胸甲，散發不滅的暗紅光芒，僅次於米斯瑞爾甲。（工房合成）'}
 };
 /* ───────── 怪物資料 ─────────
@@ -1128,7 +1128,10 @@ function derive(){
   for(const sl of ['armor','cloak']){const it=eqItem(sl);if(it&&it.eva)eva+=it.eva;}
   let crit=5+Math.floor(b.dex/3);
   let critDmg=1.6+b.dex*0.005+b.str*0.003;   // 爆擊傷害倍率：受敏捷與力量影響
-  return {b,maxHp:finalMaxHp,maxMp,atk,def,mag,eva,crit,critDmg,orcbane:w&&w.orcbane,dbl:w&&w.dbl||0};
+  /* 攻擊速度（秒/擊）：武器基礎攻速 × 敏捷加成（每點 -0.4%，上限 -30%） */
+  const wspd=w?(w.spd||1.2):1.2;
+  const aspd=Math.round(wspd*(1-Math.min(0.30,b.dex*0.004))*100)/100;
+  return {b,maxHp:finalMaxHp,maxMp,atk,def,mag,eva,crit,critDmg,aspd,orcbane:w&&w.orcbane,dbl:w&&w.dbl||0};
 }
 function expNeed(lv){return 40*lv*lv}
 /* ── 章節等級上限：跟著劇情成長，不讓掛機一路衝天 ──
@@ -1164,7 +1167,7 @@ function migrate(sv){
   }
   return sv;
 }
-function snapshot(){const d=derive();return {name:S.name,race:S.race,lv:S.lv,hp:S.hp,maxHp:d.maxHp,atk:d.atk,def:d.def,dex:d.b.dex,crit:d.crit,eva:d.eva}}
+function snapshot(){const d=derive();return {name:S.name,race:S.race,lv:S.lv,hp:S.hp,maxHp:d.maxHp,atk:d.atk,def:d.def,dex:d.b.dex,crit:d.crit,eva:d.eva,aspd:d.aspd}}
 
 /* ═══════════ 日誌 ═══════════ */
 function log(html,cls){const el=$('log');const p=document.createElement('p');if(cls)p.className=cls;p.innerHTML=html;el.appendChild(p);
@@ -1542,6 +1545,9 @@ function mobInst(id,mult,plain,atkMult){
     el:plain?null:(m[10]||null),fx:plain?null:(m[11]||null),
     ai:plain?null:(BOSS_AI[id]||null)};
   if(mob.ai&&mob.ai.hl)mob.heals=mob.ai.hl[0];
+  /* 攻擊速度（秒/擊）：普通怪 1.6、首領 2.4（BOSS_AI 可覆蓋）、風屬性較快 */
+  mob.spd=(BOSS_AI[id]&&BOSS_AI[id].spd)||(m[9]?2.4:1.6);
+  if(mob.el==='wind')mob.spd=Math.round(mob.spd*0.85*100)/100;
   ngScale(mob);
   if(mob.el==='fire')mob.atk=Math.floor(mob.atk*1.12);
   if(mob.el==='earth')mob.def=Math.floor(mob.def*1.25);
@@ -1576,6 +1582,7 @@ function towerMob(mk,floor,atkMult){
     def:Math.floor(lv*0.8),
     exp:Math.floor(lv*lv*1.3*(lord?2:1)),
     gold:Math.floor(lv*7*(lord?2:1)),
+    spd:lord?2.2:1.7,
     drops:b[7],orc:b[8],el:b[10]||null,fx:b[11]||null};
   ngScale(mob);
   if(mob.el==='fire')mob.atk=Math.floor(mob.atk*1.12);
