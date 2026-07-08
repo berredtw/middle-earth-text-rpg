@@ -41,9 +41,11 @@ h1,h2,h3{color:var(--gold);font-weight:700}
 #col-r{width:360px;display:flex;flex-direction:column;gap:10px;min-height:0}
 #loc-panel{flex:1;display:flex;flex-direction:column;min-height:0}
 #loc-body{padding:14px;overflow-y:auto;flex:1}
-#log-panel{height:34%;display:flex;flex-direction:column;min-height:150px}
+#log-panel{height:28%;display:flex;flex-direction:column;min-height:130px}
 #log{flex:1;overflow-y:auto;padding:10px 14px;font-size:14px;line-height:1.75}
 #log p{margin:0}
+#drop-panel{flex-shrink:0}
+#droplog p{margin:0}
 .tabbar{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;padding:8px}
 .tabbar button{padding:7px 0;font-size:14px}
 .tabbar button.on{border-color:var(--gold);color:var(--gold);background:#242018}
@@ -91,7 +93,8 @@ h1,h2,h3{color:var(--gold);font-weight:700}
     background:rgba(13,15,18,.96);border:1px solid var(--line);border-radius:6px;padding:7px 10px}
   #loc-panel{min-height:46vh}
   #loc-body{max-height:none}
-  #log-panel{height:220px;min-height:220px}
+  #log-panel{height:200px;min-height:200px}
+  #droplog{height:70px}
   #col-r>.panel{min-height:300px}
   .tabbody{max-height:52vh}
   button{min-height:38px}
@@ -223,6 +226,10 @@ h1,h2,h3{color:var(--gold);font-weight:700}
     <div class="panel" id="log-panel">
       <div class="phead" style="font-size:14px">冒險日誌</div>
       <div id="log"></div>
+    </div>
+    <div class="panel" id="drop-panel">
+      <div class="phead" style="font-size:13px">🎒 拾獲的戰利品</div>
+      <div id="droplog" style="padding:6px 10px;overflow-y:auto;height:96px;font-size:13px;line-height:1.5"></div>
     </div>
   </div>
 
@@ -1184,6 +1191,9 @@ function snapshot(){const d=derive();return {name:S.name,race:S.race,lv:S.lv,hp:
 /* ═══════════ 日誌 ═══════════ */
 function log(html,cls){const el=$('log');const p=document.createElement('p');if(cls)p.className=cls;p.innerHTML=html;el.appendChild(p);
   while(el.childNodes.length>200)el.removeChild(el.firstChild);el.scrollTop=el.scrollHeight;}
+/* 掉落物訊息：獨立「拾獲的戰利品」面板，不與冒險日誌混雜 */
+function dropMsg(html){const el=$('droplog');if(!el)return;const p=document.createElement('p');p.innerHTML=html;el.appendChild(p);
+  while(el.childNodes.length>100)el.removeChild(el.firstChild);el.scrollTop=el.scrollHeight;}
 function clog(html){const el=$('chatlog');const p=document.createElement('p');p.innerHTML=html;el.appendChild(p);
   while(el.childNodes.length>150)el.removeChild(el.firstChild);el.scrollTop=el.scrollHeight;}
 function chatMsg(name,msg,mine){const el=$('chatlog');const d=document.createElement('div');d.className=mine?'chat-me':'chat-other';
@@ -2076,7 +2086,7 @@ function winBattle(){
   let exp=0,gold=0;
   for(const mob of mobs){
     exp+=mob.exp;gold+=mob.gold;
-    for(const [id,pct] of mob.drops)if(R(1,100)<=pct){log(`<span class="blue">獲得掉落物：【${ITEMS[id].n}】！</span>`);addItem(id,1,true);}
+    for(const [id,pct] of mob.drops)if(R(1,100)<=pct){dropMsg(`<span class="blue">【${ITEMS[id].n}】</span><span class="dim">──${mob.n}</span>`);addItem(id,1,true);}
     if(!battle.floor&&!mob.boss&&q&&q.kill&&q.area===S.loc)S.kills++;
     if(S.bounties)for(const b of S.bounties)if(b.k==='kill'&&b.t===mob.id&&b.done<b.need)b.done++;
   }
@@ -2209,7 +2219,7 @@ function addItem(id,q,roll){
     S.inv.push({id,q});
   }else{
     const ql=(roll&&['weapon','armor','cloak'].includes(def.t))?rollQl():0;
-    if(ql)log(`<span class="${QL_C[ql]}">✨ 這件${def.n}成色不凡——【${QL_N[ql].replace('的','')}】品質！（基礎${def.t==='weapon'?'攻擊':'防禦'} +${ql*10}%）</span>`);
+    if(ql)dropMsg(`<span class="${QL_C[ql]}">✨ ${QL_N[ql]}${def.n}！（基礎${def.t==='weapon'?'攻擊':'防禦'} +${ql*10}%）</span>`);
     S.inv.push({id,q:1,e:0,ql});
   }
 }
@@ -2782,7 +2792,7 @@ function checkOffline(){
   const hrs=(ms/3600000).toFixed(1);
   log(`<span class="gold">═══ 離線／背景掛機收穫（約 ${hrs} 小時）═══</span>`);
   log(`<span class="gold">你擊敗了 ${kills} 個敵人：金幣 +${fmtN(gold)}、經驗 +${fmtN(exp)}</span>`);
-  if(lootTxt.length)log(`<span class="blue">拾獲：${lootTxt.join('、')}</span>`);
+  if(lootTxt.length)dropMsg(`<span class="blue">（離線）拾獲：${lootTxt.join('、')}</span>`);
   if(m.tower)log('<span class="dim">（離線時不會摸黑找樓梯，攻層進度仍需在線掛機。）</span>');
   gainExp(exp);compGainExp(exp);
   renderAll();autoSave();
@@ -3116,7 +3126,7 @@ function applyHunt(reward){
   const r=reward&&reward[netId];if(!r)return;
   S.hp=Math.min(derive().maxHp,r.hpLeft);
   if(r.exp){S.gold+=r.gold;gainExp(r.exp);}
-  if(r.drop){addItem(r.drop,1);log(`<span class="blue">隊伍狩獵掉落：【${ITEMS[r.drop].n}】！</span>`);}
+  if(r.drop){addItem(r.drop,1);dropMsg(`<span class="blue">【${ITEMS[r.drop].n}】</span><span class="dim">──隊伍狩獵</span>`);}
   renderAll();autoSave();netSnap();
 }
 </script>
