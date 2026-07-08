@@ -2743,26 +2743,27 @@ function checkOffline(){
   gainExp(exp);compGainExp(exp);
   renderAll();autoSave();
 }
-/* ── 掛機智慧施法：開場Buff → 危急補血技 → 多怪範圍技 → 首領最強單體技 → 普攻 ── */
+/* ── 掛機智慧施法（每秒由 battleTick 呼叫）：危急補血技 → 開場Buff → 多怪範圍技 → 首領最強單體技 ──
+   普攻由 battleTick 依攻速自動施放，這裡只管技能。 */
 function autoAction(){
-  if(!battle)return;
+  if(!battle||battle.gcd>0||battle.pStun>0)return;
   const d=derive();
-  const mine=Object.entries(SKILLS).filter(([id,sk])=>sk.race===S.race&&S.lv>=sk.lv);
+  const rdy=([id,sk])=>sk.race===S.race&&S.lv>=sk.lv&&S.mp>=sk.mp&&(battle.skCd[id]||0)<=0;
+  const mine=Object.entries(SKILLS).filter(rdy);
   /* 1. 血低於 45% 先施補血技（藥水另有自動喝藥負責） */
-  const healSk=mine.find(([id,sk])=>sk.type==='heal'&&S.mp>=sk.mp);
+  const healSk=mine.find(([id,sk])=>sk.type==='heal');
   if(healSk&&S.hp<d.maxHp*0.45){castSkill(healSk[0]);return}
-  /* 2. 開戰第一回合上增益（MP 充足時） */
-  const buffSk=mine.find(([id,sk])=>sk.type==='buff'&&S.mp>=sk.mp&&!battle.buffs.some(b=>b.n===sk.n));
-  if(buffSk&&battle.turn<1&&S.mp>d.maxMp*0.5){castSkill(buffSk[0]);return}
+  /* 2. 開戰 3 秒內上增益（MP 充足時） */
+  const buffSk=mine.find(([id,sk])=>sk.type==='buff'&&!battle.buffs.some(b=>b.n===sk.n));
+  if(buffSk&&battle.t<30&&S.mp>d.maxMp*0.5){castSkill(buffSk[0]);return}
   /* 3. 兩隻以上 → 最強範圍技 */
   const alive=aliveMobs().length;
-  const aoes=mine.filter(([id,sk])=>sk.type==='dmg'&&sk.aoe&&S.mp>=sk.mp).sort((a,b)=>b[1].pw-a[1].pw);
+  const aoes=mine.filter(([id,sk])=>sk.type==='dmg'&&sk.aoe).sort((a,b)=>b[1].pw-a[1].pw);
   if(alive>=2&&aoes.length&&S.mp>d.maxMp*0.3){castSkill(aoes[0][0]);return}
   /* 4. 首領或厚血目標 → 最強單體技 */
   const t=curTarget();
-  const singles=mine.filter(([id,sk])=>sk.type==='dmg'&&!sk.aoe&&S.mp>=sk.mp).sort((a,b)=>((b[1].pw||2.5))-((a[1].pw||2.5)));
+  const singles=mine.filter(([id,sk])=>sk.type==='dmg'&&!sk.aoe).sort((a,b)=>((b[1].pw||2.5))-((a[1].pw||2.5)));
   if(t&&singles.length&&S.mp>d.maxMp*0.4&&(t.boss||t.hp>d.atk*2)){castSkill(singles[0][0]);return}
-  pAttack();
 }
 let saveTicker=0;
 const RESTOCK_LIST=['p_red','p_dew','p_haste','s_time'];
