@@ -2766,7 +2766,7 @@ function checkOffline(){
   const dmg=Math.max(1,d.atk-avg(x=>x.def)/2);
   const hits=Math.ceil(avg(x=>x.maxHp)/dmg);
   if(hits>80){log('<span class="dim">（離線期間此地敵人太強，你在安全處紮營，沒有收穫。）</span>');return}
-  const secPerKill=(hits+3)*0.8;
+  const secPerKill=hits*d.aspd+3;   /* 即時制：每擊耗時＝攻速，加 3 秒搜敵間隔 */
   const kills=Math.floor((ms/1000)/secPerKill);
   if(kills<1)return;
   const offCapped=S.lv>=chCap();
@@ -3056,11 +3056,15 @@ function runDuel(oppId,oppName,oppSnap){
   const me={...snapshot(),chp:snapshot().hp}; me.name=S.name;
   const op={...oppSnap,chp:oppSnap.hp}; op.name=oppName;
   const lines=[`<span class="red">═══ 決鬥開始：${esc(me.name)} ⚔ ${esc(op.name)} ═══</span>`];
+  /* 攻速加權：每輪 1.2 秒基準，快武器出手更多次（舊快照無 aspd 以 1.2 計） */
+  me.aspd=me.aspd||1.2;op.aspd=op.aspd||1.2;me.acc=0;op.acc=0;
   let a=me.dex>=op.dex?me:op, b=a===me?op:me;
   for(let t=0;t<60&&me.chp>0&&op.chp>0;t++){
-    simAttack(a,b,lines);
-    if(b.chp<=0)break;
-    simAttack(b,a,lines);
+    for(const f of [a,b]){
+      if(me.chp<=0||op.chp<=0)break;
+      f.acc+=1.2/f.aspd;
+      while(f.acc>=1&&me.chp>0&&op.chp>0){f.acc--;simAttack(f,f===me?op:me,lines);}
+    }
   }
   let winner;
   if(me.chp<=0&&op.chp>0)winner=op.name;
@@ -3082,19 +3086,24 @@ function partyHunt(){
   if(battle){log('<span class="red">你正在戰鬥中！</span>');return}
   const n=party.members.length;
   const mob=mobInst(m.mobs[R(0,m.mobs.length-1)],1+0.7*(n-1),isEarlyMap(S.loc));
-  const fighters=party.members.map(x=>({...x.snap,name:x.name,id:x.id,chp:x.snap.hp,down:false}));
+  const fighters=party.members.map(x=>({...x.snap,name:x.name,id:x.id,chp:x.snap.hp,down:false,aspd:x.snap.aspd||1.2,acc:0}));
   const lines=[`<span class="purple">═══ 隊伍狩獵（${n} 人）：遭遇【${mob.n}】Lv.${mob.lv}（HP ${mob.maxHp}）═══</span>`];
   let turns=0;
   while(mob.hp>0&&turns<80&&fighters.some(f=>!f.down)){
     turns++;
     for(const f of fighters){
       if(f.down||mob.hp<=0)continue;
-      const hitP=Math.max(45,Math.min(95,80+(f.dex-mob.lv)));
-      if(R(1,100)>hitP){lines.push(`<span class="dim">${esc(f.name)} 的攻擊落空。</span>`);continue}
-      let dmg=Math.max(1,Math.floor(f.atk-mob.def/2+R(-3,3)));
-      if(R(1,100)<=f.crit)dmg=Math.floor(dmg*1.8);
-      mob.hp-=dmg;
-      lines.push(`${esc(f.name)} 攻擊 ${mob.n}，造成 <b class="gold">${dmg}</b> 傷害。`);
+      /* 攻速加權：每輪 1.2 秒基準，快武器出手更多次 */
+      f.acc+=1.2/f.aspd;
+      while(f.acc>=1&&mob.hp>0){
+        f.acc--;
+        const hitP=Math.max(45,Math.min(95,80+(f.dex-mob.lv)));
+        if(R(1,100)>hitP){lines.push(`<span class="dim">${esc(f.name)} 的攻擊落空。</span>`);continue}
+        let dmg=Math.max(1,Math.floor(f.atk-mob.def/2+R(-3,3)));
+        if(R(1,100)<=f.crit)dmg=Math.floor(dmg*1.8);
+        mob.hp-=dmg;
+        lines.push(`${esc(f.name)} 攻擊 ${mob.n}，造成 <b class="gold">${dmg}</b> 傷害。`);
+      }
     }
     if(mob.hp<=0)break;
     const alive=fighters.filter(f=>!f.down);
