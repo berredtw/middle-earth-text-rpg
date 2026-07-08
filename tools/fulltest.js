@@ -15,7 +15,7 @@ const store={};
 const localStorage={getItem(k){return store[k]!==undefined?store[k]:null},setItem(k,v){store[k]=String(v)},removeItem(k){delete store[k]}};
 const window={addEventListener(){}};
 const html=fs.readFileSync('D:/魔戒文字版/index.html','utf8');
-const m=html.match(/<script>\n([\s\S]*?)<\/script>/);
+const m=html.match(/<script>\r?\n([\s\S]*?)<\/script>/);
 const intervalFns=[];
 const G=eval(`(function(document,localStorage,window,alert,confirm,prompt,setInterval,location){${m[1]}
 ;return {get S(){return S},set S(v){S=v},get battle(){return battle},

@@ -39,7 +39,7 @@ let intervalFns = [];
 const setIntervalStub = (fn,ms)=>{ intervalFns.push(fn); return 1; };
 
 const html = fs.readFileSync('D:/魔戒文字版/index.html','utf8');
-const m = html.match(/<script>\n([\s\S]*?)<\/script>/);
+const m = html.match(/<script>\r?\n([\s\S]*?)<\/script>/);
 if(!m){ console.log('找不到腳本'); process.exit(1); }
 
 const sandboxSrc = `

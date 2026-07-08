@@ -13,7 +13,7 @@ const document={getElementById(id){if(!els.has(id))els.set(id,fakeEl(id));return
 const localStorage={getItem(){return null},setItem(){},removeItem(){}};
 const window={addEventListener(){}};
 const html=fs.readFileSync('D:/魔戒文字版/index.html','utf8');
-const m=html.match(/<script>\n([\s\S]*?)<\/script>/);
+const m=html.match(/<script>\r?\n([\s\S]*?)<\/script>/);
 const G=eval(`(function(document,localStorage,window,alert,confirm,prompt,setInterval){${m[1]}
 ;return {RACES,SKILLS,ITEMS,MOBS,MAPS,QUESTS,SHOP_TIER,STAT_N,RECIPES,ELEMS,ENCH_W,ENCH_A};})`)(document,localStorage,window,()=>{},()=>true,()=>null,()=>1);
 

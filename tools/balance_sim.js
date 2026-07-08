@@ -14,7 +14,7 @@ const document={getElementById(id){if(!els.has(id))els.set(id,fakeEl(id));return
   createElement(){return fakeEl('x'+Math.random())},querySelectorAll(){return[]},querySelector(){return null}};
 const localStorage={_s:{},getItem(k){return this._s[k]||null},setItem(k,v){this._s[k]=String(v)},removeItem(k){delete this._s[k]}};
 const html=fs.readFileSync('D:/魔戒文字版/index.html','utf8');
-const m=html.match(/<script>\n([\s\S]*?)<\/script>/);
+const m=html.match(/<script>\r?\n([\s\S]*?)<\/script>/);
 const G=eval(`(function(document,localStorage,window,alert,confirm,prompt,setInterval,location){${m[1]}
 ;return {get S(){return S},set S(v){S=v},get battle(){return battle},set battle(v){battle=v},
  fns:{newState,derive,enterGame,moveTo,gameTick,battleTick,addItem,gainExp,mobInst,startBattle},data:{MAPS}};})`)(
