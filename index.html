@@ -1292,11 +1292,11 @@ function renderStatus(){
   $('mv-hp').style.width=(100*S.hp/d.maxHp)+'%';$('mv-hpt').textContent=`HP ${S.hp}/${d.maxHp}`;
   $('mv-mp').style.width=(100*S.mp/d.maxMp)+'%';$('mv-mpt').textContent=`MP ${S.mp}/${d.maxMp}`;
   $('mv-gold').textContent='💰'+fmtN(S.gold);
-  let bf=(battle&&battle.buffs.length)?'狀態：'+battle.buffs.map(b=>`${b.n}(${b.turns})`).join('、'):'';
-  if(battle&&battle.pPoison>0)bf+=(bf?'　':'')+`<span class="purple">☠ 中毒（${battle.pPoison}）</span>`;
-  if(battle&&battle.pStun)bf+=(bf?'　':'')+'<span class="purple">💫 暈眩</span>';
-  if(battle&&battle.pDb)for(const k in battle.pDb)if(battle.pDb[k]>0)bf+=(bf?'　':'')+`<span class="red">${BOSS_DB[k].ic} ${BOSS_DB[k].n}（${battle.pDb[k]}）</span>`;
-  if(S.hasteUntil&&Date.now()<S.hasteUntil)bf+=(bf?'　':'')+`<span class="blue">⏩ 時空加速中 0.5秒/回合（剩 ${Math.ceil((S.hasteUntil-Date.now())/60000)} 分）</span>`;
+  let bf=(battle&&battle.buffs.length)?'狀態：'+battle.buffs.map(b=>`${b.n}(${(b.t/10).toFixed(0)}s)`).join('、'):'';
+  if(battle&&battle.pPois>0)bf+=(bf?'　':'')+`<span class="purple">☠ 中毒（${(battle.pPois/10).toFixed(0)}s）</span>`;
+  if(battle&&battle.pStun>0)bf+=(bf?'　':'')+'<span class="purple">💫 暈眩</span>';
+  if(battle&&battle.pDb)for(const k in battle.pDb)if(battle.pDb[k]>0)bf+=(bf?'　':'')+`<span class="red">${BOSS_DB[k].ic} ${BOSS_DB[k].n}（${(battle.pDb[k]/10).toFixed(0)}s）</span>`;
+  if(S.hasteUntil&&Date.now()<S.hasteUntil)bf+=(bf?'　':'')+`<span class="blue">⏩ 時空加速中（剩 ${Math.ceil((S.hasteUntil-Date.now())/60000)} 分）</span>`;
   $('st-buffs').innerHTML=bf;
 }
 /* 背包自動排序：武器→鎧甲→斗篷→飾品→消耗品→卷軸→材料→任務；同類依等級高→低 */
@@ -1635,7 +1635,12 @@ function towerReward(floor){
   }
 }
 function startBattle(mobs,floor){
-  battle={mobs,tgt:0,buffs:[],turn:0,floor:floor||0,pDb:{wk:0,ab:0,fe:0}};
+  battle={mobs,tgt:0,buffs:[],t:0,floor:floor||0,pDb:{wk:0,ab:0,fe:0},
+    pCd:5,gcd:0,skCd:{},potCd:0,fleeCd:0,pPois:0,pStun:0,compCd:15,dirty:0};
+  for(const mb of mobs){
+    mb.cd=Math.max(4,Math.round(mb.spd*10))+R(0,8);          /* 錯開首擊 */
+    if(mb.nuke)mb.nukeCd=Math.round(mb.nuke.cd*10*0.6);
+  }
   const names=mobs.map(x=>`【${x.n}】Lv.${x.lv}`).join('、');
   log(`<span class="red">遭遇了${mobs.length>1?' '+mobs.length+' 個敵人：':''}${names}！</span>`);
   renderLoc();renderStatus();
@@ -1677,6 +1682,7 @@ function renderBattle(){
   h+=`</div>`;
   $('loc-body').innerHTML=h;
 }
+function renderBattleDyn(){}   /* 輕量重繪：於戰鬥 UI 即時化實作 */
 function bestHeal(){
   let bi=-1,bv=-1;
   S.inv.forEach((it,i)=>{const d=ITEMS[it.id];if(d.t==='use'&&(d.heal||d.full)){const v=d.full?9999:d.heal;if(v>bv){bv=v;bi=i}}});
@@ -1694,6 +1700,7 @@ function pHitDmg(sk,mob){
   let crit=R(1,100)<=critP;
   if(crit)dmg*=d.critDmg;
   if(d.orcbane&&mob.orc)dmg*=1.5;
+  if(mob.dr)dmg-=mob.dr;   /* 首領固定減傷：攻擊不足時每擊只剩保底 */
   return {dmg:Math.max(1,Math.floor(dmg)),crit};
 }
 function dealTo(mob,sk,label){
@@ -1711,38 +1718,54 @@ function dealTo(mob,sk,label){
   if(wq&&wq.ench){
     if(wq.ench==='burn'){let ex=Math.max(1,Math.floor(r.dmg*0.15));if(mob.el==='fire')ex=Math.max(1,Math.floor(ex/2));mob.hp-=ex;log(`<span class="red">烈焰附魔灼燒，追加 ${ex} 火焰傷害。</span>`);}
     if(wq.ench==='leech'){const hv=Math.max(1,Math.floor(r.dmg*0.15));S.hp=Math.min(d.maxHp,S.hp+hv);log(`<span class="green">吸血附魔恢復了你 ${hv} 生命。</span>`);}
-    if(wq.ench==='poison'&&mob.hp>0&&!mob.pois&&R(1,100)<=25){mob.pois=3;log(`<span class="purple">劇毒附魔發動，${mob.n} 中毒了！</span>`);}
+    if(wq.ench==='poison'&&mob.hp>0&&!(mob.pois>0)&&R(1,100)<=25){mob.pois=60;log(`<span class="purple">劇毒附魔發動，${mob.n} 中毒了！</span>`);}
     if(wq.ench==='break'&&mob.hp>0&&R(1,100)<=25){mob.def=Math.floor(mob.def*0.8);log(`<span class="purple">破甲附魔發動，${mob.n} 的護甲碎裂（防禦下降）！</span>`);}
-    if(wq.ench==='para'&&mob.hp>0&&!mob.stun&&R(1,100)<=15){mob.stun=1;log(`<span class="purple">麻痺附魔發動，${mob.n} 動彈不得！</span>`);}
+    if(wq.ench==='para'&&mob.hp>0&&!(mob.stun>0)&&R(1,100)<=(mob.boss?8:15)){stunMob(mob);log(`<span class="purple">麻痺附魔發動，${mob.n} 動彈不得！</span>`);}
   }
-  if(sk&&sk.stun&&Math.random()<sk.stun&&mob.hp>0){mob.stun=1;log(`<span class="purple">${mob.n} 被震得暈頭轉向！</span>`);}
+  if(sk&&sk.stun&&Math.random()<(mob.boss?sk.stun/2:sk.stun)&&mob.hp>0){stunMob(mob);log(`<span class="purple">${mob.n} 被震得暈頭轉向！</span>`);}
   if(sk&&sk.heal){const hv=Math.floor(derive().maxHp*sk.heal);S.hp=Math.min(derive().maxHp,S.hp+hv);log(`<span class="green">聖光同時治癒了你 ${hv} 點生命。</span>`);}
 }
-function pStunned(){
-  if(battle&&battle.pStun){
-    battle.pStun=false;
-    log('<span class="purple">你暈眩中，這回合無法行動！</span>');
-    afterPlayerTurn();
-    return true;
+/* 暈眩敵人（15 tick＝1.5 秒）；吟唱中的首領會被打斷，大招冷卻退回一半 */
+function stunMob(mob){
+  mob.stun=15;
+  if(mob.cast>0){
+    mob.cast=0;
+    if(mob.nuke)mob.nukeCd=Math.round(mob.nuke.cd*5);
+    log(`<span class="gold">${mob.n} 的吟唱被打斷了！</span>`);
   }
-  return false;
+  battle.dirty=1;
+}
+/* 玩家攻擊間隔（tick）：derive().aspd × 加速 buff */
+function pAtkItv(){
+  const d=derive();
+  let v=d.aspd*10;
+  if(battle&&buffVal('haste')>1)v*=0.6;
+  return Math.max(4,Math.round(v));
 }
 function pAttack(){
-  if(!battle)return;
-  if(pStunned())return;
-  const t=curTarget();if(!t){winBattle();return}
+  if(!battle||battle.pCd>0||battle.pStun>0)return;
+  const t=curTarget();if(!t){checkBattleEnd();return}
   const d=derive();
   dealTo(t,null,'攻擊');
   if(t.hp>0&&d.dbl&&Math.random()<d.dbl)dealTo(t,null,'連擊');
-  const t2=curTarget();
-  if(t2&&buffVal('haste')>1)dealTo(t2,null,'加速追擊');
-  afterPlayerTurn();
+  battle.pCd=pAtkItv();
+  battle.dirty=1;
+  checkBattleEnd();
+}
+/* 勝敗判定：回傳 true＝戰鬥已結束（battle 已清空或即將重建） */
+function checkBattleEnd(){
+  if(!battle)return true;
+  if(!aliveMobs().length){winBattle();return true}
+  if(S.hp<=0){playerDie();return true}
+  return false;
 }
 function castSkill(id){
   if(!battle)return;const sk=SKILLS[id];
+  if(battle.pStun>0)return;
+  if(battle.gcd>0||(battle.skCd[id]||0)>0)return;   /* 冷卻中（掛機每秒重試） */
   if(S.mp<sk.mp){log('<span class="red">魔力不足！</span>');return}
-  if(pStunned())return;
   S.mp-=sk.mp;
+  battle.gcd=10;battle.skCd[id]=(sk.cd||6)*10;
   if(sk.type==='dmg'){
     if(sk.aoe){
       log(`<span class="blue">你施放「${sk.n}」，攻擊波及所有敵人！</span>`);
@@ -1752,8 +1775,9 @@ function castSkill(id){
     }
   }
   else if(sk.type==='heal'){const hv=Math.floor(derive().maxHp*sk.pw);S.hp=Math.min(derive().maxHp,S.hp+hv);log(`<span class="green">你施放「${sk.n}」，恢復 ${hv} 點生命。</span>`);}
-  else if(sk.type==='buff'){battle.buffs.push({n:sk.n,stat:sk.stat,mult:sk.mult,turns:sk.turns});log(`<span class="blue">你施放「${sk.n}」！</span>`);}
-  afterPlayerTurn();
+  else if(sk.type==='buff'){battle.buffs.push({n:sk.n,stat:sk.stat,mult:sk.mult,t:sk.turns*20});log(`<span class="blue">你施放「${sk.n}」！</span>`);}
+  battle.dirty=1;
+  checkBattleEnd();
 }
 function useRing(){
   if(!S.inv.some(x=>x.id==='ring_one'))return;
@@ -1768,21 +1792,12 @@ function useRing(){
   renderAll();renderLoc();
 }
 function tryFlee(){
-  if(!battle)return;
+  if(!battle||battle.fleeCd>0)return;
   if(R(1,100)<=60){log('<span class="dim">你成功脫離了戰鬥。</span>');battle=null;renderLoc();renderStatus();}
-  else{log('<span class="red">逃跑失敗！</span>');mobTurn();}
+  else{log('<span class="red">逃跑失敗！敵人纏了上來（5 秒內無法再逃）。</span>');battle.fleeCd=50;}
 }
-function afterPlayerTurn(){
-  if(!battle)return;
-  if(!aliveMobs().length){winBattle();return}
-  compTurn();
-  if(!aliveMobs().length){winBattle();return}
-  mobTurn();
-}
-function compTurn(){
-  const cs=compStats();
-  if(!cs||S.compHp<=0||!battle)return;
-  const d=derive();
+/* ── 夥伴行動（每 2 秒一動）── */
+function compAct(cs,d){
   if(cs.role==='heal'&&S.hp<d.maxHp*0.9){
     S.hp=Math.min(d.maxHp,S.hp+cs.heal);
     log(`<span class="green">${cs.n} 治療了你 ${cs.heal} 點生命。</span>`);
@@ -1791,103 +1806,186 @@ function compTurn(){
   const t=curTarget();if(!t)return;
   const mult=cs.role==='dps'?1:0.5;
   let dmg=Math.max(1,Math.floor(cs.atk*mult-t.def/2+R(-2,2)));
+  if(t.dr)dmg=Math.max(1,dmg-t.dr);
   t.hp-=dmg;
   log(`${cs.n} 攻擊 ${t.n}，造成 <b class="gold">${dmg}</b> 傷害。`);
+  battle.dirty=1;
 }
-function mobTurn(){
+/* ── 單隻怪物出手（攻速冷卻歸零時）── */
+function mobAttack(mob,d,cs){
+  /* 盾衛夥伴掩護：60% 機率替你承受攻擊 */
+  if(cs&&cs.role==='tank'&&S.compHp>0&&R(1,100)<=60){
+    let dmg=Math.max(1,Math.floor(mob.atk-cs.def/2+R(-2,2)));
+    S.compHp-=dmg;
+    log(`${cs.n} 挺身格擋！${mob.n} 對他造成 <b class="red">${dmg}</b> 傷害。`);
+    if(S.compHp<=0){S.compHp=0;log(`<span class="red">${cs.n} 倒下了！（回到城鎮休息可恢復）</span>`);}
+    return;
+  }
+  /* 光屬性攻擊必中，其餘可閃避 */
+  const evaP=mob.el==='light'?0:Math.min(75,d.eva*buffVal('eva'));
+  if(R(1,100)<=evaP){log(`<span class="green">${mob.n} 的攻擊被你敏捷地閃開了！</span>`);return}
+  let pdef=d.def*buffVal('def');
+  if(battle.pDb&&battle.pDb.ab>0)pdef*=0.7;   // 破甲詛咒：防禦 -30%
+  let dmg=Math.max(1,Math.floor(mob.atk-pdef/2+R(-2,2)));
+  /* 首領 AI：爆擊 */
+  let bcrit=false;
+  if(mob.ai&&mob.ai.crit&&R(1,100)<=mob.ai.crit){bcrit=true;dmg=Math.floor(dmg*1.6);}
+  if(mob.el&&hasEnchA('resist'))dmg=Math.max(1,Math.floor(dmg*0.8));
+  S.hp-=dmg;
+  log(`${mob.n} ${mob.el==='light'?'的必中聖光':''}攻擊你，造成 <b class="red">${dmg}</b> 傷害${bcrit?'<span class="red">（爆擊！）</span>':''}。`);
+  /* 暗屬性：吸取生命 */
+  if(mob.el==='dark'){
+    const dr=Math.max(1,Math.floor(dmg/2));
+    mob.hp=Math.min(mob.maxHp,mob.hp+dr);
+    log(`<span class="purple">${mob.n} 汲取了你的生命（自身回復 ${dr}）。</span>`);
+  }
+  /* 攻擊附帶效果：毒／暈（防具附魔可抵抗） */
+  if(mob.fx==='poison'&&R(1,100)<=25){
+    if(hasEnchA('antipoison')&&R(1,100)<=75)log('<span class="green">［抗毒］附魔抵擋了毒素！</span>');
+    else if(!(battle.pPois>0)){battle.pPois=60;log('<span class="purple">☠ 你中毒了！（持續 6 秒）</span>');}
+  }
+  if(mob.fx==='stun'&&R(1,100)<=25){
+    if(hasEnchA('antistun')&&R(1,100)<=75)log('<span class="green">［抗暈］附魔穩住了你的意識！</span>');
+    else{battle.pStun=15;log('<span class="purple">💫 你被震得眼冒金星，短暫無法行動！</span>');}
+  }
+}
+/* ── 首領行動 AI：喝藥／狂暴／大招吟唱／詛咒（回傳 true＝佔用本次攻擊）── */
+function bossAct(mob){
+  const ai=mob.ai;
+  if(ai.hl&&mob.heals>0&&mob.hp<mob.maxHp*ai.hl[1]/100){
+    mob.heals--;
+    const hv=Math.floor(mob.maxHp*ai.hl[2]/100);
+    mob.hp=Math.min(mob.maxHp,mob.hp+hv);
+    log(`<span class="red">${mob.n} 灌下一瓶藥水，恢復了 ${hv} 生命！${mob.heals?'':'（藥水喝完了）'}</span>`);
+    battle.dirty=1;return true;
+  }
+  if(ai.rage&&!mob.raged&&mob.hp<mob.maxHp*ai.rage/100){
+    mob.raged=true;mob.atk=Math.floor(mob.atk*1.35);mob.spd=Math.round(mob.spd*0.75*100)/100;
+    log(`<span class="red">${mob.n} 陷入狂暴，攻擊與速度大幅上升！</span>`);battle.dirty=1;
+  }
+  if(mob.nuke&&mob.nukeCd<=0){
+    mob.cast=30;mob.nukeCd=mob.nuke.cd*10;
+    log(`<span class="red">⚠ ${mob.n} 開始凝聚毀滅的力量——「${mob.nuke.n||'毀滅重擊'}」即將落下（3 秒）！</span>`);
+    battle.dirty=1;return true;
+  }
+  if(ai.db&&battle.pDb[ai.db[0]]<=0&&R(1,100)<=ai.db[1]){
+    const t=ai.db[0],info=BOSS_DB[t];
+    battle.pDb[t]=80;
+    log(`<span class="red">${mob.n} ${info.cast[mob.id]||'施放了'+info.n}！${info.ic}【${info.n}】——${info.d}（8 秒）！</span>`);
+    battle.dirty=1;return true;
+  }
+  return false;
+}
+/* ── 首領大招落下（吟唱結束）：半穿防、不可閃避 ── */
+function nukeHit(mob,d){
+  let pdef=d.def*buffVal('def');
+  let dmg=Math.max(1,Math.floor(mob.atk*mob.nuke.mult-pdef/4));
+  S.hp-=dmg;
+  log(`<span class="red" style="font-size:15px">💥 「${mob.nuke.n||'毀滅重擊'}」轟然落下！你受到 ${dmg} 傷害！</span>`);
+  battle.dirty=1;
+}
+/* ── 戰鬥中每秒維護：自動喝藥／魔力／餵夥伴／加速藥水 ── */
+function battleUpkeep(d){
+  if($('auto-potion').checked){
+    const casting=battle.mobs.some(m=>m.cast>0);
+    if(battle.potCd<=0&&(S.hp<d.maxHp*0.5||(casting&&S.hp<d.maxHp*0.9))){const i=bestHeal();if(i>=0)useIt(i,false);}
+    /* 魔力見底自動喝精靈露水（供智慧施法持續運作） */
+    if(S.mp<d.maxMp*0.3){const mi=S.inv.findIndex(x=>x.id==='p_dew');if(mi>=0)useIt(mi,false);}
+    /* 夥伴共用背包藥水：血低於 40% 自動餵藥 */
+    const cs=compStats();
+    if(cs&&S.compHp>0&&S.compHp<cs.maxHp*0.4){
+      const ci=bestHeal();
+      if(ci>=0){
+        const cdef=ITEMS[S.inv[ci].id];
+        const hv=cdef.full?cs.maxHp:cdef.heal;
+        S.compHp=Math.min(cs.maxHp,S.compHp+hv);
+        consume(ci);
+        log(`<span class="green">${cs.n} 喝下【${cdef.n}】，恢復 ${hv} 生命。</span>`);
+        renderComp();
+      }
+    }
+  }
+  /* 戰鬥自動喝加速藥水（未有加速狀態時） */
+  if($('auto-hastepot').checked&&battle&&!battle.buffs.some(b=>b.stat==='haste')){
+    const hi=S.inv.findIndex(x=>x.id==='p_haste');
+    if(hi>=0)useIt(hi,false);
+  }
+}
+/* ═══ 即時戰鬥主迴圈：每 100ms 一個 tick ═══ */
+function battleTick(){
   if(!battle)return;
   const d=derive();
+  battle.t++;const T=battle.t;
+  /* 玩家計時器 */
+  if(battle.pStun>0)battle.pStun--;else if(battle.pCd>0)battle.pCd--;
+  if(battle.gcd>0)battle.gcd--;
+  if(battle.potCd>0)battle.potCd--;
+  if(battle.fleeCd>0)battle.fleeCd--;
+  for(const k in battle.skCd)if(battle.skCd[k]>0)battle.skCd[k]--;
+  /* 玩家中毒（每 2 秒一跳） */
+  if(battle.pPois>0){
+    battle.pPois--;
+    if(battle.pPois%20===0){
+      let pd=Math.max(1,Math.floor(d.maxHp*0.04));
+      if(hasEnchA('antipoison'))pd=Math.max(1,Math.floor(pd/2));
+      S.hp-=pd;
+      log(`<span class="purple">毒素侵蝕著你，損失 ${pd} 生命${battle.pPois?'':'，毒性已解'}。</span>`);
+      if(checkBattleEnd())return;
+    }
+  }
+  /* buff／詛咒倒數 */
+  let uiSt=false;
+  battle.buffs.forEach(b=>b.t--);
+  battle.buffs=battle.buffs.filter(b=>{if(b.t>0)return true;log(`<span class="dim">「${b.n}」的效果消退了。</span>`);uiSt=true;return false});
+  for(const k in battle.pDb)if(battle.pDb[k]>0){battle.pDb[k]--;
+    if(battle.pDb[k]===0){log(`<span class="dim">${BOSS_DB[k].ic}【${BOSS_DB[k].n}】的效果消退了。</span>`);uiSt=true;}}
+  if(uiSt)battle.dirty=1;
+  /* 掛機：自動普攻＋每秒維護與智慧施法 */
+  const auto=$('auto-battle').checked;
+  if(auto&&battle.pCd<=0&&battle.pStun<=0){pAttack();if(!battle)return}
+  if(T%10===0){
+    battleUpkeep(d);if(!battle)return;
+    if(auto){autoAction();if(!battle)return}
+  }
+  /* 夥伴（2 秒一動） */
   const cs=compStats();
-  for(const mob of aliveMobs()){
-    /* 怪物中毒毒發 */
-    if(mob.pois){
+  if(cs&&S.compHp>0&&--battle.compCd<=0){battle.compCd=20;compAct(cs,d);if(checkBattleEnd())return}
+  /* 怪物迴圈：各自計時 */
+  for(const mob of battle.mobs){
+    if(mob.hp<=0)continue;
+    if(mob.pois>0){
       mob.pois--;
-      const pd=Math.max(1,Math.floor(mob.maxHp*0.05));
-      mob.hp-=pd;
-      log(`<span class="purple">${mob.n} 毒發，損失 ${pd} 生命。</span>`);
-      if(mob.hp<=0){log(`<span class="gold">${mob.n} 被毒液侵蝕而倒下！</span>`);continue}
+      if(mob.pois%20===0){
+        const pd=Math.max(1,Math.floor(mob.maxHp*0.05));
+        mob.hp-=pd;
+        log(`<span class="purple">${mob.n} 毒發，損失 ${pd} 生命。</span>`);
+        if(mob.hp<=0){log(`<span class="gold">${mob.n} 被毒液侵蝕而倒下！</span>`);battle.dirty=1;continue}
+      }
     }
-    /* 水屬性：每回合再生 */
-    if(mob.el==='water'&&mob.hp<mob.maxHp){
+    if(mob.el==='water'&&T%20===0&&mob.hp<mob.maxHp)
       mob.hp=Math.min(mob.maxHp,mob.hp+Math.max(1,Math.floor(mob.maxHp*0.02)));
+    /* 首領常駐回血：DPS 不足即打不死（每 3 秒） */
+    if(mob.rg&&T%30===0&&mob.hp<mob.maxHp){
+      const hv=Math.max(1,Math.floor(mob.maxHp*mob.rg));
+      mob.hp=Math.min(mob.maxHp,mob.hp+hv);
+      log(`<span class="red">${mob.n} 體內的黑暗力量湧動，恢復了 ${hv} 生命！</span>`);
     }
-    if(mob.stun){mob.stun=0;log(`<span class="dim">${mob.n} 暈眩中，無法行動！</span>`);continue}
-    /* 首領 AI：喝藥回血（耗一回合）／狂暴 */
-    if(mob.ai){
-      if(mob.ai.hl&&mob.heals>0&&mob.hp<mob.maxHp*mob.ai.hl[1]/100){
-        mob.heals--;
-        const hv=Math.floor(mob.maxHp*mob.ai.hl[2]/100);
-        mob.hp=Math.min(mob.maxHp,mob.hp+hv);
-        log(`<span class="red">${mob.n} 灌下一瓶藥水，恢復了 ${hv} 生命！${mob.heals?'':'（藥水喝完了）'}</span>`);
-        continue;
-      }
-      if(mob.ai.rage&&!mob.raged&&mob.hp<mob.maxHp*mob.ai.rage/100){
-        mob.raged=true;mob.atk=Math.floor(mob.atk*1.35);
-        log(`<span class="red">${mob.n} 陷入狂暴，攻擊力大幅上升！</span>`);
-      }
-      /* 首領詛咒：虛弱/破甲/恐懼（耗一回合施放，持續 3 回合） */
-      if(mob.ai.db&&battle.pDb&&battle.pDb[mob.ai.db[0]]<=0&&R(1,100)<=mob.ai.db[1]){
-        const t=mob.ai.db[0],info=BOSS_DB[t];
-        battle.pDb[t]=3;
-        log(`<span class="red">${mob.n} ${info.cast[mob.id]||'施放了'+info.n}！${info.ic}【${info.n}】——${info.d}（3 回合）！</span>`);
-        continue;
-      }
+    if(mob.stun>0){mob.stun--;continue}
+    /* 大招吟唱中 */
+    if(mob.cast>0){mob.cast--;if(mob.cast===0){nukeHit(mob,d);if(checkBattleEnd())return}continue}
+    if(mob.nukeCd>0)mob.nukeCd--;
+    if(--mob.cd<=0){
+      mob.cd=Math.max(4,Math.round(mob.spd*10));
+      if(mob.ai&&bossAct(mob))continue;      /* 首領 AI 佔用行動則跳過普攻 */
+      mobAttack(mob,d,cs);
+      if(checkBattleEnd())return;
     }
-    /* 盾衛夥伴掩護：60% 機率替你承受攻擊 */
-    if(cs&&cs.role==='tank'&&S.compHp>0&&R(1,100)<=60){
-      let dmg=Math.max(1,Math.floor(mob.atk-cs.def/2+R(-2,2)));
-      S.compHp-=dmg;
-      log(`${cs.n} 挺身格擋！${mob.n} 對他造成 <b class="red">${dmg}</b> 傷害。`);
-      if(S.compHp<=0){S.compHp=0;log(`<span class="red">${cs.n} 倒下了！（回到城鎮休息可恢復）</span>`);}
-      continue;
-    }
-    /* 光屬性攻擊必中，其餘可閃避 */
-    const evaP=mob.el==='light'?0:Math.min(75,d.eva*buffVal('eva'));
-    if(R(1,100)<=evaP){log(`<span class="green">${mob.n} 的攻擊被你敏捷地閃開了！</span>`);continue}
-    let pdef=d.def*buffVal('def');
-    if(battle.pDb&&battle.pDb.ab>0)pdef*=0.7;   // 破甲詛咒：防禦 -30%
-    let dmg=Math.max(1,Math.floor(mob.atk-pdef/2+R(-2,2)));
-    /* 首領 AI：爆擊 */
-    let bcrit=false;
-    if(mob.ai&&mob.ai.crit&&R(1,100)<=mob.ai.crit){bcrit=true;dmg=Math.floor(dmg*1.6);}
-    if(mob.el&&hasEnchA('resist'))dmg=Math.max(1,Math.floor(dmg*0.8));
-    S.hp-=dmg;
-    log(`${mob.n} ${mob.el==='light'?'的必中聖光':''}攻擊你，造成 <b class="red">${dmg}</b> 傷害${bcrit?'<span class="red">（爆擊！）</span>':''}。`);
-    /* 暗屬性：吸取生命 */
-    if(mob.el==='dark'){
-      const dr=Math.max(1,Math.floor(dmg/2));
-      mob.hp=Math.min(mob.maxHp,mob.hp+dr);
-      log(`<span class="purple">${mob.n} 汲取了你的生命（自身回復 ${dr}）。</span>`);
-    }
-    /* 攻擊附帶效果：毒／暈（防具附魔可抵抗） */
-    if(mob.fx==='poison'&&R(1,100)<=25){
-      if(hasEnchA('antipoison')&&R(1,100)<=75)log('<span class="green">［抗毒］附魔抵擋了毒素！</span>');
-      else if(!battle.pPoison){battle.pPoison=3;log('<span class="purple">☠ 你中毒了！每回合將損失生命（持續 3 回合）。</span>');}
-    }
-    if(mob.fx==='stun'&&R(1,100)<=25){
-      if(hasEnchA('antistun')&&R(1,100)<=75)log('<span class="green">［抗暈］附魔穩住了你的意識！</span>');
-      else{battle.pStun=true;log('<span class="purple">💫 你被震得眼冒金星，下回合無法行動！</span>');}
-    }
-    if(S.hp<=0){playerDie();return}
   }
-  if(!battle)return;
-  if(!aliveMobs().length){winBattle();return}
-  /* 玩家中毒毒發 */
-  if(battle.pPoison>0){
-    battle.pPoison--;
-    let pd=Math.max(1,Math.floor(d.maxHp*0.04));
-    if(hasEnchA('antipoison'))pd=Math.max(1,Math.floor(pd/2));
-    S.hp-=pd;
-    log(`<span class="purple">毒素侵蝕著你，損失 ${pd} 生命${battle.pPoison?`（剩 ${battle.pPoison} 回合）`:'，毒性已解'}。</span>`);
-    if(S.hp<=0){playerDie();return}
-  }
-  battle.buffs.forEach(b=>b.turns--);battle.buffs=battle.buffs.filter(b=>b.turns>0);
-  if(battle.pDb)for(const k in battle.pDb)if(battle.pDb[k]>0){
-    battle.pDb[k]--;
-    if(battle.pDb[k]===0)log(`<span class="dim">${BOSS_DB[k].ic}【${BOSS_DB[k].n}】的效果消退了。</span>`);
-  }
-  battle.turn++;
-  renderStatus();renderComp();renderBattle();
+  if(checkBattleEnd())return;
+  /* 重繪：狀態變化→全量；否則每 0.2 秒輕量更新 */
+  if(battle.dirty){battle.dirty=0;renderBattle();renderStatus();renderComp();}
+  else if(T%2===0)renderBattleDyn();
+  if(T%10===0)renderStatus();
 }
 function winBattle(){
   const mobs=battle.mobs,q=QUESTS[S.ch];
@@ -2034,17 +2132,21 @@ function addItem(id,q,roll){
 function useIt(i,inBattle){
   const it=S.inv[i];if(!it)return;const def=ITEMS[it.id];
   const d=derive();
+  const isPot=def.heal||def.mp||def.full;
+  if(battle&&isPot&&battle.potCd>0)return;   /* 藥水冷卻中（1.5 秒），防止爆喝 */
   if(def.heal){S.hp=Math.min(d.maxHp,S.hp+def.heal);log(`<span class="green">使用【${def.n}】，恢復 ${def.heal} HP。</span>`);}
   else if(def.mp){S.mp=Math.min(d.maxMp,S.mp+def.mp);log(`<span class="green">使用【${def.n}】，恢復 ${def.mp} MP。</span>`);}
   else if(def.full){S.hp=d.maxHp;S.mp=d.maxMp;log(`<span class="green">使用【${def.n}】，HP/MP 完全恢復！</span>`);}
-  else if(def.buff==='haste'){if(!battle){log('<span class="dim">戰鬥中才需要加速。</span>');return}battle.buffs.push({n:'加速',stat:'haste',mult:2,turns:def.turns});log('<span class="blue">你的身影快得出現殘像！</span>');}
+  else if(def.buff==='haste'){if(!battle){log('<span class="dim">戰鬥中才需要加速。</span>');return}battle.buffs.push({n:'加速',stat:'haste',mult:2,t:def.turns*20});log('<span class="blue">你的身影快得出現殘像！（攻擊速度大幅提升）</span>');}
   else if(def.home){if(battle){log('<span class="red">戰鬥中無法使用回城卷軸！</span>');return}consume(i);goNearestTown();return}
   else if(def.speed){
     S.hasteUntil=Math.max(Date.now(),S.hasteUntil||0)+600000;
-    log(`<span class="blue">⏩ 時空開始加速！回合速度 0.8→0.5 秒，剩餘 ${Math.ceil((S.hasteUntil-Date.now())/60000)} 分鐘。</span>`);
+    log(`<span class="blue">⏩ 時空開始加速！戰鬥與探索全面加速，剩餘 ${Math.ceil((S.hasteUntil-Date.now())/60000)} 分鐘。</span>`);
   }
+  if(battle&&isPot)battle.potCd=15;
   consume(i);
-  if(battle&&inBattle)afterPlayerTurn();else{renderStatus();renderTabs();if(battle)renderBattle();}
+  renderStatus();renderTabs();
+  if(battle)battle.dirty=1;
 }
 function consume(i){const it=S.inv[i];it.q--;if(it.q<=0)S.inv.splice(i,1);}
 function equipIt(i){
@@ -2533,14 +2635,20 @@ function buyIt(id){
   renderStatus();renderTabs();
 }
 
-/* ═══════════ 放置（自動）循環 ═══════════
-   基準 0.8 秒一回合；使用「時空加速卷軸」期間 0.5 秒一回合 */
+/* ═══════════ 主迴圈 ═══════════
+   戰鬥中：每 100ms 一個即時戰鬥 tick（時空加速期間 ×2 快轉）
+   非戰鬥：0.8 秒一跳的放置循環（時空加速 0.5 秒） */
 let nextTickAt=0;
 setInterval(()=>{
   if(!S||$('screen-game').style.display==='none')return;
   const now=Date.now();
-  if(now<nextTickAt)return;
   const fast=S.hasteUntil&&now<S.hasteUntil;
+  if(battle){
+    const n=fast?2:1;
+    for(let i=0;i<n&&battle;i++)battleTick();
+    return;
+  }
+  if(now<nextTickAt)return;
   nextTickAt=now+(fast?500:800);
   gameTick();
 },100);
@@ -2641,32 +2749,7 @@ function gameTick(){
     const ti=S.inv.findIndex(x=>x.id==='s_time');
     if(ti>=0)useIt(ti,false);
   }
-  if(battle){
-    if($('auto-potion').checked){
-      if(S.hp<d.maxHp*0.5){const i=bestHeal();if(i>=0)useIt(i,false);}
-      /* 魔力見底自動喝精靈露水（供智慧施法持續運作） */
-      if(S.mp<d.maxMp*0.3){const mi=S.inv.findIndex(x=>x.id==='p_dew');if(mi>=0)useIt(mi,false);}
-      /* 夥伴共用背包藥水：血低於 40% 自動餵藥 */
-      const cs=compStats();
-      if(cs&&S.compHp>0&&S.compHp<cs.maxHp*0.4){
-        const ci=bestHeal();
-        if(ci>=0){
-          const cdef=ITEMS[S.inv[ci].id];
-          const hv=cdef.full?cs.maxHp:cdef.heal;
-          S.compHp=Math.min(cs.maxHp,S.compHp+hv);
-          consume(ci);
-          log(`<span class="green">${cs.n} 喝下【${cdef.n}】，恢復 ${hv} 生命。</span>`);
-          renderComp();
-        }
-      }
-    }
-    /* 戰鬥自動喝加速藥水（未有加速狀態時） */
-    if($('auto-hastepot').checked&&battle&&!battle.buffs.some(b=>b.stat==='haste')){
-      const hi=S.inv.findIndex(x=>x.id==='p_haste');
-      if(hi>=0)useIt(hi,false);
-    }
-    if($('auto-battle').checked&&battle)autoAction();
-  }else{
+  if(!battle){
     /* 戰鬥外自然恢復：每一跳回復 5% HP/MP（夥伴也恢復），讓掛機不會中斷 */
     if(S.hp<d.maxHp||S.mp<d.maxMp){
       S.hp=Math.min(d.maxHp,S.hp+Math.max(2,Math.floor(d.maxHp*0.05)));
