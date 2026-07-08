@@ -198,7 +198,7 @@ h1,h2,h3{color:var(--gold);font-weight:700}
         <label><input type="checkbox" id="auto-hastepot" onchange="saveOpts()"> 戰鬥自動喝加速藥水</label>
         <label><input type="checkbox" id="auto-time" onchange="saveOpts()"> 時空加速結束自動續用卷軸</label>
         <label><input type="checkbox" id="auto-restock" onchange="saveOpts()"> 自動補貨（藥水／卷軸低於 10 自動購足 30）</label>
-        <label><input type="checkbox" id="opt-music" checked onchange="toggleMusic(this.checked)"> 🎵 背景音樂（城鎮／戰鬥雙曲）</label>
+        <label><input type="checkbox" id="opt-music" checked onchange="toggleMusic(this.checked)"> 🎵 背景音樂（城鎮／戰鬥雙曲，程式即時演奏）</label>
         <div class="hint">補貨對象：紅色藥水、精靈露水、加速藥水、時空加速卷軸（需有足夠金幣）。自動補貨與時空續用只在「自動掛機」進行中運作——死亡回村後即停止花費。掛機中戰鬥外會自然恢復，死亡才停止掛機。設定會隨存檔保存。<br><b class="gold">離線收穫：</b>電腦休眠、分頁閒置、甚至關掉瀏覽器的期間，只要掛機開著且人在打怪區，回來時會一次結算收穫（上限 12 小時；爬塔層數除外）。</div>
       </div>
     </div>
@@ -218,6 +218,7 @@ h1,h2,h3{color:var(--gold);font-weight:700}
       <div class="phead" style="display:flex;justify-content:space-between;align-items:center">
         <span id="loc-name">－</span>
         <span style="display:flex;gap:8px;align-items:center">
+          <button id="btn-music" onclick="toggleMusic()" title="開關背景音樂" style="font-size:14px;padding:4px 10px">🔊</button>
           <button id="btn-town" onclick="goNearestTown()" style="font-size:13px">回到城鎮</button>
           <select id="map-select" onchange="moveTo(this.value)" style="max-width:190px"></select>
         </span>
@@ -1257,29 +1258,279 @@ function createGo(){
   const d=derive();S.hp=d.maxHp;S.mp=d.maxMp;
   enterGame(false);
 }
-/* ═══════════ 背景音樂（城鎮循環／戰鬥切換）═══════════
+/* ═══════════ 程式化配樂引擎（Web Audio 即時作曲演奏，無音檔、無縫循環）═══════════
+   城鎮〈遠征之歌〉：D 大調 90 BPM，36 小節——弦樂與人聲鋪底 → 法國號英雄主題 → 全團合奏高潮 → 收回開頭無縫循環
+   戰鬥〈黑暗壓境〉：D 弗里吉亞 145 BPM，48 小節——斷奏弦樂與戰鼓 → 低音銅管壓迫主題 → 打擊全開＋小號對抗 → 鼓組降階回圈
    偏好存 localStorage（跨存檔共用）；瀏覽器擋自動播放時，等下一次點擊補播 */
-const BGM_SRC={town:'01_魔戒史詩主題_epic.mp3',battle:'02_戰鬥緊張_battle.mp3'};
-let bgmCur=null;const bgmEl={};
+let AC=null,bgmComp=null,bgmRev=null,bgmSB=null,bgmSong=null,bgmBarN=0,bgmNext=0,bgmCur=null,_noiseB=null;
+const NF=n=>440*Math.pow(2,(n-69)/12);
 function bgmOn(){try{return localStorage.getItem('lotr_bgm')!=='0'}catch(e){return false}}
+function bgmInit(){
+  if(AC)return true;
+  const Ctx=(typeof window!=='undefined'&&(window.AudioContext||window.webkitAudioContext));
+  if(!Ctx)return false;   // 測試環境無音訊
+  AC=new Ctx();
+  bgmComp=AC.createDynamicsCompressor();
+  bgmComp.threshold.value=-20;bgmComp.ratio.value=4;
+  const master=AC.createGain();master.gain.value=0.6;
+  /* 殘響：程序生成 2.6 秒衰減脈衝 → 音樂廳空間感 */
+  const ir=AC.createBuffer(2,Math.floor(AC.sampleRate*2.6),AC.sampleRate);
+  for(let c=0;c<2;c++){const d=ir.getChannelData(c);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,2.4);}
+  bgmRev=AC.createConvolver();bgmRev.buffer=ir;
+  const wet=AC.createGain();wet.gain.value=0.45;
+  bgmRev.connect(wet);wet.connect(bgmComp);
+  bgmComp.connect(master);master.connect(AC.destination);
+  return true;
+}
+function noiseBuf(){
+  if(_noiseB)return _noiseB;
+  _noiseB=AC.createBuffer(1,AC.sampleRate,AC.sampleRate);
+  const d=_noiseB.getChannelData(0);
+  for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  return _noiseB;
+}
+/* ── 樂器（皆排程到 bgmSB 當前曲目匯流排）── */
+/* 弦樂群：四把微失諧鋸齒＋低通。atk 長=鋪底、極短=斷奏 */
+function iStr(t,midi,dur,vol,atk,bright){
+  const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=bright||2200;lp.Q.value=0.4;
+  const g=AC.createGain();
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+atk);
+  g.gain.setValueAtTime(vol,t+Math.max(atk,dur-0.1));g.gain.linearRampToValueAtTime(0,t+dur);
+  lp.connect(g);g.connect(bgmSB);
+  for(const det of [-9,-4,3,8]){
+    const o=AC.createOscillator();o.type='sawtooth';
+    o.frequency.value=NF(midi);o.detune.value=det;
+    o.connect(lp);o.start(t);o.stop(t+dur+0.05);
+  }
+}
+/* 銅管（法國號/長號/小號共用）：鋸齒＋低八度正弦、共振低通、起音滑音、延遲顫音 */
+function iBrass(t,midi,dur,vol,cut,vib){
+  const f=NF(midi);
+  const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=cut||1100;lp.Q.value=1.4;
+  const g=AC.createGain();
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+0.07);
+  g.gain.setValueAtTime(vol,t+Math.max(0.07,dur-0.12));g.gain.linearRampToValueAtTime(0,t+dur);
+  lp.connect(g);g.connect(bgmSB);
+  let vg=null;
+  if(vib){
+    const vo=AC.createOscillator();vo.frequency.value=4.6;
+    vg=AC.createGain();vg.gain.setValueAtTime(0,t);vg.gain.linearRampToValueAtTime(7,t+0.45);
+    vo.connect(vg);vo.start(t);vo.stop(t+dur+0.05);
+  }
+  for(const [fr,vv] of [[f,1],[f/2,0.4]]){
+    const o=AC.createOscillator();o.type='sawtooth';
+    o.frequency.setValueAtTime(fr*0.982,t);o.frequency.linearRampToValueAtTime(fr,t+0.09);
+    if(vg)vg.connect(o.detune);
+    const og=AC.createGain();og.gain.value=vv;
+    o.connect(og);og.connect(lp);o.start(t);o.stop(t+dur+0.05);
+  }
+}
+/* 人聲聖歌（Aah）：三聲部失諧鋸齒 → 共振峰帶通組 */
+function iChoir(t,midi,dur,vol,atk){
+  atk=atk||Math.min(1.2,dur*0.4);
+  const g=AC.createGain();
+  g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+atk);
+  g.gain.setValueAtTime(vol,t+Math.max(atk,dur-Math.min(1,dur*0.35)));g.gain.linearRampToValueAtTime(0,t+dur);
+  g.connect(bgmSB);
+  for(const [ff,q,fv] of [[700,6,1],[1080,8,0.55],[2650,11,0.14]]){
+    const bp=AC.createBiquadFilter();bp.type='bandpass';bp.frequency.value=ff;bp.Q.value=q;
+    const fg=AC.createGain();fg.gain.value=fv;
+    bp.connect(fg);fg.connect(g);
+    for(const det of [-7,0,6]){
+      const o=AC.createOscillator();o.type='sawtooth';
+      o.frequency.value=NF(midi);o.detune.value=det;
+      o.connect(bp);o.start(t);o.stop(t+dur+0.1);
+    }
+  }
+}
+/* 鼓（定音鼓/戰鼓/低音巨鼓）：正弦下滑＋噪音擊面 */
+function iDrum(t,f0,vol,decay,noise){
+  const o=AC.createOscillator();o.type='sine';
+  o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(Math.max(28,f0*0.55),t+decay);
+  const g=AC.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+decay);
+  o.connect(g);g.connect(bgmSB);o.start(t);o.stop(t+decay+0.05);
+  if(noise){
+    const n=AC.createBufferSource();n.buffer=noiseBuf();
+    const lp=AC.createBiquadFilter();lp.type='lowpass';lp.frequency.value=1000;
+    const ng=AC.createGain();ng.gain.setValueAtTime(vol*noise,t);ng.gain.exponentialRampToValueAtTime(0.001,t+0.1);
+    n.connect(lp);lp.connect(ng);ng.connect(bgmSB);n.start(t);n.stop(t+0.12);
+  }
+}
+/* 鈸：高通噪音；dur 長=氣氛鑼、短=重擊 */
+function iCym(t,vol,dur){
+  const n=AC.createBufferSource();n.buffer=noiseBuf();n.loop=true;
+  const hp=AC.createBiquadFilter();hp.type='highpass';hp.frequency.value=5200;
+  const g=AC.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+  n.connect(hp);hp.connect(g);g.connect(bgmSB);n.start(t);n.stop(t+dur);
+}
+/* ── 曲目一〈遠征之歌〉90 BPM · D 大調 · 36 小節（96 秒無縫循環）── */
+const T_CH={D:[57,62,66],G:[55,59,62],A:[57,61,64],Bm:[59,62,66],Em:[55,59,64]};
+const T_PROG=['P','P','P','P','P','P',
+  'D','D','G','D','D','Bm','A','D','Em','G','A',
+  'D','D','G','D','D','Bm','A','D','G','Em','A',
+  'D','Bm','G','D','G','D','P','P'];
+const T_MEL=[ /* [小節, 拍, 音, 拍長] 法國號英雄主題 */
+  [6,0,57,1],[6,1,62,1],[6,2,64,1],[6,3,66,1],
+  [7,0,69,2.5],[7,2.5,67,0.75],[7,3.25,66,0.75],
+  [8,0,67,1],[8,1,66,1],[8,2,64,1],[8,3,66,1],
+  [9,0,62,3.5],
+  [10,0,57,1],[10,1,62,1],[10,2,64,1],[10,3,66,1],
+  [11,0,71,2.5],[11,2.5,69,1.5],
+  [12,0,67,1.5],[12,1.5,66,0.5],[12,2,64,1],[12,3,61,1],
+  [13,0,62,3.5],
+  [14,0,64,1],[14,1,66,1],[14,2,67,1],[14,3,69,1],
+  [15,0,71,2],[15,2,69,1],[15,3,67,1],
+  [16,0,69,3.5]];
+const T_EXT=[ /* 高潮延伸樂句（小節 25~27，全團） */
+  [25,0,74,1],[25,1,76,1],[25,2,78,1],[25,3,79,1],
+  [26,0,79,2],[26,2,78,1],[26,3,76,1],
+  [27,0,78,2],[27,2,74,2]];
+const T_CELLO=[50,52,54,55,54,52];   // 序奏大提琴緩行
+function townBar(i,t){
+  const spb=60/90,B=b=>t+b*spb;
+  const ch=T_PROG[i],intro=ch==='P',tutti=i>=17&&i<=27,outro=i>=28;
+  /* 低音與大提琴 */
+  if(intro){
+    iStr(B(0),38,spb*4.1,0.16,1.2,700);
+    iStr(B(0),T_CELLO[i%6],spb*4.1,0.12,1.0,1200);
+  }else{
+    const root=T_CH[ch][1]-24;
+    iStr(B(0),root,spb*2.05,0.15,0.25,900);
+    iStr(B(2),root,spb*2.05,0.15,0.25,900);
+  }
+  /* 和弦鋪底（弦樂三聲部） */
+  if(!intro)for(const n of T_CH[ch])iStr(B(0),n,spb*4.15,tutti?0.085:0.06,tutti?0.15:0.5,tutti?2800:2000);
+  /* 人聲：序奏／高潮／尾奏 */
+  if(intro&&i<6){iChoir(B(0),62,spb*4.2,0.05+i*0.008);iChoir(B(0),69,spb*4.2,0.04+i*0.006);}
+  if(tutti)for(const n of T_CH[ch])iChoir(B(0),n+12,spb*4.15,0.035,0.3);
+  if(outro&&i>=32){iChoir(B(0),62,spb*4.2,Math.max(0.02,0.06-(i-32)*0.012));iChoir(B(0),69,spb*4.2,Math.max(0.015,0.05-(i-32)*0.01));}
+  /* 主旋律：法國號（B 段）→ 法國號＋高音弦八度（高潮）→ 遠方回聲（尾奏） */
+  for(const [bar,bt,n,len] of T_MEL){
+    if(bar+11===i&&tutti&&i<=24){ /* 高潮：主題重現＋高音弦八度（17~24 對應 6~13；25 起交給延伸樂句） */
+      iBrass(B(bt),n,spb*len*0.98,0.2,1500,len>=2);
+      iStr(B(bt),n+12,spb*len,0.09,0.06,3200);
+    }else if(bar===i&&!tutti){
+      iBrass(B(bt),n,spb*len*0.98,0.17,1100,len>=2);
+    }
+  }
+  for(const [bar,bt,n,len] of T_EXT)if(bar===i){
+    iBrass(B(bt),n,spb*len*0.98,0.2,1600,len>=2);
+    iStr(B(bt),n,spb*len,0.1,0.06,3200);
+  }
+  if(i===30||i===31)for(const [bar,bt,n,len] of T_MEL)if(bar+24===i)iBrass(B(bt),n,spb*len,0.07,800,false);
+  /* 定音鼓與鈸 */
+  if(i===4||i===5)for(let k=0;k<8;k++)iDrum(B(k*0.5),73,0.05+k*0.03,0.4,0);
+  if(i>=6&&i<17){iDrum(B(0),73,0.3,0.5,0);iDrum(B(2),55,0.22,0.5,0);}
+  if(tutti){iDrum(B(0),73,0.42,0.55,0.2);iDrum(B(1.5),73,0.2,0.35,0);iDrum(B(2),55,0.3,0.5,0);iDrum(B(3.5),73,0.18,0.3,0);}
+  if(i===17||i===21||i===25)iCym(B(0),0.09,spb*3);
+  if(i===27)iCym(B(0),0.11,spb*4);
+}
+/* ── 曲目二〈黑暗壓境〉145 BPM · D 弗里吉亞 · 48 小節（約 79 秒無縫循環）── */
+const B_OST=[50,50,62,50,63,50,60,50];        // 斷奏弦樂固定音型（含 b2 威脅感）
+const B_THEME=[ /* 低音銅管主題（相對小節, 拍, 音, 拍長） */
+  [0,0,50,2],[0,2,51,2],[1,0,50,2],[1,2,48,2],
+  [2,0,50,1],[2,1,53,1],[2,2,51,2],[3,0,50,4],
+  [4,0,50,2],[4,2,51,2],[5,0,53,2],[5,2,55,2],
+  [6,0,57,1],[6,1,55,1],[6,2,53,1],[6,3,51,1],[7,0,50,4]];
+const B_TRP=[ /* 小號對抗樂句（相對小節） */
+  [0,0,69,1],[0,1,69,0.5],[0,1.5,70,0.5],[0,2,69,1],[0,3,67,1],
+  [1,0,65,1.5],[1,1.5,67,0.5],[1,2,69,2],
+  [2,0,70,1],[2,1,69,1],[2,2,67,1],[2,3,65,1],
+  [3,0,62,2],[3,2,69,2]];
+function battleBar(i,t){
+  const spb=60/145,B=b=>t+b*spb;
+  const secA=i<8,secB=i>=8&&i<20,secC=i>=20&&i<42,secD=i>=42;
+  /* 斷奏弦樂固定音型（8 分音符；高潮段升八度加倍） */
+  if(!secD){
+    for(let k=0;k<8;k++){
+      const acc=(k===0||k===4)?1.5:1;
+      iStr(B(k*0.5),B_OST[k]+(secC?12:0),0.16,0.075*acc,0.012,2600);
+      if(secC)iStr(B(k*0.5),B_OST[k],0.16,0.05*acc,0.012,1800);
+    }
+  }
+  /* 戰鼓組：低音巨鼓＋中鼓；段落越後越密 */
+  iDrum(B(0),52,0.55,0.5,0.5);
+  iDrum(B(2),52,0.42,0.45,0.4);
+  iDrum(B(1.5),95,0.3,0.22,0.3);iDrum(B(3.5),95,0.3,0.22,0.3);
+  if(!secA){iDrum(B(1),130,0.2,0.15,0.5);iDrum(B(3),130,0.2,0.15,0.5);}
+  if(secC){iDrum(B(2.5),95,0.26,0.2,0.3);iDrum(B(0.5),130,0.16,0.12,0.4);}
+  /* 每 4 小節樂句頭的低音重擊與鈸 */
+  if(i%4===0&&!secA)iDrum(B(0),40,0.6,0.9,0.3);
+  if(i===20||i===28||i===36)iCym(B(0),0.1,spb*2.5);
+  /* B 段起：低音銅管壓迫主題（長號簇：根音＋低五度） */
+  if(secB||(secC&&i>=24&&i<32)){
+    const rel=secB?i-8:i-24;
+    for(const [bar,bt,n,len] of B_THEME)if(bar===rel%8){
+      iBrass(B(bt),n,spb*len*0.95,0.19,750,false);
+      iBrass(B(bt),n-5,spb*len*0.95,0.1,600,false);
+    }
+  }
+  /* B 段後半／C 段：人聲短促吟唱（壓迫感） */
+  if((i>=14&&i<20)||secC){
+    iChoir(B(0),62,0.32,0.075,0.04);iChoir(B(0),69,0.32,0.055,0.04);
+    iChoir(B(2),62,0.32,0.06,0.04);
+  }
+  /* C 段：小號對抗樂句＋高潮長和聲 */
+  if(secC){
+    const rel=(i-20)%4;
+    for(const [bar,bt,n,len] of B_TRP)if(bar===rel&&(i-20)%8<4)
+      iBrass(B(bt),n,spb*len*0.95,0.16,2100,len>=2);
+    if(i>=36)for(const n of [62,65,69])iChoir(B(0),n,spb*4.1,0.045,0.3);
+    if(i>=32&&i%4===3)for(let k=0;k<8;k++)iDrum(B(2+k*0.25),73,0.06+k*0.025,0.25,0);
+  }
+  /* D 段：鼓組降階鋪陳回圈（弦樂退場、下行低音） */
+  if(secD){
+    const down=[50,48,46,45][i-42<4?i-42:3];
+    if(i<46){iBrass(B(0),down-12,spb*4,0.13,500,false);iStr(B(0),down,spb*4.1,0.07,0.4,1200);}
+    else for(let k=0;k<8;k++)iDrum(B(k*0.5),52+k*4,0.15+k*0.05,0.3,0.3);
+  }
+}
+const BGM_SONGS={town:{bpm:90,bars:36,bar:townBar},battle:{bpm:145,bars:48,bar:battleBar}};
+/* ── 排程器：每 120ms 往前排 0.4 秒 ── */
+function bgmTick(){
+  if(!AC||!bgmSong||!bgmSB)return;
+  while(bgmNext<AC.currentTime+0.4){
+    bgmSong.bar(bgmBarN%bgmSong.bars,bgmNext);
+    bgmNext+=4*60/bgmSong.bpm;
+    bgmBarN++;
+  }
+}
+setInterval(bgmTick,120);
 function playBgm(key){
-  if(typeof Audio==='undefined')return;   // 測試環境無音訊
   if(!bgmOn()){stopBgm();return}
   if(bgmCur===key)return;
-  for(const k in bgmEl)bgmEl[k].pause();
-  if(!bgmEl[key]){bgmEl[key]=new Audio(BGM_SRC[key]);bgmEl[key].loop=true;bgmEl[key].volume=0.45;}
-  const a=bgmEl[key];
-  if(key==='battle')a.currentTime=0;      // 戰鬥曲每場從頭；城鎮曲接續播
+  if(!bgmInit())return;
+  if(AC.state==='suspended')AC.resume().catch(()=>{});
+  if(bgmSB){ /* 舊曲淡出 */
+    const old=bgmSB;
+    old.gain.setValueAtTime(old.gain.value,AC.currentTime);
+    old.gain.linearRampToValueAtTime(0,AC.currentTime+0.8);
+    setTimeout(()=>{try{old.disconnect()}catch(e){}},1200);
+  }
+  bgmSB=AC.createGain();bgmSB.gain.value=1;
+  bgmSB.connect(bgmComp);bgmSB.connect(bgmRev);
+  bgmSong=BGM_SONGS[key];bgmBarN=0;bgmNext=AC.currentTime+0.1;
   bgmCur=key;
-  a.play().catch(()=>{bgmCur=null});      // 自動播放被擋：等使用者互動再試
+  bgmTick();
+  const mb=$('btn-music');if(mb)mb.textContent='🔊';
 }
-function stopBgm(){for(const k in bgmEl)bgmEl[k].pause();bgmCur=null}
+function stopBgm(){
+  if(bgmSB){const old=bgmSB;
+    if(AC){old.gain.setValueAtTime(old.gain.value,AC.currentTime);old.gain.linearRampToValueAtTime(0,AC.currentTime+0.4);}
+    setTimeout(()=>{try{old.disconnect()}catch(e){}},800);
+  }
+  bgmSB=null;bgmSong=null;bgmCur=null;
+  const mb=$('btn-music');if(mb)mb.textContent='🔇';
+}
 function toggleMusic(on){
+  if(on===undefined)on=!bgmOn();
   try{localStorage.setItem('lotr_bgm',on?'1':'0')}catch(e){}
+  const cb=$('opt-music');if(cb)cb.checked=on;
   if(on)playBgm(battle?'battle':'town');else stopBgm();
 }
 if(document.addEventListener)document.addEventListener('click',()=>{
   if(S&&bgmOn()&&!bgmCur&&$('screen-game').style.display!=='none')playBgm(battle?'battle':'town');
+  else if(AC&&AC.state==='suspended')AC.resume().catch(()=>{});
 });
 const OPT_IDS=['auto-battle','auto-potion','auto-hastepot','auto-time','auto-restock'];
 function saveOpts(){
@@ -1304,6 +1555,7 @@ function enterGame(loaded){
   if(!S.rushBest)S.rushBest=0;
   applyOpts();
   $('opt-music').checked=bgmOn();
+  $('btn-music').textContent=bgmOn()?'🔊':'🔇';
   playBgm('town');
   $('screen-create').style.display='none';$('screen-title').style.display='none';
   $('screen-game').style.display='flex';
