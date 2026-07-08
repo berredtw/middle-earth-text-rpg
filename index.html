@@ -1654,19 +1654,33 @@ function curTarget(){
 }
 function setTarget(i){if(!battle||!battle.mobs[i]||battle.mobs[i].hp<=0)return;battle.tgt=i;renderBattle();}
 function buffVal(stat){let v=1;for(const b of battle.buffs)if(b.stat===stat)v*=b.mult;return v}
+/* 怪物狀態列 HTML（renderBattle 與 renderBattleDyn 共用） */
+function mobStHtml(mob,dead){
+  return (mob.boss?'<span class="red">☠首領 </span>':'')+
+    (mob.cast>0?`<span class="red">⚠凝聚力量 ${(mob.cast/10).toFixed(1)}s </span>`:'')+
+    (mob.stun>0?'<span class="purple">暈眩 </span>':'')+
+    (mob.pois>0?'<span class="purple">中毒 </span>':'')+
+    (mob.raged?'<span class="red">狂暴 </span>':'')+
+    (dead?'<span class="dim">（倒下）</span>':'');
+}
+function mobBarHtml(mob){
+  return `<div style="background:#7a2f2f;width:${Math.max(0,100*mob.hp/mob.maxHp)}%"></div><span style="line-height:11px;font-size:10px">${mob.hp} / ${mob.maxHp}</span>`;
+}
 function renderBattle(){
   curTarget();
   /* 行動列固定在最上方（按鈕有固定最小寬度，不隨怪物數量跳動） */
+  const atkRdy=battle.pCd<=0&&battle.pStun<=0;
   let h=`<div class="actions battle-actions" style="margin-top:0">
-    <button class="gold" onclick="pAttack()">⚔ 攻擊</button>`;
+    <button class="gold" id="btn-atk" onclick="pAttack()" ${atkRdy?'':'disabled'}>${battle.pStun>0?'💫 暈眩':(atkRdy?'⚔ 攻擊':`⚔ ${(battle.pCd/10).toFixed(1)}s`)}</button>`;
   for(const id in SKILLS){const sk=SKILLS[id];
     if(sk.race!==S.race||S.lv<sk.lv)continue;
-    h+=`<button onclick="castSkill('${id}')" ${S.mp<sk.mp?'disabled':''} title="${esc(sk.d)}">${sk.aoe?'💥':''}${sk.n}<span class="dim">(${sk.mp})</span></button>`;}
+    const cd=Math.max(battle.gcd,battle.skCd[id]||0);
+    h+=`<button id="btn-sk-${id}" onclick="castSkill('${id}')" ${(S.mp<sk.mp||cd>0)?'disabled':''} title="${esc(sk.d)}（冷卻 ${sk.cd} 秒）">${sk.aoe?'💥':''}${sk.n}<span class="dim">(${cd>0?(cd/10).toFixed(0)+'s':sk.mp})</span></button>`;}
   const heal=bestHeal();
-  if(heal>=0)h+=`<button onclick="useIt(${heal},true)">🧪 ${ITEMS[S.inv[heal].id].n}</button>`;
+  if(heal>=0)h+=`<button id="btn-pot" onclick="useIt(${heal},true)" ${battle.potCd>0?'disabled':''}>🧪 ${ITEMS[S.inv[heal].id].n}</button>`;
   if(S.inv.some(x=>x.id==='ring_one'))h+=`<button class="purple" style="border-color:var(--purple)" onclick="useRing()">💍 戴上魔戒</button>`;
-  h+=`<button onclick="tryFlee()">🏃 逃跑</button></div>
-  <div class="hint" style="margin:8px 0 6px">點下方敵人卡片可切換攻擊目標；💥 為範圍技能。勾選左側「自動掛機」可放置。</div>`;
+  h+=`<button id="btn-flee" onclick="tryFlee()" ${battle.fleeCd>0?'disabled':''}>🏃 逃跑</button></div>
+  <div class="hint" style="margin:8px 0 6px">即時戰鬥：所有行動都有冷卻。點敵人卡片切換目標；💥 為範圍技能；⚠ 表示敵人正在吟唱大招（暈眩可打斷）。勾選左側「自動掛機」全自動戰鬥。</div>`;
   /* 敵人區：固定格線與最小高度，1 隻或 5 隻版面都不跳動 */
   h+=`<div id="mob-zone" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;min-height:170px;align-content:start">`;
   battle.mobs.forEach((mob,i)=>{
@@ -1675,14 +1689,40 @@ function renderBattle(){
     const fxTag=mob.fx==='poison'?' <span class="purple" title="攻擊 25% 使你中毒">☠</span>':(mob.fx==='stun'?' <span class="purple" title="攻擊 25% 使你暈眩">💫</span>':'');
     h+=`<div class="mobcard" style="margin:0;padding:7px 10px;cursor:pointer;min-height:66px;${dead?'opacity:.35;':''}${isT?'border-color:var(--gold);':''}" onclick="setTarget(${i})">
       <div style="display:flex;justify-content:space-between;gap:4px;font-size:13px"><b class="red">${isT?'▶ ':''}${elTag}${mob.n}</b><span class="dim" style="white-space:nowrap">Lv.${mob.lv}${fxTag}</span></div>
-      <div style="font-size:11px;min-height:14px">${mob.boss?'<span class="red">☠首領 </span>':''}${mob.stun?'<span class="purple">暈眩 </span>':''}${mob.pois?`<span class="purple">中毒${mob.pois} </span>`:''}${dead?'<span class="dim">（倒下）</span>':''}</div>`+
-      (dead?'':`<div class="bar" style="margin-top:3px;height:13px"><div style="background:#7a2f2f;width:${100*mob.hp/mob.maxHp}%"></div><span style="line-height:11px;font-size:10px">${mob.hp} / ${mob.maxHp}</span></div>`)+
+      <div style="font-size:11px;min-height:14px" id="mobst-${i}">${mobStHtml(mob,dead)}</div>`+
+      (dead?'':`<div class="bar" style="margin-top:3px;height:13px" id="mobhp-${i}">${mobBarHtml(mob)}</div>`)+
     `</div>`;
   });
   h+=`</div>`;
   $('loc-body').innerHTML=h;
 }
-function renderBattleDyn(){}   /* 輕量重繪：於戰鬥 UI 即時化實作 */
+/* 輕量重繪（每 0.2 秒）：只更新血條/狀態/按鈕冷卻，不重建整個戰場 DOM */
+function renderBattleDyn(){
+  if(!battle)return;
+  battle.mobs.forEach((mob,i)=>{
+    const bar=$('mobhp-'+i),st=$('mobst-'+i);
+    if(!bar||!st)return;
+    if(mob.hp<=0){battle.dirty=1;return}   /* 倒下：下一 tick 全量重繪 */
+    bar.innerHTML=mobBarHtml(mob);
+    st.innerHTML=mobStHtml(mob,false);
+  });
+  const ab=$('btn-atk');
+  if(ab){
+    const rdy=battle.pCd<=0&&battle.pStun<=0;
+    ab.disabled=!rdy;
+    ab.textContent=battle.pStun>0?'💫 暈眩':(rdy?'⚔ 攻擊':`⚔ ${(battle.pCd/10).toFixed(1)}s`);
+  }
+  for(const id in SKILLS){
+    const btn=$('btn-sk-'+id);if(!btn)continue;
+    const sk=SKILLS[id];
+    const cd=Math.max(battle.gcd,battle.skCd[id]||0);
+    btn.disabled=S.mp<sk.mp||cd>0;
+    const span=btn.querySelector?btn.querySelector('span'):null;
+    if(span)span.textContent=`(${cd>0?(cd/10).toFixed(0)+'s':sk.mp})`;
+  }
+  const pb=$('btn-pot');if(pb)pb.disabled=battle.potCd>0;
+  const fb=$('btn-flee');if(fb)fb.disabled=battle.fleeCd>0;
+}
 function bestHeal(){
   let bi=-1,bv=-1;
   S.inv.forEach((it,i)=>{const d=ITEMS[it.id];if(d.t==='use'&&(d.heal||d.full)){const v=d.full?9999:d.heal;if(v>bv){bv=v;bi=i}}});
