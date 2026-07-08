@@ -20,14 +20,14 @@ const G=eval(`(function(document,localStorage,window,alert,confirm,prompt,setInt
 const {ITEMS,MOBS,MAPS,SHOP_TIER,STAT_N,RACES,SKILLS,RECIPES,ELEMS,ENCH_W,ENCH_A}=G;
 const TYPE_N={weapon:'武器',armor:'鎧甲',cloak:'斗篷',acc:'飾品',use:'消耗品',scroll:'卷軸',mat:'材料',quest:'任務道具'};
 function stats(d){const L=[];
-  if(d.atk)L.push('攻擊 +'+d.atk);if(d.def)L.push('防禦 +'+d.def);if(d.mag)L.push('魔力 +'+d.mag);
+  if(d.atk)L.push('攻擊 +'+d.atk);if(d.t==='weapon')L.push('攻速 '+(d.spd||1.2)+'s');if(d.def)L.push('防禦 +'+d.def);if(d.mag)L.push('魔力 +'+d.mag);
   for(const k in STAT_N)if(d[k])L.push(STAT_N[k]+' +'+d[k]);
   if(d.eva)L.push('閃避 +'+d.eva+'%');
   if(d.orcbane)L.push('對半獸人類傷害 +50%');
   if(d.dbl)L.push(Math.round(d.dbl*100)+'% 連擊');
   if(d.heal)L.push('恢復 '+d.heal+' HP');if(d.mp)L.push('恢復 '+d.mp+' MP');
   if(d.full)L.push('完全恢復');
-  if(d.buff==='haste')L.push(d.turns+' 回合每回合攻擊兩次');
+  if(d.buff==='haste')L.push((d.turns*2)+' 秒內攻擊速度大幅提升');
   if(d.home)L.push('回到最近城鎮');
   if(d.en)L.push('強化'+(d.en==='weapon'?'武器':'鎧甲')+(d.bless?'（失敗不損毀）':''));
   return L.join('、')||'—';}
@@ -57,7 +57,7 @@ for(const t of ['weapon','armor','cloak','acc','use','scroll','mat','quest']){
   for(const id in ITEMS){const d=ITEMS[id];if(d.t!==t)continue;
     out+=`| ${d.n} | ${d.lv>1?'Lv.'+d.lv:'—'} | ${stats(d)} | ${d.pr||'非賣品'} | ${source(id)} |\n`;}
 }
-out+='\n各物品背景故事請見遊戲內點選說明。\n\n## 三、怪物\n\n**新手保護**：前八章地區（夏爾～摩瑞亞西門）出沒的敵人一律不帶屬性與特性、一次最多 3 隻；第九章摩瑞亞起表列屬性／特性完整生效、最多 5 隻成群。多隻圍攻時每隻攻擊力打折（2隻85%／3隻75%／4隻66%／5隻60%），經驗金幣照拿。\n\n屬性效果：🔥火＝攻擊+12%｜💧水＝每回合再生 2%｜🌪風＝較難命中｜⛰土＝防禦+25%｜☀光＝攻擊必中（無視閃避）｜🌑暗＝攻擊吸取生命。\n特性：☠毒／💫暈＝攻擊 25% 機率使你中毒（每回合扣血 3 回合）／暈眩（下回合無法行動），可用防具附魔抵抗。\n\n| 怪物 | 等級 | 屬性 | 特性 | HP | 攻 | 防 | 經驗 | 金幣 | 出沒地 | 掉落 |\n|---|---|---|---|---|---|---|---|---|---|---|\n';
+out+='\n各物品背景故事請見遊戲內點選說明。\n\n## 三、怪物\n\n**新手保護**：前八章地區（夏爾～摩瑞亞西門）出沒的敵人一律不帶屬性與特性、一次最多 3 隻；第九章摩瑞亞起表列屬性／特性完整生效、最多 5 隻成群。多隻圍攻時每隻攻擊力打折（2隻85%／3隻75%／4隻66%／5隻60%），經驗金幣照拿。\n\n屬性效果：🔥火＝攻擊+12%｜💧水＝持續再生｜🌪風＝較難命中且攻速較快｜⛰土＝防禦+25%｜☀光＝攻擊必中（無視閃避）｜🌑暗＝攻擊吸取生命。\n特性：☠毒／💫暈＝攻擊 25% 機率使你中毒（持續 6 秒扣血）／暈眩（1.5 秒無法行動），可用防具附魔抵抗。\n\n| 怪物 | 等級 | 屬性 | 特性 | HP | 攻 | 防 | 經驗 | 金幣 | 出沒地 | 掉落 |\n|---|---|---|---|---|---|---|---|---|---|---|\n';
 for(const id in MOBS){const mo=MOBS[id];
   const hab=Object.keys(MAPS).filter(k=>(MAPS[k].mobs&&MAPS[k].mobs.includes(id))||MAPS[k].boss===id).map(k=>MAPS[k].n).join('、');
   const drops=mo[7].map(d=>`${ITEMS[d[0]].n} ${d[1]}%`).join('、');

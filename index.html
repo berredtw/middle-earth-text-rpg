@@ -1343,6 +1343,7 @@ function renderTabs(){
   }
   h+=`<hr class="divider">
   <div class="row"><span class="dim">攻擊力</span><b>${d.atk}</b></div>
+  <div class="row"><span class="dim">攻擊速度</span><b>${d.aspd} 秒/擊<span class="dim">（每秒 ${(1/d.aspd).toFixed(2)} 次）</span></b></div>
   <div class="row"><span class="dim">防禦力</span><b>${d.def}</b></div>
   <div class="row"><span class="dim">魔力</span><b>${d.mag}</b></div>
   <div class="row"><span class="dim">爆擊率</span><b>${d.crit}%</b></div>
@@ -2418,7 +2419,9 @@ function openModal(html){
 function closeModal(){$('modal').style.display='none';$('modal-mask').style.display='none'}
 function itemStats(d){
   const L=[];
-  if(d.atk)L.push('攻擊 +'+d.atk);if(d.def)L.push('防禦 +'+d.def);if(d.mag)L.push('魔力 +'+d.mag);
+  if(d.atk)L.push('攻擊 +'+d.atk);
+  if(d.t==='weapon')L.push('攻速 '+(d.spd||1.2)+' 秒/擊');
+  if(d.def)L.push('防禦 +'+d.def);if(d.mag)L.push('魔力 +'+d.mag);
   for(const k in STAT_N)if(d[k])L.push(STAT_N[k]+' +'+d[k]);
   if(d.eva)L.push('閃避 +'+d.eva+'%');
   if(d.orcbane)L.push('⚡ 對半獸人類敵人傷害 +50%');

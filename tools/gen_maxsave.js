@@ -66,7 +66,7 @@ const html=fs.readFileSync('D:/魔戒文字版/index.html','utf8');
 const m=html.match(/<script>\n([\s\S]*?)<\/script>/);
 const G=eval(`(function(document,localStorage,window,alert,confirm,prompt,setInterval,location){${m[1]}
 ;return {get S(){return S},set S(v){S=v},get battle(){return battle},
- fns:{migrate,derive,enterGame,moveTo,explore,pAttack,challengeBoss,useRing,destroyRing,snapshot,useScroll,renderAll}};})`)(
+ fns:{migrate,derive,enterGame,moveTo,explore,pAttack,battleTick,challengeBoss,useRing,destroyRing,snapshot,useScroll,renderAll}};})`)(
   document,localStorage,{addEventListener(){}},()=>{},()=>true,()=>null,()=>1,{reload(){}});
 const F=G.fns;
 let pass=0,fail=0;
@@ -91,7 +91,8 @@ check('21 張地圖全部解鎖可移動', mapOk);
 F.moveTo('m_doom');
 F.challengeBoss();
 check('可再戰索倫（首領重複挑戰）', !!G.battle);
-let g=0; while(G.battle && g++<500){ const dd=F.derive(); if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp; F.pAttack(); }
+document.getElementById('auto-battle').checked=true;
+let g=0; while(G.battle && g++<20000){ const dd=F.derive(); if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp; if(G.S.mp<dd.maxMp*0.2)G.S.mp=dd.maxMp; F.battleTick(); }
 check('滿裝角色擊敗索倫之眼', !G.battle && G.S['bd_boss_sauron']===1);
 F.renderAll();
 check('銷毀魔戒按鈕條件成立（ringGone=false、已敗索倫、身上有魔戒）', !G.S.ringGone && G.S.inv.some(x=>x.id==='ring_one'));
@@ -104,7 +105,7 @@ check('銷毀魔戒後【時光之門】開啟可進入', G.S.loc==='t_gate' && 
 F.moveTo('m_gondolin');
 F.challengeBoss();
 check('可挑戰外傳首領勾斯魔格', !!G.battle);
-g=0; while(G.battle && g++<3000){ const dd=F.derive(); if(G.S.hp<dd.maxHp*0.5)G.S.hp=dd.maxHp; F.pAttack(); }
+g=0; while(G.battle && g++<30000){ const dd=F.derive(); if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp; if(G.S.mp<dd.maxMp*0.2)G.S.mp=dd.maxMp; F.battleTick(); }
 check('滿裝角色可擊敗勾斯魔格（外傳難度合理）', !G.battle && G.S['bd_boss_gothmog']===1);
 
 fs.writeFileSync('D:/魔戒文字版/滿級測試角色.txt',
