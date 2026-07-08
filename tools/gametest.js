@@ -46,7 +46,7 @@ const sandboxSrc = `
 (function(document, localStorage, window, alert, confirm, prompt, setInterval, location){
 ${m[1]}
 ;return { get S(){return S}, set S(v){S=v}, get battle(){return battle},
-  fns:{ newState, derive, enterGame, moveTo, explore, pAttack, castSkill, winBattle,
+  fns:{ newState, derive, enterGame, moveTo, explore, pAttack, battleTick, castSkill, winBattle,
     challengeBoss, openShop, buyIt, equipIt, useIt, useScroll, addItem, gainExp,
     renderAll, renderLoc, snapshot, useRing, tryFlee, allocPt, saveGame, expNeed,
     destroyRing, visitEvent, uiTab, doEnhance, MOBS_ref: (typeof MOBS!=='undefined')?MOBS:null,
@@ -57,6 +57,8 @@ const G = factory(document, localStorage, window, alert, confirm, promptFn, setI
 const F = G.fns;
 let pass=0, fail=0;
 function check(name, cond){ if(cond){pass++; console.log('  ✓', name);} else {fail++; console.log('  ✗ 失敗:', name);} }
+/* 即時制：戰鬥以 battleTick 驅動（開自動掛機代打） */
+function tick(){ document.getElementById('auto-battle').checked=true; if(G.S.hp<F.derive().maxHp*0.7)G.S.hp=F.derive().maxHp; F.battleTick(); }
 
 // 1. 創角（四種族都建一次確認 derive 正常）
 for (const race of ['human','elf','dwarf','hobbit']) {
@@ -75,9 +77,9 @@ check('進入遊戲、初始地點哈比屯', G.S.loc==='t_hobbiton');
 F.moveTo('m_shire');
 check('移動到夏爾邊境', G.S.loc==='m_shire');
 let guard=0;
-while (G.S.ch===0 && guard++<3000) {
+while (G.S.ch===0 && guard++<60000) {
   if (!G.battle) { if(G.S.loc!=='m_shire')F.moveTo('m_shire'); d=F.derive(); G.S.hp=d.maxHp; F.explore(); }
-  else F.pAttack();
+  else tick();
 }
 check(`第一章完成（打8隻，目前 ch=${G.S.ch}，Lv.${G.S.lv}）`, G.S.ch===1);
 
@@ -86,7 +88,7 @@ d=F.derive(); G.S.hp=d.maxHp; G.S.mp=d.maxMp;
 F.explore();
 F.castSkill('h1');
 check('技能「聖劍斬」施放無錯誤', true);
-while (G.battle && guard++<3000) F.pAttack();
+while (G.battle && guard++<60000) tick();
 
 // 5. 商店購買與裝備
 G.S.gold = 99999;
@@ -105,15 +107,15 @@ check(`武器強化至 +${G.S.eq.weapon.e}（+3 內必成）`, G.S.eq.weapon.e==
 
 // 7. 先在老林子練功到 Lv.10，再挑戰首領 → 第二章
 guard=0;
-while (G.S.lv<10 && guard++<8000) {
+while (G.S.lv<10 && guard++<150000) {
   if (!G.battle) { if(G.S.loc!=='m_oldforest')F.moveTo('m_oldforest'); d=F.derive(); G.S.hp=d.maxHp; F.explore(); }
-  else F.pAttack();
+  else tick();
 }
 check(`練功至 Lv.${G.S.lv}`, G.S.lv>=10);
 guard=0;
-while (G.S.ch===1 && guard++<5000) {
+while (G.S.ch===1 && guard++<100000) {
   if (!G.battle) { if(G.S.loc!=='m_oldforest')F.moveTo('m_oldforest'); d=F.derive(); G.S.hp=d.maxHp; G.S.mp=d.maxMp; F.challengeBoss(); }
-  else F.pAttack();
+  else tick();
 }
 check(`第二章完成（擊敗古墓屍妖首領，ch=${G.S.ch}）`, G.S.ch===2);
 

@@ -17,7 +17,7 @@ const html=fs.readFileSync('D:/魔戒文字版/index.html','utf8');
 const m=html.match(/<script>\n([\s\S]*?)<\/script>/);
 const G=eval(`(function(document,localStorage,window,alert,confirm,prompt,setInterval,location){${m[1]}
 ;return {get S(){return S},set S(v){S=v},get battle(){return battle},set battle(v){battle=v},
- fns:{newState,derive,enterGame,moveTo,gameTick,addItem,gainExp},data:{MAPS}};})`)(
+ fns:{newState,derive,enterGame,moveTo,gameTick,battleTick,addItem,gainExp,mobInst,startBattle},data:{MAPS}};})`)(
  document,localStorage,{addEventListener(){}},()=>{},()=>true,()=>null,()=>1,{reload(){}});
 const F=G.fns;
 
@@ -87,7 +87,9 @@ for(const [mk,lv,eq,pot,base] of SCENARIOS){
   F.moveTo(mk);
   let deaths=0,wins=0,lastExp=0;
   for(let t=0;t<TICKS;t++){
-    F.gameTick();
+    /* 即時制：戰鬥中一跳＝0.8 秒＝8 個戰鬥 tick；非戰鬥走放置循環 */
+    if(G.battle){for(let k=0;k<8&&G.battle;k++)F.battleTick();}
+    else F.gameTick();
     if(G.S.loc!==mk){                        // 死亡被送回城鎮
       deaths++;
       G.battle=null;
@@ -102,4 +104,32 @@ for(const [mk,lv,eq,pot,base] of SCENARIOS){
   console.log(`${mk.padEnd(14)} Lv.${String(lv).padEnd(3)} ${String(deaths).padEnd(4)} ${String(wins).padEnd(5)} ${early?'(前八章)':post?'(時光之門)':'(完整難度)'}`);
 }
 console.log(worstEarly<=1?'\n✓ 前八章掛機可行（死亡 ≤1）':'\n✗ 前八章仍會掛機暴斃，需再調整（最多死 '+worstEarly+' 次）');
-process.exit(worstEarly<=1?0:1);
+if(worstEarly>1)process.exitCode=1;
+
+/* ── v18 首領強化牆驗證：巫王——弱裝應打不過、適正+6 應穩過 ── */
+function bossTrial(gear){
+  G.battle=null;
+  G.S=F.newState('human',{str:10,dex:8,con:9,int:5,wis:5},'牆測俠');
+  G.S.lv=36;G.S.ch=56;G.S.ringGone=true;
+  const pts=35;
+  G.S.base.str+=Math.floor(pts*0.6);G.S.base.con+=Math.floor(pts*0.2);G.S.base.dex+=Math.floor(pts*0.2);
+  G.S.eq.weapon={id:gear[0],e:gear[2]};G.S.eq.armor={id:gear[1],e:gear[2]};
+  G.S.comp=null;G.S.comps=[];
+  F.addItem('p_lembas',999);F.addItem('p_dew',999);
+  const d=F.derive();G.S.hp=d.maxHp;G.S.mp=d.maxMp;
+  F.enterGame(true);
+  document.getElementById('auto-battle').checked=true;
+  document.getElementById('auto-potion').checked=true;
+  F.startBattle([F.mobInst('boss_witch',1,false,1)]);
+  let t=0;while(G.battle&&t++<6000)F.battleTick();
+  return !G.battle&&!(G.S.deaths>0);
+}
+let weakWins=0,propWins=0;
+for(let i=0;i<3;i++){
+  if(bossTrial(['w_rohan','a_rohan',0]))weakWins++;
+  if(bossTrial(['w_numenor','a_tower',6]))propWins++;
+}
+console.log('\n首領牆驗證（巫王×3 場）：弱裝+0 勝 '+weakWins+'/3（期望 ≤1）、適正+6 勝 '+propWins+'/3（期望 ≥2）');
+const wallOk=weakWins<=1&&propWins>=2;
+console.log(wallOk?'✓ 首領強化牆生效':'✗ 首領牆失衡，需調 bossDefaults 的 dr/rg');
+if(!wallOk)process.exitCode=1;
