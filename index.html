@@ -682,22 +682,34 @@ for(const k in MOBS){MOBS[k][10]=ELEM_MAP[k]||null;MOBS[k][11]=MOB_FX[k]||null;}
      wk 虛弱詛咒：你的攻擊 -25%／ab 破甲咆哮：你的防禦 -30%／fe 恐懼威壓：你的命中 -15，各持續 3 回合
    前八章首領不配置（新手保護）；第九章起首領皆有詛咒手段（詛咒名依原著：巫王黑暗吐息、史矛革龍威、格勞龍魔眼……） */
 const BOSS_AI={
-  boss_balrog:{crit:10,db:['fe',18]}, boss_lurtz:{crit:10,db:['ab',15]}, boss_uruk:{crit:10,db:['ab',15]},
-  boss_saruman:{hl:[1,40,30],db:['wk',18]}, boss_deadking:{crit:10,db:['fe',18]},
-  boss_witch:{crit:12,rage:30,db:['wk',20]}, boss_mouth:{hl:[1,40,25],db:['wk',18]},
-  boss_shelob:{crit:12,db:['ab',20]}, boss_sauron:{crit:12,rage:30,db:['fe',20]},
-  boss_gothmog:{crit:15,rage:30,db:['ab',20]}, boss_annatar:{hl:[2,40,30],crit:10,db:['wk',20]},
-  boss_nazgul1:{crit:12,rage:30,db:['wk',22]},
-  boss_pharazon:{crit:15,hl:[1,35,25],db:['fe',18]}, boss_sauron2:{crit:15,rage:35,db:['wk',22]},
-  boss_ambush:{crit:12,rage:30,db:['ab',18]}, boss_angmar:{crit:14,rage:30,hl:[1,40,25],db:['wk',22]},
-  boss_troll3:{hl:[2,45,25],db:['ab',18]}, boss_goblinking:{hl:[1,40,25],crit:12,db:['ab',18]},
-  boss_spidermother:{crit:12,db:['ab',20]}, boss_smaug:{crit:20,rage:40,db:['fe',22]},
+  boss_balrog:{crit:10,db:['fe',18],nuke:{cd:24,mult:2.2,n:'炎魔火鞭'}},
+  boss_lurtz:{crit:10,db:['ab',15],nuke:{cd:25,mult:2.0,n:'強弓貫射'}}, boss_uruk:{crit:10,db:['ab',15]},
+  boss_saruman:{hl:[1,40,30],db:['wk',18],nuke:{cd:24,mult:2.2,n:'歐爾桑克的雷擊'}},
+  boss_deadking:{crit:10,db:['fe',18],nuke:{cd:25,mult:2.1,n:'亡者的詛咒'}},
+  boss_witch:{crit:12,rage:30,db:['wk',20],spd:2.2,nuke:{cd:22,mult:2.4,n:'魔窟殘影'}},
+  boss_mouth:{hl:[1,40,25],db:['wk',18]},
+  boss_shelob:{crit:12,db:['ab',20],nuke:{cd:24,mult:2.2,n:'屍羅的毒螫'}},
+  boss_sauron:{crit:12,rage:30,db:['fe',20],nuke:{cd:22,mult:2.4,n:'巴拉多的注視'}},
+  boss_gothmog:{crit:15,rage:30,db:['ab',20]},
+  boss_annatar:{hl:[2,40,30],crit:10,db:['wk',20],nuke:{cd:23,mult:2.3,n:'魔戒的枷鎖'}},
+  boss_nazgul1:{crit:12,rage:30,db:['wk',22],nuke:{cd:23,mult:2.3,n:'戒靈的尖嘯'}},
+  boss_pharazon:{crit:15,hl:[1,35,25],db:['fe',18]},
+  boss_sauron2:{crit:15,rage:35,db:['wk',22],nuke:{cd:22,mult:2.4,n:'黑鐵重錘橫掃'}},
+  boss_ambush:{crit:12,rage:30,db:['ab',18]},
+  boss_angmar:{crit:14,rage:30,hl:[1,40,25],db:['wk',22],nuke:{cd:22,mult:2.4,n:'安格馬的寒冬'}},
+  boss_troll3:{hl:[2,45,25],db:['ab',18]},
+  boss_goblinking:{hl:[1,40,25],crit:12,db:['ab',18]},
+  boss_spidermother:{crit:12,db:['ab',20],nuke:{cd:24,mult:2.2,n:'蛛母的毒網'}},
+  boss_smaug:{crit:20,rage:40,db:['fe',22],spd:2.6,nuke:{cd:20,mult:2.6,n:'烈焰吐息'}},
   boss_bolg:{crit:15,rage:30,hl:[1,35,20],db:['ab',20]},
-  boss_necroshade:{hl:[1,40,25],crit:14,db:['wk',22]},
-  boss_carcharoth:{crit:16,rage:35,db:['fe',20]}, boss_gothmog2:{crit:18,rage:35,db:['ab',22]},
-  boss_glaurung:{crit:18,rage:35,hl:[1,35,20],db:['wk',25]},
-  boss_utumno:{crit:15,rage:30,db:['fe',20]}, boss_ungoliant:{hl:[2,40,25],crit:15,rage:30,db:['wk',22]},
-  boss_ancalagon:{crit:20,rage:40,db:['fe',22]}, boss_morgoth:{crit:18,rage:30,hl:[2,35,25],db:['fe',25]}
+  boss_necroshade:{hl:[1,40,25],crit:14,db:['wk',22],nuke:{cd:22,mult:2.4,n:'死靈的收割'}},
+  boss_carcharoth:{crit:16,rage:35,db:['fe',20],nuke:{cd:21,mult:2.5,n:'撕裂萬物的巨顎'}},
+  boss_gothmog2:{crit:18,rage:35,db:['ab',22],nuke:{cd:21,mult:2.5,n:'炎魔王的火鞭'}},
+  boss_glaurung:{crit:18,rage:35,hl:[1,35,20],db:['wk',25],nuke:{cd:20,mult:2.5,n:'龍父魔眼'}},
+  boss_utumno:{crit:15,rage:30,db:['fe',20],nuke:{cd:21,mult:2.4,n:'深淵的寒焰'}},
+  boss_ungoliant:{hl:[2,40,25],crit:15,rage:30,db:['wk',22],nuke:{cd:21,mult:2.5,n:'吞噬光明的黑霧'}},
+  boss_ancalagon:{crit:20,rage:40,db:['fe',22],spd:2.8,nuke:{cd:18,mult:2.8,n:'遮天龍炎'}},
+  boss_morgoth:{crit:18,rage:30,hl:[2,35,25],db:['fe',25],spd:2.8,hpm:1.0,rg:0.002,nuke:{cd:18,mult:2.8,n:'格龍德碎地錘'}}
 };
 /* 詛咒說明文字（依原著風味） */
 const BOSS_DB={
@@ -1539,12 +1551,31 @@ const GROUP_ATK=[1,1,0.85,0.75,0.66,0.6];
 const GROUP_ATK_EARLY=[1,1,0.8,0.68];
 /* 前八章（地圖 ch<8）為新手曲線：無屬性、無毒暈特性、最多 3 隻；第九章摩瑞亞起恢復完整難度 */
 function isEarlyMap(mk){return MAPS[mk].ch<8}
+/* 首領預設強化（依等級分級；BOSS_AI 個別欄位可覆蓋）：
+   hpm 血量倍率／am 攻擊倍率／dr 固定減傷（攻擊不足只剩保底 1）／rg 每 3 秒回血 %／nuke 大招（吟唱 3 秒） */
+function bossDefaults(lv){
+  return {hpm:lv<15?2.5:lv<30?2.5:lv<50?2.0:1.4,
+          am:lv<15?1.25:lv<50?1.4:1.3,
+          dr:Math.floor(lv*(lv<15?0.5:0.8)),
+          rg:lv<15?0.003:lv<50?0.005:0.003,
+          nuke:lv>=15?{cd:25,mult:2.2}:null};
+}
 function mobInst(id,mult,plain,atkMult){
   const m=MOBS[id];mult=mult||1;atkMult=atkMult||1;
   const mob={id,n:m[0],lv:m[1],maxHp:Math.floor(m[2]*mult),hp:Math.floor(m[2]*mult),atk:m[3],def:m[4],exp:m[5],gold:m[6],drops:m[7],orc:m[8],boss:m[9],
-    el:plain?null:(m[10]||null),fx:plain?null:(m[11]||null),
-    ai:plain?null:(BOSS_AI[id]||null)};
+    el:(plain&&!m[9])?null:(m[10]||null),fx:(plain&&!m[9])?null:(m[11]||null),
+    ai:(plain&&!m[9])?null:(BOSS_AI[id]||null)};
   if(mob.ai&&mob.ai.hl)mob.heals=mob.ai.hl[0];
+  /* 首領強化：不強化裝備就打不過的三板斧（血量／固定減傷／持續回血）＋大招 */
+  if(m[9]){
+    const bd=bossDefaults(m[1]),ai=BOSS_AI[id]||{};
+    mob.ai=mob.ai||{};
+    mob.maxHp=Math.floor(mob.maxHp*(ai.hpm||bd.hpm));mob.hp=mob.maxHp;
+    mob.atk=Math.floor(mob.atk*(ai.am||bd.am));
+    mob.dr=ai.dr!=null?ai.dr:bd.dr;
+    mob.rg=ai.rg!=null?ai.rg:bd.rg;
+    mob.nuke=ai.nuke!==undefined?ai.nuke:bd.nuke;
+  }
   /* 攻擊速度（秒/擊）：普通怪 1.6、首領 2.4（BOSS_AI 可覆蓋）、風屬性較快 */
   mob.spd=(BOSS_AI[id]&&BOSS_AI[id].spd)||(m[9]?2.4:1.6);
   if(mob.el==='wind')mob.spd=Math.round(mob.spd*0.85*100)/100;
@@ -1871,6 +1902,7 @@ function mobAttack(mob,d,cs){
   let bcrit=false;
   if(mob.ai&&mob.ai.crit&&R(1,100)<=mob.ai.crit){bcrit=true;dmg=Math.floor(dmg*1.6);}
   if(mob.el&&hasEnchA('resist'))dmg=Math.max(1,Math.floor(dmg*0.8));
+  if(mob.boss)dmg=Math.min(dmg,Math.floor(d.maxHp*0.6));   /* 首領普攻單發上限 60% 最大生命：滿血不會被一刀帶走 */
   S.hp-=dmg;
   log(`${mob.n} ${mob.el==='light'?'的必中聖光':''}攻擊你，造成 <b class="red">${dmg}</b> 傷害${bcrit?'<span class="red">（爆擊！）</span>':''}。`);
   /* 暗屬性：吸取生命 */
@@ -1916,19 +1948,25 @@ function bossAct(mob){
   }
   return false;
 }
-/* ── 首領大招落下（吟唱結束）：半穿防、不可閃避 ── */
+/* ── 首領大招落下（吟唱結束）：半穿防、不可閃避；上限為最大生命 65%（滿血必可倖存，殘血接招必死）。
+   大招後王短暫喘息、玩家腎上腺素湧現（藥水冷卻歸零），留出續命窗口。 ── */
 function nukeHit(mob,d){
   let pdef=d.def*buffVal('def');
   let dmg=Math.max(1,Math.floor(mob.atk*mob.nuke.mult-pdef/4));
+  dmg=Math.min(dmg,Math.floor(d.maxHp*0.65));
   S.hp-=dmg;
   log(`<span class="red" style="font-size:15px">💥 「${mob.nuke.n||'毀滅重擊'}」轟然落下！你受到 ${dmg} 傷害！</span>`);
+  mob.cd=Math.max(4,Math.round(mob.spd*10))+15;
+  battle.potCd=0;
   battle.dirty=1;
 }
 /* ── 戰鬥中每秒維護：自動喝藥／魔力／餵夥伴／加速藥水 ── */
 function battleUpkeep(d){
   if($('auto-potion').checked){
     const casting=battle.mobs.some(m=>m.cast>0);
-    if(battle.potCd<=0&&(S.hp<d.maxHp*0.5||(casting&&S.hp<d.maxHp*0.9))){const i=bestHeal();if(i>=0)useIt(i,false);}
+    /* 首領戰下手更重，喝藥門檻 50% → 60%；敵方吟唱大招時 90% 就先補滿 */
+    const thr=battle.mobs.some(m=>m.boss&&m.hp>0)?0.6:0.5;
+    if(battle.potCd<=0&&(S.hp<d.maxHp*thr||(casting&&S.hp<d.maxHp*0.9))){const i=bestHeal();if(i>=0)useIt(i,false);}
     /* 魔力見底自動喝精靈露水（供智慧施法持續運作） */
     if(S.mp<d.maxMp*0.3){const mi=S.inv.findIndex(x=>x.id==='p_dew');if(mi>=0)useIt(mi,false);}
     /* 夥伴共用背包藥水：血低於 40% 自動餵藥 */
@@ -2009,6 +2047,12 @@ function battleTick(){
       const hv=Math.max(1,Math.floor(mob.maxHp*mob.rg));
       mob.hp=Math.min(mob.maxHp,mob.hp+hv);
       log(`<span class="red">${mob.n} 體內的黑暗力量湧動，恢復了 ${hv} 生命！</span>`);
+    }
+    /* 首領怒意升級（軟性狂暴計時）：開戰 2.5 分鐘後每 20 秒攻勢增強——拖越久越必死 */
+    if(mob.boss&&T>1500&&T%200===0){
+      mob.atk=Math.floor(mob.atk*1.12);
+      mob.spd=Math.max(1.2,Math.round(mob.spd*0.94*100)/100);
+      log(`<span class="red">🔥 ${mob.n} 的怒意愈燒愈烈，攻勢更加狂暴了！（戰鬥拖得越久越危險）</span>`);
     }
     if(mob.stun>0){mob.stun--;continue}
     /* 大招吟唱中 */
