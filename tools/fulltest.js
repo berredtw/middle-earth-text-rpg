@@ -763,6 +763,10 @@ F.useIt(G.S.inv.findIndex(x=>x.id==='p_red'),true);
 settle();
 // 拾獲面板
 check('掉落訊息導向拾獲面板（droplog 有內容）',(els.get('droplog')||{childNodes:[]}).childNodes.length>0);
+// 背景音樂：檔案存在、開關與切換點已接線（Node 無 Audio，playBgm 於測試中為 no-op）
+check('背景音樂檔案存在且已接線',
+  fs.existsSync('D:/魔戒文字版/01_魔戒史詩主題_epic.mp3')&&fs.existsSync('D:/魔戒文字版/02_戰鬥緊張_battle.mp3')&&
+  html.includes('id="opt-music"')&&html.split('playBgm(').length>=7);
 
 console.log(`\n結果：${pass} 通過 / ${fail} 失敗`);
 process.exit(fail?1:0);

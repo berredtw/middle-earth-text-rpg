@@ -198,6 +198,7 @@ h1,h2,h3{color:var(--gold);font-weight:700}
         <label><input type="checkbox" id="auto-hastepot" onchange="saveOpts()"> 戰鬥自動喝加速藥水</label>
         <label><input type="checkbox" id="auto-time" onchange="saveOpts()"> 時空加速結束自動續用卷軸</label>
         <label><input type="checkbox" id="auto-restock" onchange="saveOpts()"> 自動補貨（藥水／卷軸低於 10 自動購足 30）</label>
+        <label><input type="checkbox" id="opt-music" checked onchange="toggleMusic(this.checked)"> 🎵 背景音樂（城鎮／戰鬥雙曲）</label>
         <div class="hint">補貨對象：紅色藥水、精靈露水、加速藥水、時空加速卷軸（需有足夠金幣）。自動補貨與時空續用只在「自動掛機」進行中運作——死亡回村後即停止花費。掛機中戰鬥外會自然恢復，死亡才停止掛機。設定會隨存檔保存。<br><b class="gold">離線收穫：</b>電腦休眠、分頁閒置、甚至關掉瀏覽器的期間，只要掛機開著且人在打怪區，回來時會一次結算收穫（上限 12 小時；爬塔層數除外）。</div>
       </div>
     </div>
@@ -1256,6 +1257,30 @@ function createGo(){
   const d=derive();S.hp=d.maxHp;S.mp=d.maxMp;
   enterGame(false);
 }
+/* ═══════════ 背景音樂（城鎮循環／戰鬥切換）═══════════
+   偏好存 localStorage（跨存檔共用）；瀏覽器擋自動播放時，等下一次點擊補播 */
+const BGM_SRC={town:'01_魔戒史詩主題_epic.mp3',battle:'02_戰鬥緊張_battle.mp3'};
+let bgmCur=null;const bgmEl={};
+function bgmOn(){try{return localStorage.getItem('lotr_bgm')!=='0'}catch(e){return false}}
+function playBgm(key){
+  if(typeof Audio==='undefined')return;   // 測試環境無音訊
+  if(!bgmOn()){stopBgm();return}
+  if(bgmCur===key)return;
+  for(const k in bgmEl)bgmEl[k].pause();
+  if(!bgmEl[key]){bgmEl[key]=new Audio(BGM_SRC[key]);bgmEl[key].loop=true;bgmEl[key].volume=0.45;}
+  const a=bgmEl[key];
+  if(key==='battle')a.currentTime=0;      // 戰鬥曲每場從頭；城鎮曲接續播
+  bgmCur=key;
+  a.play().catch(()=>{bgmCur=null});      // 自動播放被擋：等使用者互動再試
+}
+function stopBgm(){for(const k in bgmEl)bgmEl[k].pause();bgmCur=null}
+function toggleMusic(on){
+  try{localStorage.setItem('lotr_bgm',on?'1':'0')}catch(e){}
+  if(on)playBgm(battle?'battle':'town');else stopBgm();
+}
+if(document.addEventListener)document.addEventListener('click',()=>{
+  if(S&&bgmOn()&&!bgmCur&&$('screen-game').style.display!=='none')playBgm(battle?'battle':'town');
+});
 const OPT_IDS=['auto-battle','auto-potion','auto-hastepot','auto-time','auto-restock'];
 function saveOpts(){
   if(!S)return;
@@ -1278,6 +1303,8 @@ function enterGame(loaded){
   if(!S.bounties)S.bounties=[];
   if(!S.rushBest)S.rushBest=0;
   applyOpts();
+  $('opt-music').checked=bgmOn();
+  playBgm('town');
   $('screen-create').style.display='none';$('screen-title').style.display='none';
   $('screen-game').style.display='flex';
   if(!loaded){
@@ -1685,6 +1712,7 @@ function startBattle(mobs,floor){
   }
   const names=mobs.map(x=>`【${x.n}】Lv.${x.lv}`).join('、');
   log(`<span class="red">遭遇了${mobs.length>1?' '+mobs.length+' 個敵人：':''}${names}！</span>`);
+  playBgm('battle');
   renderLoc();renderStatus();
 }
 function aliveMobs(){return battle?battle.mobs.filter(x=>x.hp>0):[]}
@@ -1865,7 +1893,7 @@ function useRing(){
   if(!S.inv.some(x=>x.id==='ring_one'))return;
   const add=R(8,15);S.cor+=add;
   log(`<span class="purple">你戴上了至尊魔戒——世界化為灰白的影子，敵人的目光穿過了你。（腐化 +${add}）</span>`);
-  if(battle){battle=null;log('<span class="purple">你悄然離開了戰場。</span>');}
+  if(battle){battle=null;playBgm('town');log('<span class="purple">你悄然離開了戰場。</span>');}
   if(S.cor>=100){
     S.cor=50;S.hp=1;S.gold=Math.floor(S.gold*0.8);
     log('<span class="red">═══ 腐化爆發！═══</span>');
@@ -1875,7 +1903,7 @@ function useRing(){
 }
 function tryFlee(){
   if(!battle||battle.fleeCd>0)return;
-  if(R(1,100)<=60){log('<span class="dim">你成功脫離了戰鬥。</span>');battle=null;renderLoc();renderStatus();}
+  if(R(1,100)<=60){log('<span class="dim">你成功脫離了戰鬥。</span>');battle=null;playBgm('town');renderLoc();renderStatus();}
   else{log('<span class="red">逃跑失敗！敵人纏了上來（5 秒內無法再逃）。</span>');battle.fleeCd=50;}
 }
 /* ── 夥伴行動（每 2 秒一動）── */
@@ -2116,6 +2144,7 @@ function winBattle(){
     if(S.kills>=q.kill)advanceChapter();
   }
   battle=null;
+  playBgm('town');
   renderAll();renderLoc();autoSave();
   netSnap();
 }
@@ -2202,6 +2231,7 @@ function playerDie(){
   S.loc=best;
   const d=derive();S.hp=Math.floor(d.maxHp/2);S.mp=Math.floor(d.maxMp/2);
   $('auto-battle').checked=false;
+  playBgm('town');
   log(`<span class="dim">巨鷹將你救回了【${MAPS[best].n}】（損失 ${loss} 金幣，自動掛機已停止）。休息一下再出發吧。</span>`);
   renderAll();renderLoc();autoSave();
 }
@@ -2694,6 +2724,7 @@ function rushWin(){
   }
   if(done>=32){
     battle=null;
+    playBgm('town');
     S.gold+=500000;addItem('s_wepb',5);addItem('s_armb',5);
     log('<span class="gold" style="font-size:17px">★★★ 傳說的迴廊——制霸！★★★</span>');
     log('<span class="gold">32 位傳說中的黑暗盡數倒在你腳下。獲得 500000 金幣、祝福的武防卷軸各 ×5，與稱號【傳說的迴廊·制霸】！</span>');
