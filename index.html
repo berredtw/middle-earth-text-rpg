@@ -3160,7 +3160,9 @@ function exportSave(){
 function uiImport(){
   const s=prompt('請貼上存檔碼：');if(!s)return;
   try{
-    const sv=migrate(JSON.parse(decodeURIComponent(escape(atob(s.trim())))));
+    /* 通訊軟體（如 LINE）傳長字串時常插入零寬空白等隱藏字元供折行，需先清除否則 atob 會丟 Invalid character */
+    const clean=s.replace(/[\s​‌‍﻿]/g,'');
+    const sv=migrate(JSON.parse(decodeURIComponent(escape(atob(clean)))));
     if(!sv.name||!RACES[sv.race])throw new Error('格式不符');
     const slot=prompt('要匯入到哪個存檔位？（1～8）','1');
     if(!['1','2','3','4','5','6','7','8'].includes(slot))return;
