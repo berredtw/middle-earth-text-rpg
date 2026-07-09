@@ -34,7 +34,9 @@ const window = { addEventListener(){}, location:{ reload(){} } };
 const alerts = [];
 const alert = m=>alerts.push(String(m));
 const confirm = ()=>true;
-const promptFn = ()=>null;
+let promptQueue = [];
+const promptLog = [];
+const promptFn = (msg,def)=>{ promptLog.push([msg,def]); return promptQueue.length ? promptQueue.shift() : (def!==undefined ? def : null); };
 let intervalFns = [];
 const setIntervalStub = (fn,ms)=>{ intervalFns.push(fn); return 1; };
 
@@ -49,7 +51,7 @@ ${m[1]}
   fns:{ newState, derive, enterGame, moveTo, explore, pAttack, battleTick, castSkill, winBattle,
     challengeBoss, openShop, buyIt, equipIt, useIt, useScroll, addItem, gainExp,
     renderAll, renderLoc, snapshot, useRing, tryFlee, allocPt, saveGame, expNeed,
-    destroyRing, visitEvent, uiTab, doEnhance, MOBS_ref: (typeof MOBS!=='undefined')?MOBS:null,
+    destroyRing, visitEvent, uiTab, doEnhance, exportSave, uiImport, MOBS_ref: (typeof MOBS!=='undefined')?MOBS:null,
     ITEMS_ref: ITEMS, MAPS_ref: MAPS, QUESTS_ref: QUESTS } };
 })`;
 const factory = eval(sandboxSrc);
@@ -138,6 +140,21 @@ d=F.derive(); G.S.hp=d.maxHp;
 F.saveGame(true);
 const saved = JSON.parse(store['lotr_save_1']);
 check('存檔成功且內容一致', saved.name==='亞拉岡' && saved.ch===G.S.ch);
+
+// 10b. 匯出/匯入存檔碼：通訊軟體（如 LINE）傳輸長字串常混入零寬空白等隱藏字元，匯入須能自動清除
+promptQueue = [];
+F.exportSave(); // exportSave 用 prompt(msg, code) 顯示碼；佇列為空時 promptFn 回傳 def，即碼本身
+const exportedCode = promptLog[promptLog.length-1][1];
+const corrupted = exportedCode.slice(0,20) + '​ ﻿' + exportedCode.slice(20); // 插入零寬空白/不斷行空格/BOM
+promptQueue = [corrupted, '2'];
+F.uiImport();
+const importedRaw = store['lotr_save_2'];
+check('匯入存檔碼可容錯（隱藏字元不會導致 Invalid character）', !!importedRaw);
+if(importedRaw){
+  const imported = JSON.parse(importedRaw);
+  check('匯入內容與匯出前一致', imported.name===G.S.name && imported.ch===G.S.ch);
+}
+check('匯入過程未跳出「存檔碼無效」', !alerts.some(a=>a.includes('存檔碼無效')));
 
 // 11. 快照（連線用）
 const snap = F.snapshot();

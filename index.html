@@ -3160,8 +3160,9 @@ function exportSave(){
 function uiImport(){
   const s=prompt('請貼上存檔碼：');if(!s)return;
   try{
-    /* 通訊軟體（如 LINE）傳長字串時常插入零寬空白等隱藏字元供折行，需先清除否則 atob 會丟 Invalid character */
-    const clean=s.replace(/[\s​‌‍﻿]/g,'');
+    /* 通訊軟體（如 LINE）傳長字串時常插入零寬空白等各式隱藏字元供折行，種類不只一種，
+       黑名單濾不完；改用白名單只留 Base64 合法字元最保險，否則 atob 會丟 Invalid character */
+    const clean=s.normalize('NFKC').replace(/[^A-Za-z0-9+/=]/g,'');
     const sv=migrate(JSON.parse(decodeURIComponent(escape(atob(clean)))));
     if(!sv.name||!RACES[sv.race])throw new Error('格式不符');
     const slot=prompt('要匯入到哪個存檔位？（1～8）','1');
