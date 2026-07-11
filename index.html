@@ -97,7 +97,7 @@ body.in-battle #loc-body{display:flex;flex-direction:column}
 .battle-bottom .actions{gap:6px}
 /* 主角資訊卡：舞台左上角 */
 .battle-tophud{position:absolute;top:8px;left:8px;z-index:2;display:flex;gap:8px;align-items:flex-start}
-.battle-player{background:rgba(15,17,21,.62);border:1px solid var(--line);border-radius:8px;padding:5px 8px;max-width:210px;backdrop-filter:blur(2px)}
+.battle-player{position:relative;background:rgba(15,17,21,.62);border:1px solid var(--line);border-radius:8px;padding:5px 8px;max-width:210px;backdrop-filter:blur(2px)}
 /* 夥伴血條：主角立繪左下方（舞台左下角） */
 .battle-comp{width:212px;display:flex;align-items:center;gap:6px;font-size:12px;background:rgba(15,17,21,.62);border:1px solid var(--line);border-radius:6px;padding:4px 8px;backdrop-filter:blur(2px)}
 /* 夥伴頭像：全身立繪裁切頭胸部位 */
@@ -136,6 +136,47 @@ body.in-town .actions button{padding:5px 12px;font-size:13px}
 .spot:hover{background:#242018;box-shadow:0 0 12px rgba(212,169,78,.55)}
 .spot-row{position:absolute;left:0;right:0;bottom:8px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;padding:0 8px}
 .spot-row .spot{position:static;transform:none}
+/* ═══ 戰鬥動畫 FX（純 CSS，無需美術幀）═══
+   注意：怪物卡本體的 transform 被交錯站位占用，所有位移/震動動畫一律打在內部 .mob-art 上 */
+@keyframes fxAtk{0%{transform:translateX(0)}35%{transform:translateX(26px)}100%{transform:translateX(0)}}
+@keyframes fxMobAtk{0%{transform:translateX(0)}35%{transform:translateX(-24px)}100%{transform:translateX(0)}}
+@keyframes fxHit{0%{filter:brightness(2.6) saturate(.3)}30%{transform:translateX(-5px)}60%{transform:translateX(4px);filter:brightness(1.6)}100%{filter:none;transform:none}}
+@keyframes fxHeroHit{0%{filter:brightness(1.9) drop-shadow(0 0 8px rgba(255,60,60,.9))}40%{transform:translateX(-6px)}70%{transform:translateX(5px)}100%{filter:none;transform:none}}
+@keyframes fxCast{0%{filter:drop-shadow(0 0 2px rgba(255,215,120,.2))}45%{filter:drop-shadow(0 0 18px rgba(255,215,120,1)) brightness(1.3)}100%{filter:none}}
+@keyframes fxBuff{0%{filter:drop-shadow(0 0 2px rgba(255,215,120,.3))}50%{filter:drop-shadow(0 0 14px rgba(120,200,255,.95)) brightness(1.2)}100%{filter:none}}
+@keyframes fxHealGlow{0%{filter:drop-shadow(0 0 2px rgba(120,255,160,.3))}50%{filter:drop-shadow(0 0 16px rgba(110,240,150,.95)) brightness(1.25)}100%{filter:none}}
+@keyframes fxRageK{0%{filter:none}40%{filter:brightness(1.7) drop-shadow(0 0 18px rgba(255,60,30,1))}100%{filter:none}}
+@keyframes fxCharge{0%,100%{filter:drop-shadow(0 0 4px rgba(255,70,40,.4))}50%{filter:drop-shadow(0 0 18px rgba(255,90,50,.95)) brightness(1.3)}}
+@keyframes fxDieK{100%{transform:rotate(14deg) translateY(14px);opacity:.08}}
+@keyframes fxShakeK{0%,100%{transform:translate(0,0)}20%{transform:translate(-7px,4px)}40%{transform:translate(6px,-5px)}60%{transform:translate(-5px,-3px)}80%{transform:translate(4px,4px)}}
+@keyframes fxNumUp{0%{transform:translateY(0) scale(1);opacity:1}15%{transform:translateY(-4px) scale(1.25)}100%{transform:translateY(-38px) scale(1);opacity:0}}
+@keyframes fxSlashK{0%{background-position:160% 0}100%{background-position:-60% 0}}
+@keyframes fxArrowK{0%{left:-28%;opacity:1}85%{opacity:1}100%{left:58%;opacity:0}}
+@keyframes fxRingK{0%{transform:scale(.6);opacity:1}100%{transform:scale(7);opacity:0}}
+@keyframes fxStoneK{0%{left:-12%;top:16%;opacity:1}55%{top:34%}90%{opacity:1}100%{left:54%;top:58%;opacity:0}}
+@keyframes fxCurseK{0%{box-shadow:0 0 0 rgba(167,123,217,0)}45%{box-shadow:0 0 22px rgba(167,123,217,.95)}100%{box-shadow:none}}
+.fx-atk{animation:fxAtk .32s ease-out}
+.fx-mobatk{animation:fxMobAtk .32s ease-out}
+.fx-hit{animation:fxHit .38s ease-out}
+.fx-heroHit{animation:fxHeroHit .4s ease-out}
+.fx-cast{animation:fxCast .5s ease-out}
+.fx-buff{animation:fxBuff .8s ease-out}
+.fx-healGlow{animation:fxHealGlow .8s ease-out}
+.fx-rage{animation:fxRageK .7s ease-out}
+.fx-charging{animation:fxCharge .7s ease-in-out infinite}
+.fx-die{animation:fxDieK .35s ease-in forwards}
+.fx-shake{animation:fxShakeK .5s linear}
+.fx-curse{animation:fxCurseK .7s ease-out}
+.fx-num{position:absolute;top:10%;font-weight:700;font-size:15px;color:#ffd77a;text-shadow:0 1px 3px #000,0 0 6px rgba(0,0,0,.8);animation:fxNumUp .9s ease-out forwards;pointer-events:none;z-index:6;white-space:nowrap}
+.fx-num.crit{color:#ff5c5c;font-size:20px}
+.fx-num.hurt{color:#ff7b6b}
+.fx-num.heal{color:#7fe09f}
+.fx-num.miss{color:#9aa3b5;font-size:12px}
+.fx{position:absolute;inset:0;pointer-events:none;z-index:5;overflow:hidden;border-radius:8px}
+.fx.fx-slash{background:linear-gradient(115deg,transparent 40%,rgba(255,226,140,.95) 50%,transparent 60%);background-size:300% 100%;animation:fxSlashK .38s ease-out forwards}
+.fx.fx-arrow::before{content:'';position:absolute;top:46%;left:-28%;width:36px;height:3px;border-radius:2px;background:linear-gradient(90deg,transparent,#dceeff);box-shadow:0 0 6px rgba(160,210,255,.9);animation:fxArrowK .3s linear forwards}
+.fx.fx-ring::before{content:'';position:absolute;left:50%;top:58%;width:12px;height:12px;margin:-6px;border:3px solid #d8b46a;border-radius:50%;box-shadow:0 0 8px rgba(216,180,106,.8);animation:fxRingK .45s ease-out forwards}
+.fx.fx-stone::before{content:'';position:absolute;width:9px;height:9px;border-radius:50%;background:#c9bfae;box-shadow:0 0 4px rgba(0,0,0,.6);animation:fxStoneK .36s linear forwards}
 /* 彈窗換上木質金角像素框（中央挖空、面板底色不變） */
 #modal{border:14px solid transparent;border-image:url('assets/ui/frame_panel.png') 215 140 155 140 stretch;border-radius:0;background:var(--panel)}
 .divider{border:none;border-top:1px dashed var(--line);margin:12px 0}
@@ -2247,7 +2288,7 @@ function battleHelp(){
 function battleCompHtml(){
   const cs=compStats();
   if(!cs)return '';
-  return `<div class="battle-comp">
+  return `<div class="battle-comp" id="battle-comp">
     <img class="comp-art" src="assets/companions/${S.comp}.png" alt="" onerror="this.remove()" style="width:24px;height:24px">
     <span class="dim" style="white-space:nowrap">${cs.n}${S.compHp<=0?'（倒下）':''}</span>
     <span class="bar" id="battle-comp-bar" style="flex:1;height:10px"><div style="background:#3f7a4f;width:${Math.max(0,100*S.compHp/cs.maxHp)}%"></div></span>
@@ -2256,7 +2297,7 @@ function battleCompHtml(){
 }
 function battlePlayerHtml(){
   const d=derive();
-  return `<div class="battle-player">
+  return `<div class="battle-player" id="battle-player">
     <div class="pn">Lv.${S.lv} ${esc(S.name)}（${RACES[S.race].n.split('（')[0]}）</div>
     <div class="bar bar-fx" id="battle-hp" style="height:17px;border-width:3px 7px"><div style="background:#a03030;width:${Math.max(0,100*S.hp/d.maxHp)}%"></div><span style="line-height:11px;font-size:10px">HP ${Math.round(S.hp)} / ${d.maxHp}</span></div>
     <div class="bar bar-fx mp" id="battle-mp" style="height:17px;border-width:3px 7px"><div style="background:#2f4f8f;width:${Math.max(0,100*S.mp/d.maxMp)}%"></div><span style="line-height:11px;font-size:10px">MP ${Math.round(S.mp)} / ${d.maxMp}</span></div>
@@ -2266,17 +2307,17 @@ function renderBattle(){
   curTarget();
   /* 舞台層：主角資訊卡（左上）＋站位列（主角立繪靠左、怪物卡靠右，腳踩背景地平線＝約圖高下半）
      ＋夥伴血條（主角左下方）。1隻或5隻怪都用同一種固定尺寸血條卡片（避免戰鬥間版面忽大忽小） */
-  let h=`<div class="battle-stage"><div class="battle-tophud">${battleCompHtml()}${battlePlayerHtml()}</div><div class="battle-ground${battle.mobs.length>=4?' crowd':''}">`;
+  let h=`<div class="battle-stage" id="battle-stage"><div class="battle-tophud">${battleCompHtml()}${battlePlayerHtml()}</div><div class="battle-ground${battle.mobs.length>=4?' crowd':''}">`;
   const mateCs=compStats();
-  if(mateCs)h+=`<img class="battle-mate" src="assets/companions/${S.comp}.png" alt="" onerror="this.remove()" style="${S.compHp<=0?'opacity:.3;filter:grayscale(1)':''}">`;
-  h+=`<img class="battle-hero" src="assets/races/${S.race}.png" alt="" onerror="this.remove()">`;
+  if(mateCs)h+=`<img class="battle-mate" id="battle-mate-img" src="assets/companions/${S.comp}.png" alt="" onerror="this.remove()" style="${S.compHp<=0?'opacity:.3;filter:grayscale(1)':''}">`;
+  h+=`<img class="battle-hero" id="battle-hero-img" src="assets/races/${S.race}.png" alt="" onerror="this.remove()">`;
   battle.mobs.forEach((mob,i)=>{
     const dead=mob.hp<=0, isT=(i===battle.tgt&&!dead);
     const elTag=elemIc(mob.el);
     const fxTag=mob.fx==='poison'?'<span class="purple" title="攻擊 25% 使你中毒">☠</span>':(mob.fx==='stun'?'<span class="purple" title="攻擊 25% 使你暈眩">💫</span>':'');
     const art=mobArtSrc(mob);
     const artTag=art?`<img class="mob-art" src="${art}" alt="" onerror="this.remove()">`:'';
-    h+=`<div class="mob-chip${mob.boss?' boss':''}${isT?' target':''}" style="${dead?'opacity:.35;':''}" onclick="setTarget(${i})">
+    h+=`<div class="mob-chip${mob.boss?' boss':''}${isT?' target':''}" id="mobchip-${i}" style="${dead?'opacity:.35;':''}" onclick="setTarget(${i})">
       ${isT?'<img class="target-mark" src="assets/ui/target_marker.png" alt="" onerror="this.remove()">':''}
       ${artTag}
       <div class="mn"><b>${elTag}${mob.n}</b><span>Lv.${mob.lv}${fxTag}</span></div>
@@ -2301,6 +2342,28 @@ function renderBattle(){
   h+=`<button id="btn-flee" onclick="tryFlee()" ${battle.fleeCd>0?'disabled':''}><img class="px-ico" src="assets/ui/icon_flee.png" alt="" onerror="this.outerHTML='🏃 '">逃跑</button></div></div>`;
   $('loc-body').innerHTML=h;
 }
+/* ═══ 戰鬥動畫輔助：假 DOM（自動化測試）沒有 Element.animate → 全部靜默略過 ═══ */
+const FX_OK=typeof document.body.animate==='function';
+function fxEl(i){return FX_OK?$('mobchip-'+i):null}
+function fxAnim(el,cls,inner){
+  if(!FX_OK||!el)return;
+  const t=inner?el.querySelector('.mob-art'):el;
+  if(!t)return;
+  t.classList.remove(cls);void t.offsetWidth;t.classList.add(cls);
+}
+function fxNum(el,txt,cls){
+  if(!FX_OK||!el)return;
+  const n=document.createElement('b');
+  n.className='fx-num'+(cls?' '+cls:'');n.textContent=txt;
+  n.style.left=(22+Math.random()*44)+'%';
+  el.appendChild(n);setTimeout(()=>{try{n.remove()}catch(e){}},950);
+}
+function fxSkill(el,cls){
+  if(!FX_OK||!el)return;
+  const n=document.createElement('i');n.className='fx '+cls;
+  el.appendChild(n);setTimeout(()=>{try{n.remove()}catch(e){}},750);
+}
+const FX_RACE={human:'fx-slash',elf:'fx-arrow',dwarf:'fx-ring',hobbit:'fx-stone'};
 /* 輕量重繪（每 0.2 秒）：只更新血條/狀態/按鈕冷卻，不重建整個戰場 DOM */
 function renderBattleDyn(){
   if(!battle)return;
@@ -2310,6 +2373,8 @@ function renderBattleDyn(){
     if(mob.hp<=0){battle.dirty=1;return}   /* 倒下：下一 tick 全量重繪 */
     bar.innerHTML=mobBarHtml(mob);
     st.innerHTML=mobStHtml(mob,false);
+    /* 吟唱大招：立繪紅光脈動 */
+    if(FX_OK){const ce=fxEl(i);if(ce){const art=ce.querySelector('.mob-art');if(art)art.classList.toggle('fx-charging',mob.cast>0);}}
   });
   const ab=$('btn-atk');
   if(ab){
@@ -2369,9 +2434,16 @@ function dealTo(mob,sk,label){
   let hitP=sk&&sk.sure?100:Math.max(60,Math.min(95,80+(d.b.dex-mob.lv)+(S.race==='human'?5:0)));
   if(mob.el==='wind'&&!(sk&&sk.sure))hitP-=10;   // 風屬性：較難命中
   if(battle&&battle.pDb&&battle.pDb.fe>0&&!(sk&&sk.sure))hitP=Math.max(30,hitP-15);   // 恐懼威壓：命中 -15
-  if(R(1,100)>hitP){log(`你對 ${mob.n} 的${label}落空了！${mob.el==='wind'?'<span class="dim">（風之身影飄忽不定）</span>':''}`);return}
+  const fxCe=fxEl(battle.mobs.indexOf(mob));
+  if(R(1,100)>hitP){log(`你對 ${mob.n} 的${label}落空了！${mob.el==='wind'?'<span class="dim">（風之身影飄忽不定）</span>':''}`);fxNum(fxCe,'MISS','miss');return}
   const r=pHitDmg(sk,mob);
   mob.hp-=r.dmg;
+  /* 動畫：出手衝刺、受擊震閃、傷害數字、技能特效（依種族）、死亡倒下 */
+  fxAnim($('battle-hero-img'),sk?'fx-cast':'fx-atk');
+  fxAnim(fxCe,'fx-hit',1);
+  fxNum(fxCe,r.dmg,r.crit?'crit':'');
+  if(sk)fxSkill(fxCe,FX_RACE[S.race]||'fx-slash');
+  if(mob.hp<=0)fxAnim(fxCe,'fx-die',1);
   log(`你的${label}命中 ${mob.n}，造成 <b class="gold">${r.dmg}</b> 傷害${r.crit?'<span class="red">（爆擊！）</span>':''}${(d.orcbane&&mob.orc)?'<span class="blue">（劍刃泛出藍光）</span>':''}。`);
   /* 武器附魔發動 */
   const wq=S.eq.weapon;
@@ -2434,8 +2506,8 @@ function castSkill(id){
       const t=curTarget();if(t)dealTo(t,sk,`「${sk.n}」`);
     }
   }
-  else if(sk.type==='heal'){const dd=derive();const hv=Math.floor(dd.maxHp*sk.pw*(1+dd.mag/100));S.hp=Math.min(dd.maxHp,S.hp+hv);log(`<span class="green">你施放「${sk.n}」，恢復 ${hv} 點生命。</span>`);}
-  else if(sk.type==='buff'){battle.buffs.push({n:sk.n,stat:sk.stat,mult:sk.mult,t:sk.turns*20});log(`<span class="blue">你施放「${sk.n}」！</span>`);}
+  else if(sk.type==='heal'){const dd=derive();const hv=Math.floor(dd.maxHp*sk.pw*(1+dd.mag/100));S.hp=Math.min(dd.maxHp,S.hp+hv);log(`<span class="green">你施放「${sk.n}」，恢復 ${hv} 點生命。</span>`);fxAnim($('battle-hero-img'),'fx-healGlow');fxNum($('battle-player'),'+'+hv,'heal');}
+  else if(sk.type==='buff'){battle.buffs.push({n:sk.n,stat:sk.stat,mult:sk.mult,t:sk.turns*20});log(`<span class="blue">你施放「${sk.n}」！</span>`);fxAnim($('battle-hero-img'),'fx-buff');}
   battle.dirty=1;
   checkBattleEnd();
 }
@@ -2462,6 +2534,7 @@ function tryFlee(){
 function compAct(cs,d){
   if(cs.role==='heal'&&S.hp<d.maxHp*0.9){
     S.hp=Math.min(d.maxHp,S.hp+cs.heal);
+    fxAnim($('battle-mate-img'),'fx-healGlow');fxNum($('battle-player'),'+'+cs.heal,'heal');
     log(`<span class="green">${cs.n} 治療了你 ${cs.heal} 點生命。</span>`);
     return;
   }
@@ -2470,6 +2543,9 @@ function compAct(cs,d){
   let dmg=Math.max(1,Math.floor(cs.atk*mult-t.def/2+R(-2,2)));
   if(t.dr)dmg=Math.max(1,dmg-t.dr);
   t.hp-=dmg;
+  const fxTe=fxEl(battle.mobs.indexOf(t));
+  fxAnim($('battle-mate-img'),'fx-atk');fxAnim(fxTe,'fx-hit',1);fxNum(fxTe,dmg,'');
+  if(t.hp<=0)fxAnim(fxTe,'fx-die',1);
   log(`${cs.n} 攻擊 ${t.n}，造成 <b class="gold">${dmg}</b> 傷害。`);
   battle.dirty=1;
 }
@@ -2479,6 +2555,8 @@ function mobAttack(mob,d,cs){
   if(cs&&cs.role==='tank'&&S.compHp>0&&R(1,100)<=60){
     let dmg=Math.max(1,Math.floor(mob.atk-cs.def/2+R(-2,2)));
     S.compHp-=dmg;
+    fxAnim(fxEl(battle.mobs.indexOf(mob)),'fx-mobatk',1);
+    fxNum($('battle-comp'),'-'+dmg,'hurt');
     log(`${cs.n} 挺身格擋！${mob.n} 對他造成 <b class="red">${dmg}</b> 傷害。`);
     if(S.compHp<=0){S.compHp=0;log(`<span class="red">${cs.n} 倒下了！（回到城鎮休息可恢復）</span>`);}
     return;
@@ -2495,6 +2573,9 @@ function mobAttack(mob,d,cs){
   if(mob.el&&hasEnchA('resist'))dmg=Math.max(1,Math.floor(dmg*0.8));
   if(mob.boss)dmg=Math.min(dmg,Math.floor(d.maxHp*0.6));   /* 首領普攻單發上限 60% 最大生命：滿血不會被一刀帶走 */
   S.hp-=dmg;
+  fxAnim(fxEl(battle.mobs.indexOf(mob)),'fx-mobatk',1);
+  fxAnim($('battle-hero-img'),'fx-heroHit');
+  fxNum($('battle-player'),'-'+dmg,bcrit?'hurt crit':'hurt');
   log(`${mob.n} ${mob.el==='light'?'的必中聖光':''}攻擊你，造成 <b class="red">${dmg}</b> 傷害${bcrit?'<span class="red">（爆擊！）</span>':''}。`);
   /* 暗屬性：吸取生命——首領封頂 0.8% 最大生命/擊（否則狂暴後吸血會超過玩家輸出變成打不死牆）；
      週目數越高吸得越少（dmg/(2+ng)），避免二週目怪攻放大吸血 */
@@ -2521,11 +2602,13 @@ function bossAct(mob){
     mob.heals--;
     const hv=Math.floor(mob.maxHp*ai.hl[2]/100);
     mob.hp=Math.min(mob.maxHp,mob.hp+hv);
+    fxNum(fxEl(battle.mobs.indexOf(mob)),'+'+hv,'heal');
     log(`<span class="red">${mob.n} 灌下一瓶藥水，恢復了 ${hv} 生命！${mob.heals?'':'（藥水喝完了）'}</span>`);
     battle.dirty=1;return true;
   }
   if(ai.rage&&!mob.raged&&mob.hp<mob.maxHp*ai.rage/100){
     mob.raged=true;mob.atk=Math.floor(mob.atk*1.35);mob.spd=Math.round(mob.spd*0.75*100)/100;
+    fxAnim(fxEl(battle.mobs.indexOf(mob)),'fx-rage',1);
     log(`<span class="red">${mob.n} 陷入狂暴，攻擊與速度大幅上升！</span>`);battle.dirty=1;
   }
   if(mob.nuke&&mob.nukeCd<=0){
@@ -2536,6 +2619,7 @@ function bossAct(mob){
   if(ai.db&&battle.pDb[ai.db[0]]<=0&&R(1,100)<=ai.db[1]){
     const t=ai.db[0],info=BOSS_DB[t];
     battle.pDb[t]=80;
+    fxAnim(fxEl(battle.mobs.indexOf(mob)),'fx-rage',1);fxAnim($('battle-player'),'fx-curse');
     log(`<span class="red">${mob.n} ${info.cast[mob.id]||'施放了'+info.n}！${info.ic}【${info.n}】——${info.d}（8 秒）！</span>`);
     battle.dirty=1;return true;
   }
@@ -2548,6 +2632,9 @@ function nukeHit(mob,d){
   let dmg=Math.max(1,Math.floor(mob.atk*mob.nuke.mult-pdef/4));
   dmg=Math.min(dmg,Math.floor(d.maxHp*0.65));
   S.hp-=dmg;
+  fxAnim($('battle-stage'),'fx-shake');
+  fxAnim($('battle-hero-img'),'fx-heroHit');
+  fxNum($('battle-player'),'-'+dmg,'hurt crit');
   log(`<span class="red" style="font-size:15px">💥 「${mob.nuke.n||'毀滅重擊'}」轟然落下！你受到 ${dmg} 傷害！</span>`);
   mob.cd=Math.max(4,Math.round(mob.spd*10))+15;
   battle.potCd=0;
@@ -2815,7 +2902,7 @@ function useIt(i,inBattle){
   const d=derive();
   const isPot=def.heal||def.mp||def.full;
   if(battle&&isPot&&battle.potCd>0)return;   /* 藥水冷卻中（1.5 秒），防止爆喝 */
-  if(def.heal){S.hp=Math.min(d.maxHp,S.hp+def.heal);log(`<span class="green">使用【${def.n}】，恢復 ${def.heal} HP。</span>`);}
+  if(def.heal){S.hp=Math.min(d.maxHp,S.hp+def.heal);log(`<span class="green">使用【${def.n}】，恢復 ${def.heal} HP。</span>`);if(battle)fxNum($('battle-player'),'+'+def.heal,'heal');}
   else if(def.mp){S.mp=Math.min(d.maxMp,S.mp+def.mp);log(`<span class="green">使用【${def.n}】，恢復 ${def.mp} MP。</span>`);}
   else if(def.full){S.hp=d.maxHp;S.mp=d.maxMp;log(`<span class="green">使用【${def.n}】，HP/MP 完全恢復！</span>`);}
   else if(def.buff==='haste'){if(!battle){log('<span class="dim">戰鬥中才需要加速。</span>');return}battle.buffs.push({n:'加速',stat:'haste',mult:2,t:def.turns*20});log('<span class="blue">你的身影快得出現殘像！（攻擊速度大幅提升）</span>');}
