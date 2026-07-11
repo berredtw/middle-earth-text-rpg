@@ -19,7 +19,7 @@ const html=fs.readFileSync('D:/魔戒文字版/index.html','utf8');
 const m=html.match(/<script>\r?\n([\s\S]*?)<\/script>/);
 const intervalFns=[];
 const G=eval(`(function(document,localStorage,window,alert,confirm,prompt,setInterval,location){${m[1]}
-;return {get S(){return S},set S(v){S=v},get battle(){return battle},
+;return {get S(){return S},set S(v){S=v},get battle(){return battle},set battle(v){battle=v},
  fns:{newState,derive,enterGame,moveTo,explore,pAttack,challengeBoss,visitEvent,advanceChapter,
   showItemInfo,openCodex,migrate,destroyRing,gainExp,saveGame,addItem,useScroll,castSkill,towerChallenge,
   doEnhance,recruit,setComp,openCompList,compStats,useIt,aliveMobs,gameTick,doCraft,openCraft,invCount,
@@ -34,19 +34,23 @@ function check(n,c){if(c){pass++;console.log('  ✓',n)}else{fail++;console.log(
 /* 即時制戰鬥驅動：以 battleTick 推進到戰鬥結束；模擬玩家喝藥維持血量（門檻預設 70%，
    低於門檻即補滿——首領大招上限 65%，滿血必可倖存）與魔力 */
 const AB=()=>document.getElementById('auto-battle');
-function fight(hpPct,maxG){
+/* 掛機開啟時勝利會「同步續戰」直接開下一場（tryAutoContinue）——測試要自己控場，
+   偵測到 battle 換成新的一場就取消（follow=true 例外：傳說迴廊連戰的下一階段要跟著打完） */
+function fight(hpPct,maxG,follow){
   const prev=AB().checked;AB().checked=true;
+  const cur=G.battle;
   let g=0;
-  while(G.battle&&g++<(maxG||60000)){
+  while(G.battle&&(follow||G.battle===cur)&&g++<(maxG||60000)){
     const dd=F.derive();
     if(G.S.hp<dd.maxHp*(hpPct||0.7))G.S.hp=dd.maxHp;
     if(G.S.mp<dd.maxMp*0.2)G.S.mp=dd.maxMp;
     F.battleTick();
   }
+  if(!follow&&G.battle&&G.battle!==cur)G.battle=null;
   AB().checked=prev;
 }
-/* 結束一場戰鬥（目標全滅 → 結算） */
-function settle(){if(G.battle){G.battle.mobs.forEach(m=>m.hp=0);F.battleTick();}}
+/* 結束一場戰鬥（目標全滅 → 結算）；同樣取消結算後自動續戰開出的新場 */
+function settle(){if(G.battle){const cur=G.battle;G.battle.mobs.forEach(m=>m.hp=0);F.battleTick();if(G.battle&&G.battle!==cur)G.battle=null;}}
 /* 模擬玩家分配能力點（60% 力量、20% 敏捷、20% 體質）——新平衡下不點能力打不動首領 */
 function alloc(){
   while(G.S.statPts>0){const r=G.S.statPts%5;G.S.statPts--;
@@ -106,10 +110,12 @@ while(G.S.ch<21&&guard++<1500000){
     if(q.boss)F.challengeBoss();else F.explore();
   }else{
     AB().checked=true;
+    const cur=G.battle;
     const dd=F.derive();
     if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp;   // 模擬玩家喝藥（活力之水商店有售）
     if(G.S.mp<dd.maxMp*0.2)G.S.mp=dd.maxMp;
     F.battleTick();
+    if(G.battle&&G.battle!==cur)G.battle=null;   // 取消掛機同步續戰，讓迴圈自己決定下一場
   }
 }
 check(`全 21 章通關成功（最終 Lv.${G.S.lv}）`,G.S.ch===21);
@@ -138,10 +144,12 @@ while(G.S.ch<32&&guard++<1500000){
     if(q.boss)F.challengeBoss();else F.explore();
   }else{
     AB().checked=true;
+    const cur=G.battle;
     const dd=F.derive();
     if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp;
     if(G.S.mp<dd.maxMp*0.2)G.S.mp=dd.maxMp;
     F.battleTick();
+    if(G.battle&&G.battle!==cur)G.battle=null;   // 取消掛機同步續戰，讓迴圈自己決定下一場
   }
 }
 check(`時光之門外傳全數通關（最終 Lv.${G.S.lv}）`,G.S.ch===32);
@@ -171,10 +179,12 @@ while(G.S.ch<42&&guard++<1500000){
     if(q.boss)F.challengeBoss();else F.explore();
   }else{
     AB().checked=true;
+    const cur=G.battle;
     const dd=F.derive();
     if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp;
     if(G.S.mp<dd.maxMp*0.2)G.S.mp=dd.maxMp;
     F.battleTick();
+    if(G.battle&&G.battle!==cur)G.battle=null;   // 取消掛機同步續戰，讓迴圈自己決定下一場
   }
 }
 check(`哈比人外傳全數通關（最終 Lv.${G.S.lv}）`,G.S.ch===42);
@@ -201,10 +211,12 @@ while(G.S.ch<55&&guard++<2000000){
     if(q.boss)F.challengeBoss();else F.explore();
   }else{
     AB().checked=true;
+    const cur=G.battle;
     const dd=F.derive();
     if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp;
     if(G.S.mp<dd.maxMp*0.2)G.S.mp=dd.maxMp;
     F.battleTick();
+    if(G.battle&&G.battle!==cur)G.battle=null;   // 取消掛機同步續戰，讓迴圈自己決定下一場
   }
 }
 check(`上古紀元外傳全數通關·擊敗魔苟斯（最終 Lv.${G.S.lv}）`,G.S.ch===55);
@@ -224,7 +236,7 @@ check('成就「第四紀元的見證者」解鎖',!!G.S.achv.fourth);
 const goldBeforeRush=G.S.gold;
 F.startRush();
 guard=0;
-fight(0.7,800000);   // 32 場即時首領連戰
+fight(0.7,800000,true);   // 32 場即時首領連戰（每階段換新 battle，要跟著打完）
 check(`傳說的迴廊 32 連戰制霸（最佳紀錄 ${G.S.rushBest}/32）`,G.S.rushBest===32);
 check('迴廊里程碑與制霸獎勵發放',G.S.gold>goldBeforeRush+500000);
 check('成就「傳說的迴廊·制霸」解鎖',!!G.S.achv.rush);
@@ -273,7 +285,7 @@ F.moveTo('m_stair');
 let tg=0,floorFights=0,firstFloorBefore=G.S.tw['m_stair']||0;
 while((G.S.tw['m_stair']||0)<100&&tg++<800000){
   if(!G.battle){if(G.S.loc!=='m_stair')F.moveTo('m_stair');const dd=F.derive();G.S.hp=dd.maxHp;F.towerChallenge();floorFights++;}
-  else{AB().checked=true;const dd=F.derive();if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp;if(G.S.mp<dd.maxMp*0.2)G.S.mp=dd.maxMp;F.battleTick();}
+  else{AB().checked=true;const cur=G.battle;const dd=F.derive();if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp;if(G.S.mp<dd.maxMp*0.2)G.S.mp=dd.maxMp;F.battleTick();if(G.battle&&G.battle!==cur)G.battle=null;}
 }
 check(`無盡階梯攻頂（進度 ${G.S.tw['m_stair']}/100，共戰鬥 ${floorFights} 場）`,G.S.tw['m_stair']===100);
 check(`樓梯機率生效（100 層共打了 ${floorFights} 場 > 150 場，代表不是一場一層）`,floorFights>150);
@@ -290,12 +302,13 @@ F.moveTo('m_tower');
 tg=0;
 while((G.S.tw['m_tower']||0)<100&&tg++<800000){
   if(!G.battle){if(G.S.loc!=='m_tower')F.moveTo('m_tower');const dd=F.derive();G.S.hp=dd.maxHp;F.towerChallenge();}
-  else{AB().checked=true;const dd=F.derive();if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp;if(G.S.mp<dd.maxMp*0.2)G.S.mp=dd.maxMp;F.battleTick();}
+  else{AB().checked=true;const cur=G.battle;const dd=F.derive();if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp;if(G.S.mp<dd.maxMp*0.2)G.S.mp=dd.maxMp;F.battleTick();if(G.battle&&G.battle!==cur)G.battle=null;}
 }
 check(`歐爾桑克塔攻頂（進度 ${G.S.tw['m_tower']}/100）`,G.S.tw['m_tower']===100);
 check('百層制霸獲得【異界·執行者之斧】',G.S.inv.some(x=>x.id==='w_exec'));
 
 // ── 塔內多怪機率抽樣（期望 ≥2 隻約 80%）──
+AB().checked=false;   // 關掛機：抽樣要每場都由測試發起，不能讓勝利同步續戰吃掉抽樣次數
 G.S.tw={};F.moveTo('m_stair');
 let multi2=0,samples=0;
 for(let i=0;i<80;i++){

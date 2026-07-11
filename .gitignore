@@ -1,3 +1,6 @@
 .claude/
 滿級測試角色.txt
 *.mp3
+# 美術原始檔與切圖腳本（遊戲只用 assets/，原圖太大不入庫；xlsx 超過 GitHub 100MB 上限）
+pics/
+美術風格化規劃書.xlsx

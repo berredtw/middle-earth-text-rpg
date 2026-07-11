@@ -48,7 +48,7 @@ if(!m){ console.log('找不到腳本'); process.exit(1); }
 const sandboxSrc = `
 (function(document, localStorage, window, alert, confirm, prompt, setInterval, location){
 ${m[1]}
-;return { get S(){return S}, set S(v){S=v}, get battle(){return battle},
+;return { get S(){return S}, set S(v){S=v}, get battle(){return battle}, set battle(v){battle=v},
   fns:{ newState, derive, enterGame, moveTo, explore, pAttack, battleTick, castSkill, winBattle,
     challengeBoss, openShop, buyIt, equipIt, useIt, useScroll, addItem, gainExp,
     renderAll, renderLoc, snapshot, useRing, tryFlee, allocPt, saveGame, expNeed,
@@ -60,8 +60,10 @@ const G = factory(document, localStorage, window, alert, confirm, promptFn, setI
 const F = G.fns;
 let pass=0, fail=0;
 function check(name, cond){ if(cond){pass++; console.log('  ✓', name);} else {fail++; console.log('  ✗ 失敗:', name);} }
-/* 即時制：戰鬥以 battleTick 驅動（開自動掛機代打） */
-function tick(){ document.getElementById('auto-battle').checked=true; if(G.S.hp<F.derive().maxHp*0.7)G.S.hp=F.derive().maxHp; F.battleTick(); }
+/* 即時制：戰鬥以 battleTick 驅動（開自動掛機代打）。
+   掛機開啟時勝利會「同步續戰」直接開下一場（tryAutoContinue）——測試要自己控場，
+   所以偵測到 battle 換成新的一場就取消，維持「每場戰鬥都由測試腳本發起」的假設 */
+function tick(){ document.getElementById('auto-battle').checked=true; if(G.S.hp<F.derive().maxHp*0.7)G.S.hp=F.derive().maxHp; const cur=G.battle; F.battleTick(); if(G.battle&&G.battle!==cur)G.battle=null; }
 
 // 1. 創角（四種族都建一次確認 derive 正常）
 for (const race of ['human','elf','dwarf','hobbit']) {
@@ -127,7 +129,8 @@ G.S.ch=5; F.moveTo('t_rivendell');
 F.visitEvent();
 check('愛隆會議後獲得至尊魔戒、進入第七章', G.S.ch===6 && G.S.inv.some(x=>x.id==='ring_one'));
 
-// 9. 魔戒使用與腐化
+// 9. 魔戒使用與腐化（關掉掛機：戴魔戒/逃跑脫戰後不得自動續戰，才能驗證脫戰狀態）
+document.getElementById('auto-battle').checked=false;
 F.moveTo('m_caradhras');
 d=F.derive(); G.S.hp=d.maxHp;
 F.explore();

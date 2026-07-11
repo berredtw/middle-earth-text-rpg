@@ -20,7 +20,7 @@ button.danger{border-color:#7a3333;color:#e08a8a}
 input,select{background:#0f1218;color:var(--txt);border:1px solid var(--line);border-radius:4px;padding:5px 8px;font-family:inherit;font-size:14px}
 h1,h2,h3{color:var(--gold);font-weight:700}
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px}
-.phead{padding:8px 14px;border-bottom:1px solid var(--line);color:var(--gold);font-weight:700;letter-spacing:2px}
+.phead{padding:8px 14px;border-bottom:1px solid var(--line);color:var(--gold);font-weight:700;letter-spacing:2px;background:rgba(13,15,18,.4)}
 .bar{position:relative;background:#0a0c10;border:1px solid var(--line);border-radius:3px;height:18px;overflow:hidden}
 .bar>div{height:100%;transition:width .3s}
 .bar>span{position:absolute;inset:0;text-align:center;font-size:12px;line-height:16px;color:#fff;text-shadow:0 0 3px #000}
@@ -33,19 +33,22 @@ h1,h2,h3{color:var(--gold);font-weight:700}
 .tbtn{width:280px;padding:12px;font-size:17px;letter-spacing:6px}
 #screen-create{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#0a0c10;z-index:40}
 #create-box{width:860px;max-width:96vw;max-height:94vh;overflow-y:auto;padding:26px}
-.race-btn{width:100%;text-align:left;padding:10px 14px;margin-bottom:8px}
+.race-btn{width:100%;text-align:left;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
 .race-btn.sel{border-color:var(--gold);background:#242018;color:var(--gold)}
+.race-thumb{width:36px;height:54px;object-fit:cover;object-position:top center;border-radius:3px;border:1px solid var(--line);flex-shrink:0;image-rendering:pixelated}
 #screen-game{display:none;height:100vh;padding:10px;gap:10px}
 #col-l{width:290px;display:flex;flex-direction:column;gap:10px;min-height:0}
 #col-c{flex:1;display:flex;flex-direction:column;gap:10px;min-width:0;min-height:0}
 #col-r{width:360px;display:flex;flex-direction:column;gap:10px;min-height:0}
 #loc-panel{flex:1;display:flex;flex-direction:column;min-height:0}
 #loc-body{padding:14px;overflow-y:auto;flex:1}
-#log-panel{height:28%;display:flex;flex-direction:column;min-height:130px}
+#logrow{display:flex;gap:8px;flex:0 0 170px;min-height:0}
+#log-panel,#drop-panel{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0}
 #log{flex:1;overflow-y:auto;padding:10px 14px;font-size:14px;line-height:1.75}
 #log p{margin:0}
-#drop-panel{flex-shrink:0}
+#droplog{flex:1;overflow-y:auto;padding:6px 10px;font-size:13px;line-height:1.6}
 #droplog p{margin:0}
+body.in-battle #logrow{flex-basis:200px}
 .tabbar{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;padding:8px}
 .tabbar button{padding:7px 0;font-size:14px}
 .tabbar button.on{border-color:var(--gold);color:var(--gold);background:#242018}
@@ -55,17 +58,69 @@ h1,h2,h3{color:var(--gold);font-weight:700}
 .inv-row:hover{background:#1b202a}
 .inv-row .btns{display:flex;gap:4px;flex-shrink:0}
 .inv-row .btns button{padding:2px 8px;font-size:12px}
-.mobcard{border:1px solid #5a3030;background:#1a1214;border-radius:6px;padding:12px 16px;margin:10px 0}
-.mobcard-big{padding:16px 18px;margin:0 0 4px;border-radius:8px}
 .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .actions button{padding:8px 16px}
-.battle-actions button{min-width:112px}
-/* 戰鬥主行動列：黏在戰鬥面板頂端，捲動日誌/敵人區時攻擊鍵仍可點（僅桌機面板內捲動時生效） */
-.battle-actions{position:sticky;top:-14px;z-index:5;background:var(--panel);margin:-14px -14px 8px;padding:14px 14px 10px;border-bottom:1px solid var(--line)}
+.battle-actions{margin-top:0}
+.battle-actions button{min-width:96px;padding:6px 10px;font-size:13px}
 .battle-actions-util{margin-top:0;margin-bottom:10px}
 .battle-actions-util button{opacity:.85;padding:6px 12px;font-size:13px}
 .battle-actions-util button:hover{opacity:1}
-body.in-battle #log-panel{height:36%}
+/* 戰鬥舞台：吃滿面板高度，角色站位錨定在背景地平線之下（約下半部）。
+   .battle-ground＝站位列（主角立繪靠左、怪物卡靠右，底邊對齊＝腳踩同一條地面線）；
+   怪物太多放不下時 wrap-reverse 讓第一排保持在地面線、多的往上疊 */
+body.in-battle #loc-body{display:flex;flex-direction:column}
+.battle-stage{position:relative;flex:1 1 auto;margin:-14px -14px 8px;min-height:220px}
+.battle-ground{position:absolute;left:16px;right:16px;bottom:14%;display:flex;align-items:flex-end;justify-content:flex-end;flex-wrap:wrap-reverse;gap:6px;z-index:1}
+.mob-chip{width:96px;flex-shrink:0;background:rgba(15,17,21,.72);border:1px solid #5a3030;border-radius:8px;padding:5px 6px 7px;cursor:pointer;backdrop-filter:blur(2px)}
+.mob-chip.target{border-color:var(--gold)}
+.mob-chip .mob-art{display:block;width:100%;height:50px;object-fit:contain;object-position:bottom center;image-rendering:pixelated}
+.mob-chip .mn{display:flex;justify-content:space-between;align-items:baseline;gap:4px;font-size:11px;margin-top:3px}
+.mob-chip .mn b{font-weight:600;color:var(--red);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mob-chip .mn span{color:var(--dim);font-size:10px;white-space:nowrap;flex-shrink:0}
+.mob-chip .mst{font-size:10px;min-height:12px;color:var(--dim);line-height:1.4}
+.mob-chip .bar{height:12px;margin-top:3px}
+/* 底部固定操作列：攻擊/技能＋藥水/魔戒/逃跑，黏在戰鬥面板底端（捲動也不跑位） */
+.battle-bottom{position:sticky;bottom:-14px;z-index:5;background:rgba(22,25,31,.94);margin:0 -14px -14px;padding:8px 12px;border-top:1px solid var(--line);backdrop-filter:blur(2px)}
+.battle-bottom .battle-actions-util{margin:6px 0 0}
+.battle-bottom .actions{gap:6px}
+/* 主角資訊卡：舞台左上角 */
+.battle-player{position:absolute;top:8px;left:8px;z-index:2;background:rgba(15,17,21,.62);border:1px solid var(--line);border-radius:8px;padding:5px 8px;max-width:210px;backdrop-filter:blur(2px)}
+/* 夥伴血條：主角立繪左下方（舞台左下角） */
+.battle-comp{position:absolute;left:10px;bottom:6px;z-index:2;width:232px;max-width:60%;display:flex;align-items:center;gap:6px;font-size:12px;background:rgba(15,17,21,.62);border:1px solid var(--line);border-radius:6px;padding:4px 8px;backdrop-filter:blur(2px)}
+.battle-player .pn{font-size:12px;color:var(--gold);font-weight:700;margin-bottom:3px;white-space:nowrap}
+.battle-player .bar{height:11px;margin-top:3px}
+/* 像素小圖示（屬性/行動按鈕）：內縮對齊文字基線 */
+.px-ico{width:17px;height:17px;vertical-align:-3px;image-rendering:pixelated;margin-right:2px}
+/* 主角立繪：戰鬥時站在怪物列左側（flex margin-right:auto 把怪物推到右邊） */
+.battle-hero{height:94px;align-self:flex-end;margin-right:auto;image-rendering:pixelated;filter:drop-shadow(0 5px 6px rgba(0,0,0,.65))}
+/* 目標標記：金色準星浮在被選中的怪物卡上方 */
+.mob-chip{position:relative}
+.target-mark{position:absolute;top:-13px;left:50%;width:22px;height:22px;transform:translateX(-50%);image-rendering:pixelated;animation:tmark 1s ease-in-out infinite;pointer-events:none;filter:drop-shadow(0 0 4px rgba(212,169,78,.7));z-index:2}
+@keyframes tmark{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-4px)}}
+/* 玩家 HP/MP 條：像素金屬框（border-image 只取邊框、中央挖空，保留原本的動態填色） */
+.bar-fx{height:24px;border:5px solid transparent;border-left-width:9px;border-right-width:9px;border-radius:6px;
+  border-image:url('assets/ui/bar_hp.png') 42 92 42 92 stretch;background:#141821}
+.bar-fx.mp{border-image-source:url('assets/ui/bar_mp.png')}
+.bar-fx>span{line-height:14px}
+/* 城鎮場景：背景全景圖＋建築熱點（座標見 TOWN_SPOTS）；純風景城鎮用底部一排標記（.spot-row）。
+   .town-stage 吃掉面板剩餘高度（in-town 時 #loc-body 轉 flex column），場景在裡面**等比 16:9 縮放置中**
+   ——熱點百分比座標是對著圖面算的，比例不能變，否則標記會偏離建築 */
+body.in-town #loc-body{display:flex;flex-direction:column}
+.town-stage{flex:1 1 auto;min-height:150px;display:flex;align-items:center;justify-content:center;margin:6px 0 2px}
+/* 城鎮模式：周邊文字區塊全部壓縮，矮視窗也能一屏放下（劇情/任務/提示縮字距與留白） */
+body.in-town .storybox{font-size:13px;line-height:1.55;padding:7px 12px;margin:6px 0}
+body.in-town .questbox{padding:5px 10px !important;margin-bottom:6px !important;font-size:12px !important;line-height:1.5 !important}
+body.in-town .actions{margin-top:6px}
+body.in-town .actions button{padding:5px 12px;font-size:13px}
+.town-scene{position:relative;width:100%;max-height:100%;aspect-ratio:16/9;background-size:cover;background-position:center;
+  border:1px solid var(--line);border-radius:8px;image-rendering:pixelated;overflow:hidden}
+.spot{position:absolute;transform:translate(-50%,-50%);background:rgba(13,15,18,.78);border:1px solid var(--gold);
+  border-radius:6px;color:var(--gold);padding:4px 10px;font-size:13px;cursor:pointer;white-space:nowrap;backdrop-filter:blur(2px);min-height:0}
+.spot:hover{background:#242018;box-shadow:0 0 12px rgba(212,169,78,.55)}
+.spot-row{position:absolute;left:0;right:0;bottom:8px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;padding:0 8px}
+.spot-row .spot{position:static;transform:none}
+/* 彈窗換上木質金角像素框（中央挖空、面板底色不變） */
+#modal{border:14px solid transparent;border-image:url('assets/ui/frame_panel.png') 215 140 155 140 stretch;border-radius:0;background:var(--panel)}
 .divider{border:none;border-top:1px dashed var(--line);margin:12px 0}
 #chatlog{height:180px;overflow-y:auto;background:#0f1218;border:1px solid var(--line);border-radius:4px;padding:8px;font-size:13px;line-height:1.7;margin:8px 0}
 .chat-me,.chat-other{display:flex;margin:4px 0}
@@ -100,13 +155,17 @@ body.in-battle #log-panel{height:36%}
     background:rgba(13,15,18,.96);border:1px solid var(--line);border-radius:6px;padding:7px 10px}
   #loc-panel{min-height:46vh}
   #loc-body{max-height:none}
-  #log-panel{height:200px;min-height:200px}
+  #logrow{flex-basis:150px}
   /* 戰鬥中：手機版隱藏角色/夥伴/放置設定/存檔（col-l）與能力/裝備/背包等分頁（col-r），
      戰鬥區＋日誌獨佔畫面，不用一路捲過一堆非戰鬥面板才找得到攻擊鍵 */
   body.in-battle #col-l,body.in-battle #col-r{display:none}
-  body.in-battle #log-panel{height:260px}
-  body.in-battle .battle-actions{position:static;margin:0 0 8px;padding:0}
-  #droplog{height:70px}
+  body.in-battle #logrow{flex-basis:190px}
+  .battle-stage{min-height:300px}
+  .battle-comp{width:200px}
+  .mob-chip{width:88px}
+  .mob-chip .mob-art{height:48px}
+  .battle-hero{height:78px}
+  .spot{font-size:12px;padding:3px 8px;min-height:0}
   #col-r>.panel{min-height:300px}
   .tabbody{max-height:52vh}
   button{min-height:38px}
@@ -151,6 +210,7 @@ body.in-battle #log-panel{height:36%}
       </div>
       <div style="flex:1">
         <div class="dim" style="margin-bottom:8px">二、種族介紹</div>
+        <img id="race-portrait" style="display:none;max-width:150px;max-height:220px;float:right;margin:0 0 10px 14px;border:1px solid var(--line);border-radius:6px;image-rendering:pixelated">
         <div id="race-desc" class="storybox" style="min-height:130px">請先選擇種族。</div>
         <div class="dim" style="margin:14px 0 8px">三、分配能力（剩餘點數 <span id="cr-pts" class="gold">10</span>）</div>
         <div id="cr-stats"></div>
@@ -170,8 +230,8 @@ body.in-battle #log-panel{height:36%}
 
   <!-- 手機置頂血條（桌機隱藏） -->
   <div id="m-vitals">
-    <div class="bar" style="flex:1"><div id="mv-hp" style="background:#a03030;width:100%"></div><span id="mv-hpt"></span></div>
-    <div class="bar" style="flex:1"><div id="mv-mp" style="background:#2f4f8f;width:100%"></div><span id="mv-mpt"></span></div>
+    <div class="bar bar-fx" style="flex:1"><div id="mv-hp" style="background:#a03030;width:100%"></div><span id="mv-hpt"></span></div>
+    <div class="bar bar-fx mp" style="flex:1"><div id="mv-mp" style="background:#2f4f8f;width:100%"></div><span id="mv-mpt"></span></div>
     <b id="mv-gold" class="gold" style="font-size:13px;white-space:nowrap"></b>
   </div>
 
@@ -180,6 +240,7 @@ body.in-battle #log-panel{height:36%}
     <div class="panel">
       <div class="phead" style="display:flex;justify-content:space-between"><span id="st-name">－</span><span id="st-race" class="dim" style="letter-spacing:0"></span></div>
       <div style="padding:12px 14px">
+        <img id="char-portrait" style="display:none;width:100%;max-height:200px;object-fit:contain;margin-bottom:10px;border:1px solid var(--line);border-radius:6px;background:#0a0c10;image-rendering:pixelated">
         <div class="row"><span class="dim">等級</span><b id="st-lv" style="color:#fff">1</b></div>
         <div class="row"><span class="dim">攻擊力</span><b id="st-atk" style="color:#fff">0</b></div>
         <div class="row"><span class="dim">防禦力</span><b id="st-def" style="color:#fff">0</b></div>
@@ -187,8 +248,8 @@ body.in-battle #log-panel{height:36%}
         <div class="row"><span class="dim">魔戒腐化</span><b id="st-cor" class="purple">0</b></div>
         <div class="row"><span class="dim">決鬥戰績</span><b id="st-pvp" style="color:#fff">0 勝</b></div>
         <div style="margin-top:10px;display:flex;flex-direction:column;gap:7px">
-          <div class="bar"><div id="bar-hp" style="background:#a03030;width:100%"></div><span id="txt-hp"></span></div>
-          <div class="bar"><div id="bar-mp" style="background:#2f4f8f;width:100%"></div><span id="txt-mp"></span></div>
+          <div class="bar bar-fx"><div id="bar-hp" style="background:#a03030;width:100%"></div><span id="txt-hp"></span></div>
+          <div class="bar bar-fx mp"><div id="bar-mp" style="background:#2f4f8f;width:100%"></div><span id="txt-mp"></span></div>
           <div class="bar" style="height:12px"><div id="bar-exp" style="background:#8f7a2f;width:0%"></div><span id="txt-exp" style="line-height:10px;font-size:10px"></span></div>
         </div>
         <div id="st-buffs" class="hint" style="margin-top:8px"></div>
@@ -237,13 +298,15 @@ body.in-battle #log-panel{height:36%}
       </div>
       <div id="loc-body"></div>
     </div>
-    <div class="panel" id="log-panel">
-      <div class="phead" style="font-size:14px">冒險日誌</div>
-      <div id="log"></div>
-    </div>
-    <div class="panel" id="drop-panel">
-      <div class="phead" style="font-size:13px">🎒 拾獲的戰利品</div>
-      <div id="droplog" style="padding:6px 10px;overflow-y:auto;height:96px;font-size:13px;line-height:1.5"></div>
+    <div id="logrow">
+      <div class="panel" id="log-panel">
+        <div class="phead" style="font-size:13px">冒險日誌</div>
+        <div id="log"></div>
+      </div>
+      <div class="panel" id="drop-panel">
+        <div class="phead" style="font-size:13px">🎒 戰利品</div>
+        <div id="droplog"></div>
+      </div>
     </div>
   </div>
 
@@ -696,6 +759,41 @@ const MOB_FX={
   snow_wight:'stun',boss_gothmog2:'stun'
 };
 for(const k in MOBS){MOBS[k][10]=ELEM_MAP[k]||null;MOBS[k][11]=MOB_FX[k]||null;}
+/* ───────── 美術資產對照表（assets/ 底下的圖，畫好幾張就有幾張顯示，其餘缺圖的怪維持純文字）─────────
+   一般怪物依家族共用一張圖；首領有原創圖的用自己，其餘沿用家族圖（見美術風格化規劃書.md 第8節） */
+const MOB_ART={
+  wolf:'fam_wolf',warg:'fam_wolf',snowwolf:'fam_wolf',warg_gund:'fam_wolf',warg_alpha:'fam_wolf',wolf_saur:'fam_wolf',wolf_w:'fam_wolf',wolf_ang:'fam_wolf',
+  spider_s:'fam_spider',spider_m:'fam_spider',spider_v:'fam_spider',
+  wight:'fam_wight',snow_wight:'fam_wight',
+  ghost:'fam_ghost',smith_ghost:'fam_ghost',
+  orc_scout:'fam_goblin',goblin:'fam_goblin',gob_arch:'fam_goblin',goblin_h:'fam_goblin',goblin_g:'fam_goblin',
+  uruk:'fam_uruk',uruk_rem:'fam_uruk',orc_sold:'fam_uruk',orc_black:'fam_uruk',orc_hunt:'fam_uruk',orc_gund:'fam_uruk',orc_morgoth:'fam_uruk',orc_saur:'fam_uruk',orc_elite:'fam_uruk',orc_barad:'fam_uruk',orc_gladden:'fam_uruk',orc_mithrim:'fam_uruk',orc_ang:'fam_uruk',orc_proto:'fam_uruk',
+  nazrider:'fam_nazrider',naz_9:'fam_nazrider',
+  snowtroll:'fam_troll',cavetroll:'fam_troll',olog:'fam_troll',troll_h:'fam_troll',troll_war:'fam_troll',
+  dragon_fire:'fam_drake',drake_s:'fam_drake',dragon_w:'fam_drake',
+  balrog_s:'fam_balrog',balrog_e:'fam_balrog',
+  bat_swarm:'fam_bats',
+  bandit:'fam_human_hostile',dunland:'fam_human_hostile',haradrim:'fam_human_hostile',num_guard:'fam_human_hostile',num_priest:'fam_human_hostile',king_thrall:'fam_human_hostile',
+  willow:'fam_tree',huorn:'fam_tree',
+  demon_p:'fam_darkspirit',hunter_dark:'fam_darkspirit',shade_u:'fam_darkspirit',
+  mumakil:'mumakil',wargrider:'wargrider',
+  boss_balrog:'boss_balrog',boss_witch:'boss_witch',boss_shelob:'boss_shelob',boss_saruman:'boss_saruman',boss_sauron:'boss_sauron',boss_sauron2:'boss_sauron2',boss_smaug:'boss_smaug',
+  boss_gothmog:'boss_gothmog',boss_gothmog2:'boss_gothmog',
+  boss_ungoliant:'boss_ungoliant',boss_glaurung:'boss_glaurung',boss_ancalagon:'boss_ancalagon',boss_carcharoth:'boss_carcharoth',boss_morgoth:'boss_morgoth',boss_bolg:'boss_bolg',boss_annatar:'boss_annatar',boss_watcher:'boss_watcher',
+  boss_wight:'fam_wight',boss_naz:'fam_nazrider',boss_nazgul1:'fam_nazrider',
+  boss_lurtz:'fam_uruk',boss_uruk:'fam_uruk',boss_mouth:'fam_uruk',boss_ambush:'fam_uruk',
+  boss_deadking:'fam_ghost',boss_necroshade:'fam_ghost',
+  boss_pharazon:'fam_human_hostile',
+  boss_angmar:'fam_wight',
+  boss_troll3:'fam_troll',
+  boss_goblinking:'fam_goblin',
+  boss_spidermother:'fam_spider',
+  boss_utumno:'fam_darkspirit'
+};
+function mobArtSrc(mob){
+  const code=MOB_ART[mob.art||mob.id];
+  return code?`assets/mobs/${code}.png`:null;
+}
 /* ───────── 首領戰鬥 AI（讓首領戰不再必贏）─────────
    hl:[次數,血量門檻%,回復%]＝血量低於門檻時喝藥回血（耗一回合）
    crit:爆擊率%（1.6 倍傷害）　rage:狂暴門檻%（血量低於門檻時攻擊 +35%，一次）
@@ -888,6 +986,56 @@ const MAPS={
   m_angband:{n:'安格班 · 鐵地獄深處',ch:53,post:1,mobs:['orc_ang','dragon_w','demon_p'],boss:'boss_morgoth',d:'鐵山之下的魔王座堂。王座上戴著鐵王冠的巨大身影緩緩起身，冠上的精靈寶鑽映著爐火——魔苟斯·包格力爾，世界的黑暗大敵，一切邪惡的源頭，正握起格龍德。'},
   t_havens:{n:'灰港岸 · 米斯瀧德',town:1,ch:54,post:1,tier:5,d:'林頓灣畔的白色港口，造船者瑟丹在此守望大海已兩個紀元。碼頭盡頭泊著一艘白船，海鷗的啼聲裡混著淡淡的花香——那是從海的另一邊飄來的。'}
 };
+/* ───────── 場景美術對照表：野外／地城地圖 -> Biome 代號（assets/biomes/），城鎮直接用地點代號（assets/towns/）───────── */
+const BIOME_ART={
+  m_shire:'bi_shire', m_oldforest:'bi_oldforest', m_weathertop:'bi_ruins', m_ford:'bi_ford',
+  m_caradhras:'bi_snowpass', m_fornost:'bi_snowpass',
+  m_gate:'bi_minegate',
+  m_moria:'bi_mine', m_stair:'bi_mine',
+  m_amon:'bi_woodhill', m_fangorn:'bi_woodhill', m_trollshaw:'bi_woodhill',
+  m_rohan:'bi_grass', m_carrock:'bi_grass', m_five:'bi_grass',
+  m_helms:'bi_siege', m_isengard:'bi_siege', m_tower:'bi_siege',
+  m_paths:'bi_deadpath',
+  m_pelennor:'bi_battlefield', m_morannon:'bi_battlefield', m_barad:'bi_battlefield', m_dagorlad:'bi_battlefield', m_gladden:'bi_battlefield',
+  m_mordor:'bi_mordor',
+  m_doom:'bi_volcano',
+  m_gondolin:'bi_elfcity_fall', m_eregion:'bi_elfcity_fall', m_ninekings:'bi_elfcity_fall',
+  m_numenor:'bi_islandfall',
+  m_goblintown:'bi_goblincave', m_gollumcave:'bi_goblincave', m_dolguldur:'bi_goblincave', m_dolout:'bi_goblincave',
+  m_mirkwood:'bi_mirkwood',
+  m_erebor:'bi_erebor',
+  m_lamps:'bi_ancient', m_utumno:'bi_ancient', m_cuivienen:'bi_ancient', m_march:'bi_ancient',
+  m_ezellohar:'bi_treeshill',
+  m_mithrim:'bi_starwar', m_bragollach:'bi_starwar', m_angbandgate:'bi_starwar', m_nirnaeth:'bi_starwar', m_nargothrond:'bi_starwar', m_warwrath:'bi_starwar', m_angband:'bi_starwar'
+};
+function setLocBg(){
+  const m=MAPS[S.loc],panel=$('loc-panel');
+  if(!panel)return;
+  const src=m.town?`assets/towns/${S.loc}.png`:(BIOME_ART[S.loc]?`assets/biomes/${BIOME_ART[S.loc]}.png`:null);
+  panel.style.backgroundImage=src?`linear-gradient(rgba(13,15,18,.42),rgba(13,15,18,.68)), url('${src}')`:'';
+  panel.style.backgroundSize='cover';
+  panel.style.backgroundPosition='center';
+}
+/* ───────── 城鎮場景熱點：對照 assets/towns/ 全景圖內建築位置的百分比座標 [功能,x%,y%]
+   'row'＝該圖為純風景（瑞文戴爾/羅斯洛立安/伊多拉斯），改在場景底部排一排標記 ───────── */
+const TOWN_SPOTS={
+  t_hobbiton:[['inn',13,58],['shop',37,60],['craft',57,57],['bounty',73,58],['gandalf',89,58]],
+  t_bree:[['inn',14,50],['shop',38,60],['craft',56,55],['bounty',76,60],['gandalf',92,55]],
+  t_minas:[['inn',12,55],['shop',36,72],['craft',63,65],['bounty',76,70],['gandalf',91,70]],
+  t_gate:[['inn',12,50],['shop',34,60],['craft',61,55],['bounty',77,60],['gandalf',93,65]],
+  t_laketown:[['inn',11,40],['shop',35,47],['craft',57,42],['bounty',73,47],['gandalf',89,47]],
+  t_valinor:[['inn',16,65],['shop',38,74],['craft',57,72],['bounty',71,75],['gandalf',87,77]],
+  t_havens:[['inn',13,50],['shop',30,63],['craft',44,52],['bounty',72,68],['gandalf',90,70]],
+  t_rivendell:'row',t_lorien:'row',t_edoras:'row'
+};
+const SPOT_DEF={
+  inn:{ic:'🛏',n:'旅店',fn:'openInn()'},
+  shop:{ic:'🛒',n:'商店',fn:'openShop()'},
+  craft:{ic:'🔨',n:'工房',fn:'openCraft()'},
+  bounty:{ic:'📜',n:'懸賞板',fn:'openBounty()'},
+  gandalf:{ic:'🧙',n:'附魔',fn:'openGandalf()'}
+};
+function elemIc(el){return el?`<img class="px-ico" src="assets/ui/elem_${el}.png" alt="${ELEMS[el].n}" title="${ELEMS[el].n}屬性" onerror="this.outerHTML='${ELEMS[el].ic}'">`:''}
 /* ───────── 主線章節（21 章，依原著路線） ───────── */
 const QUESTS=[
  {t:'第一章 · 夏爾告急',area:'m_shire',kill:8,unlock:'老林子與古墓崗',
@@ -1235,8 +1383,9 @@ function uiCreate(){
   crRace=null;crPts=10;crBase=null;
   const rl=$('race-list');rl.innerHTML='';
   for(const k in RACES){const b=document.createElement('button');b.className='race-btn';b.id='rb-'+k;
-    b.innerHTML=`<b>${RACES[k].n}</b>`;b.onclick=()=>selRace(k);rl.appendChild(b);}
+    b.innerHTML=`<img class="race-thumb" src="assets/races/${k}.png" alt="" onerror="this.style.display='none'"><b>${RACES[k].n}</b>`;b.onclick=()=>selRace(k);rl.appendChild(b);}
   $('race-desc').textContent='請先選擇種族。';$('cr-stats').innerHTML='';$('cr-pts').textContent='10';
+  $('race-portrait').style.display='none';
 }
 function selRace(k){
   crRace=k;crBase={...RACES[k].stats};crPts=10;
@@ -1245,6 +1394,8 @@ function selRace(k){
   const st=RACES[k].stats;
   $('race-desc').innerHTML=`${RACES[k].d}<hr class="divider">基礎：力量 ${st.str}／敏捷 ${st.dex}／體質 ${st.con}／智力 ${st.int}／精神 ${st.wis}`;
   renderCrStats();
+  const port=$('race-portrait');port.src=`assets/races/${k}.png`;port.style.display='block';
+  port.onerror=()=>{port.style.display='none'};
 }
 const STAT_N={str:'力量',dex:'敏捷',con:'體質',int:'智力',wis:'精神'};
 function renderCrStats(){
@@ -1593,6 +1744,8 @@ function renderStatus(){
   if(S.hp>d.maxHp)S.hp=d.maxHp; if(S.mp>d.maxMp)S.mp=d.maxMp;
   $('st-name').textContent=S.name;
   $('st-race').textContent='Lv.'+S.lv+' '+RACES[S.race].n.split('（')[0]+(S.ng?'｜'+(S.ng+1)+'週目':'');
+  const cp=$('char-portrait'),wantSrc=`assets/races/${S.race}.png`;
+  if(cp&&!(cp.src||'').endsWith(wantSrc)){cp.src=wantSrc;cp.style.display='block';cp.onerror=()=>{cp.style.display='none'};}
   $('st-lv').textContent=S.lv;$('st-atk').textContent=d.atk;$('st-def').textContent=d.def;
   $('st-gold').textContent=fmtN(S.gold);$('st-cor').textContent=S.cor+' / 100';
   $('st-pvp').textContent=S.pvp+' 勝';
@@ -1736,9 +1889,9 @@ function goNearestTown(){
 }
 function questBox(){
   const q=QUESTS[S.ch];
-  if(!q)return `<div class="hint" style="background:#141a14;border:1px solid #2c3a2c;border-radius:6px;padding:8px 12px;margin-bottom:10px">★ 主線與三段外傳全數完成——【時光行者】【五軍的英雄】【遠古的傳奇】自由冒險中（烏塔莫無盡深淵、三塔制霸、成就收集、二週目輪迴等著你）。</div>`;
+  if(!q)return `<div class="hint questbox" style="background:#141a14;border:1px solid #2c3a2c;border-radius:6px;padding:8px 12px;margin-bottom:10px">★ 主線與三段外傳全數完成——【時光行者】【五軍的英雄】【遠古的傳奇】自由冒險中（烏塔莫無盡深淵、三塔制霸、成就收集、二週目輪迴等著你）。</div>`;
   const p=q.kill?`　<b class="gold">${S.kills}/${q.kill}</b>`:'';
-  return `<div style="background:#141a14;border:1px solid #2c3a2c;border-radius:6px;padding:8px 12px;margin-bottom:10px;font-size:13px;line-height:1.7">
+  return `<div class="questbox" style="background:#141a14;border:1px solid #2c3a2c;border-radius:6px;padding:8px 12px;margin-bottom:10px;font-size:13px;line-height:1.7">
     📜 <span class="gold">${q.t}</span>${p}<br><span class="dim">${q.d}</span></div>`;
 }
 function renderLoc(){
@@ -1746,22 +1899,30 @@ function renderLoc(){
   $('loc-name').textContent=m.n;
   const box=$('loc-body');
   document.body.classList.toggle('in-battle',!!battle);
+  document.body.classList.toggle('in-town',!battle&&!!m.town);
+  setLocBg();
   if(battle){renderBattle();return}
   let h=questBox()+`<div class="storybox">${m.d}</div>`;
   if(m.town){
-    h+=`<div class="actions">
-      <button class="gold" onclick="openShop()">🛒 商店</button>
-      <button onclick="restInn()">🛏 旅店休息（免費）</button>
-      <button onclick="recruit()">🍺 旅店招募夥伴（${S.comps.length?800:'首次優惠 300'} 金）</button>
-      <button onclick="openCraft()">🔨 工房合成</button>
-      <button onclick="openGandalf()">🧙 甘道夫的附魔（正義種子）</button>
-      <button onclick="openBounty()">📜 懸賞板${S.bounties&&S.bounties.some(b=>b.done>=b.need)?'<span class="gold">（可領賞！）</span>':''}</button>`;
-    if(S.ringGone)h+=`<button class="purple" style="border-color:var(--purple)" onclick="uiNG()">⏳ 新的輪迴（開啟 ${(S.ng||0)+2} 週目）</button>`;
-    if(S.loc==='t_gate'&&S.ch>=QUESTS.length)h+=`<button class="gold" style="border-color:var(--gold)" onclick="openRush()">⚔ 傳說的迴廊（首領連戰${S.rushBest?`·最佳 ${S.rushBest}/32`:''}）</button>`;
+    /* 城鎮全景場景＋可點建築熱點；旅店＝休息/招募合一（openInn 子選單） */
+    const spots=TOWN_SPOTS[S.loc]||'row';
+    const claimable=S.bounties&&S.bounties.some(b=>b.done>=b.need);
+    const spotBtn=(k,pos)=>{
+      const sd=SPOT_DEF[k];
+      const extra=(k==='bounty'&&claimable)?'<span class="gold flash">！</span>':'';
+      return `<button class="spot${(k==='bounty'&&claimable)?' flash':''}" ${pos?`style="left:${pos[0]}%;top:${pos[1]}%"`:''} onclick="${sd.fn}" title="${sd.n}">${sd.ic} ${sd.n}${extra}</button>`;
+    };
+    h+=`<div class="town-stage"><div class="town-scene" style="background-image:url('assets/towns/${S.loc}.png')">`;
+    if(Array.isArray(spots))h+=spots.map(sp=>spotBtn(sp[0],[sp[1],sp[2]])).join('');
+    else h+=`<div class="spot-row">${Object.keys(SPOT_DEF).map(k=>spotBtn(k,null)).join('')}</div>`;
+    h+=`</div></div>`;
+    let sp='';
+    if(S.ringGone)sp+=`<button class="purple" style="border-color:var(--purple)" onclick="uiNG()">⏳ 新的輪迴（開啟 ${(S.ng||0)+2} 週目）</button>`;
+    if(S.loc==='t_gate'&&S.ch>=QUESTS.length)sp+=`<button class="gold" style="border-color:var(--gold)" onclick="openRush()">⚔ 傳說的迴廊（首領連戰${S.rushBest?`·最佳 ${S.rushBest}/32`:''}）</button>`;
     const vq=QUESTS[S.ch];
-    if(vq&&vq.visit===S.loc)h+=`<button class="gold flash" onclick="visitEvent()">${vq.btn}</button>`;
-    h+=`</div>`;
-    h+=`<div class="hint" style="margin-top:12px">城鎮內不會遭遇敵人。裝備強化卷軸可於商店購買。</div>`;
+    if(vq&&vq.visit===S.loc)sp+=`<button class="gold flash" onclick="visitEvent()">${vq.btn}</button>`;
+    if(sp)h+=`<div class="actions" style="margin-top:8px">${sp}</div>`;
+    h+=`<div class="hint" style="margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">點擊場景中的建築互動（旅店＝休息／招募）；城鎮內不會遭遇敵人。</div>`;
   }else if(m.tower){
     const cl=S.tw[S.loc]||0;
     if(m.endless){
@@ -1794,6 +1955,15 @@ function renderLoc(){
   box.innerHTML=h;
 }
 function bossDone(id){return S['bd_'+id]===1}
+/* 旅店熱點：休息與招募合在同一棟建築，點擊後彈出子選單 */
+function openInn(){
+  openModal(`<h3 style="font-size:19px">🛏 旅店</h3>
+  <div class="dim" style="margin:8px 0 14px">爐火劈啪作響，麥酒香混著燉肉的味道。掌櫃朝你點了點頭。</div>
+  <div class="actions" style="margin-top:0;flex-direction:column;align-items:stretch">
+    <button class="green" style="border-color:var(--green)" onclick="restInn();closeModal()">🛏 休息（免費，HP／MP 完全恢復）</button>
+    <button onclick="closeModal();recruit()">🍺 在酒堂招募夥伴（${S.comps.length?800:'首次優惠 300'} 金幣）</button>
+  </div>`);
+}
 function restInn(){const d=derive();S.hp=d.maxHp;S.mp=d.maxMp;healComp();renderStatus();renderComp();log('<span class="green">你與夥伴睡了個好覺，完全恢復。</span>')}
 function visitEvent(){
   const q=QUESTS[S.ch];
@@ -1906,11 +2076,12 @@ function challengeBoss(){
 function towerFloor(mk){const f=(S.tw[mk]||0)+1;return MAPS[mk].endless?f:Math.min(f,100)}
 function towerMob(mk,floor,atkMult){
   const map=MAPS[mk];
-  const b=MOBS[map.pool[R(0,map.pool.length-1)]];
+  const pk=map.pool[R(0,map.pool.length-1)];
+  const b=MOBS[pk];
   const lord=floor%10===0;
   atkMult=atkMult||1;
   const lv=map.baseLv+Math.floor(floor*0.35);   // 樓層等級：以此推算全部數值，曲線平滑
-  const mob={id:'tower',n:(lord?'☠ 第'+floor+'層樓主 · ':'第'+floor+'層 · ')+b[0],lv,
+  const mob={id:'tower',art:pk,n:(lord?'☠ 第'+floor+'層樓主 · ':'第'+floor+'層 · ')+b[0],lv,
     maxHp:Math.floor(lv*lv*0.9*(lord?2.2:1)),hp:0,
     atk:Math.floor(lv*2.4*(lord?1.2:1)),
     def:Math.floor(lv*0.8),
@@ -2012,48 +2183,55 @@ function battleHelp(){
 function battleCompHtml(){
   const cs=compStats();
   if(!cs)return '';
-  return `<div class="row" style="align-items:center;gap:6px;margin-bottom:8px;font-size:12px">
+  return `<div class="battle-comp">
     <span class="dim" style="white-space:nowrap">${cs.n}${S.compHp<=0?'（倒下）':''}</span>
     <span class="bar" id="battle-comp-bar" style="flex:1;height:10px"><div style="background:#3f7a4f;width:${Math.max(0,100*S.compHp/cs.maxHp)}%"></div></span>
     <span class="dim" id="battle-comp-txt" style="white-space:nowrap">${S.compHp} / ${cs.maxHp}</span>
   </div>`;
 }
+function battlePlayerHtml(){
+  const d=derive();
+  return `<div class="battle-player">
+    <div class="pn">Lv.${S.lv} ${esc(S.name)}（${RACES[S.race].n.split('（')[0]}）</div>
+    <div class="bar bar-fx" id="battle-hp" style="height:17px;border-width:3px 7px"><div style="background:#a03030;width:${Math.max(0,100*S.hp/d.maxHp)}%"></div><span style="line-height:11px;font-size:10px">HP ${Math.round(S.hp)} / ${d.maxHp}</span></div>
+    <div class="bar bar-fx mp" id="battle-mp" style="height:17px;border-width:3px 7px"><div style="background:#2f4f8f;width:${Math.max(0,100*S.mp/d.maxMp)}%"></div><span style="line-height:11px;font-size:10px">MP ${Math.round(S.mp)} / ${d.maxMp}</span></div>
+  </div>`;
+}
 function renderBattle(){
   curTarget();
-  /* 主行動列（攻擊＋技能）：黏在面板頂端，捲動中也點得到 */
+  /* 舞台層：主角資訊卡（左上）＋站位列（主角立繪靠左、怪物卡靠右，腳踩背景地平線＝約圖高下半）
+     ＋夥伴血條（主角左下方）。1隻或5隻怪都用同一種固定尺寸血條卡片（避免戰鬥間版面忽大忽小） */
+  let h=`<div class="battle-stage">${battlePlayerHtml()}<div class="battle-ground">`;
+  h+=`<img class="battle-hero" src="assets/races/${S.race}.png" alt="" onerror="this.remove()">`;
+  battle.mobs.forEach((mob,i)=>{
+    const dead=mob.hp<=0, isT=(i===battle.tgt&&!dead);
+    const elTag=elemIc(mob.el);
+    const fxTag=mob.fx==='poison'?'<span class="purple" title="攻擊 25% 使你中毒">☠</span>':(mob.fx==='stun'?'<span class="purple" title="攻擊 25% 使你暈眩">💫</span>':'');
+    const art=mobArtSrc(mob);
+    const artTag=art?`<img class="mob-art" src="${art}" alt="" onerror="this.remove()">`:'';
+    h+=`<div class="mob-chip${isT?' target':''}" style="${dead?'opacity:.35;':''}" onclick="setTarget(${i})">
+      ${isT?'<img class="target-mark" src="assets/ui/target_marker.png" alt="" onerror="this.remove()">':''}
+      ${artTag}
+      <div class="mn"><b>${elTag}${mob.n}</b><span>Lv.${mob.lv}${fxTag}</span></div>
+      <div class="mst" id="mobst-${i}">${mobStHtml(mob,dead)}</div>`+
+      (dead?'':`<div class="bar" id="mobhp-${i}">${mobBarHtml(mob)}</div>`)+
+    `</div>`;
+  });
+  h+=`</div>${battleCompHtml()}</div>`;
+  /* 底部固定操作列：主行動（攻擊＋技能）在上、次要行動（藥水／魔戒／逃跑）在下 */
   const atkRdy=battle.pCd<=0&&battle.pStun<=0;
-  let h=`<div class="actions battle-actions">
-    <button class="gold" id="btn-atk" onclick="pAttack()" ${atkRdy?'':'disabled'}>${battle.pStun>0?'💫 暈眩':(atkRdy?'⚔ 攻擊':`⚔ ${(battle.pCd/10).toFixed(1)}s`)}</button>`;
+  h+=`<div class="battle-bottom"><div class="actions battle-actions">
+    <button class="gold" id="btn-atk" onclick="pAttack()" ${atkRdy?'':'disabled'}><img class="px-ico" src="assets/ui/icon_atk.png" alt="" onerror="this.remove()"><span id="btn-atk-t">${battle.pStun>0?'💫 暈眩':(atkRdy?'攻擊':`${(battle.pCd/10).toFixed(1)}s`)}</span></button>`;
   for(const id in SKILLS){const sk=SKILLS[id];
     if(sk.race!==S.race||S.lv<sk.lv)continue;
     const cd=Math.max(battle.gcd,battle.skCd[id]||0);
     h+=`<button id="btn-sk-${id}" onclick="castSkill('${id}')" ${(S.mp<sk.mp||cd>0)?'disabled':''} title="${esc(sk.d)}（冷卻 ${sk.cd} 秒）">${sk.aoe?'💥':''}${sk.n}<span class="dim">(${cd>0?(cd/10).toFixed(0)+'s':sk.mp})</span></button>`;}
   h+=`<button onclick="battleHelp()" title="戰鬥說明" style="min-width:auto;padding:5px 12px">❓</button></div>`;
-  /* 次要行動列（藥水／魔戒／逃跑）：權重較低、不黏頂，避免跟攻擊技能搶視覺焦點 */
   const heal=bestHeal();
   h+=`<div class="actions battle-actions-util">`;
-  if(heal>=0)h+=`<button id="btn-pot" onclick="useIt(${heal},true)" ${battle.potCd>0?'disabled':''}>🧪 ${ITEMS[S.inv[heal].id].n}</button>`;
-  if(S.inv.some(x=>x.id==='ring_one'))h+=`<button class="purple" style="border-color:var(--purple)" onclick="useRing()">💍 戴上魔戒</button>`;
-  h+=`<button id="btn-flee" onclick="tryFlee()" ${battle.fleeCd>0?'disabled':''}>🏃 逃跑</button></div>`;
-  h+=battleCompHtml();
-  /* 敵人區：單一目標時放大顯示（血條/字級加大），多隻時維持密集格線 */
-  const single=battle.mobs.length===1;
-  h+=`<div id="mob-zone" style="display:grid;grid-template-columns:${single?'1fr':'repeat(auto-fill,minmax(180px,1fr))'};gap:6px;min-height:${single?'0':'170px'};align-content:start">`;
-  battle.mobs.forEach((mob,i)=>{
-    const dead=mob.hp<=0, isT=(i===battle.tgt&&!dead);
-    const elTag=mob.el?`<span title="${ELEMS[mob.el].n}屬性">${ELEMS[mob.el].ic}</span> `:'';
-    const fxTag=mob.fx==='poison'?' <span class="purple" title="攻擊 25% 使你中毒">☠</span>':(mob.fx==='stun'?' <span class="purple" title="攻擊 25% 使你暈眩">💫</span>':'');
-    h+=single?`<div class="mobcard mobcard-big" style="cursor:pointer;${dead?'opacity:.35;':''}" onclick="setTarget(${i})">
-      <div style="display:flex;justify-content:space-between;align-items:baseline"><b class="red" style="font-size:17px">${elTag}${mob.n}</b><span class="dim">Lv.${mob.lv}</span></div>
-      <div style="font-size:13px;min-height:18px;margin:4px 0" id="mobst-${i}">${mobStHtml(mob,dead)}${fxTag}</div>`+
-      (dead?'':`<div class="bar" style="height:20px" id="mobhp-${i}">${mobBarHtml(mob)}</div>`)+
-    `</div>`:`<div class="mobcard" style="margin:0;padding:7px 10px;cursor:pointer;min-height:66px;${dead?'opacity:.35;':''}${isT?'border-color:var(--gold);':''}" onclick="setTarget(${i})">
-      <div style="display:flex;justify-content:space-between;gap:4px;font-size:13px"><b class="red">${isT?'▶ ':''}${elTag}${mob.n}</b><span class="dim" style="white-space:nowrap">Lv.${mob.lv}${fxTag}</span></div>
-      <div style="font-size:11px;min-height:14px" id="mobst-${i}">${mobStHtml(mob,dead)}</div>`+
-      (dead?'':`<div class="bar" style="margin-top:3px;height:13px" id="mobhp-${i}">${mobBarHtml(mob)}</div>`)+
-    `</div>`;
-  });
-  h+=`</div>`;
+  if(heal>=0)h+=`<button id="btn-pot" onclick="useIt(${heal},true)" ${battle.potCd>0?'disabled':''}><img class="px-ico" src="assets/ui/icon_potion.png" alt="" onerror="this.outerHTML='🧪 '">${ITEMS[S.inv[heal].id].n}</button>`;
+  if(S.inv.some(x=>x.id==='ring_one'))h+=`<button class="purple" style="border-color:var(--purple)" onclick="useRing()"><img class="px-ico" src="assets/ui/icon_ring.png" alt="" onerror="this.outerHTML='💍 '">戴上魔戒</button>`;
+  h+=`<button id="btn-flee" onclick="tryFlee()" ${battle.fleeCd>0?'disabled':''}><img class="px-ico" src="assets/ui/icon_flee.png" alt="" onerror="this.outerHTML='🏃 '">逃跑</button></div></div>`;
   $('loc-body').innerHTML=h;
 }
 /* 輕量重繪（每 0.2 秒）：只更新血條/狀態/按鈕冷卻，不重建整個戰場 DOM */
@@ -2070,7 +2248,9 @@ function renderBattleDyn(){
   if(ab){
     const rdy=battle.pCd<=0&&battle.pStun<=0;
     ab.disabled=!rdy;
-    ab.textContent=battle.pStun>0?'💫 暈眩':(rdy?'⚔ 攻擊':`⚔ ${(battle.pCd/10).toFixed(1)}s`);
+    const abt=$('btn-atk-t');   /* 只改文字 span，保留按鈕內的像素圖示 */
+    const txt=battle.pStun>0?'💫 暈眩':(rdy?'攻擊':`${(battle.pCd/10).toFixed(1)}s`);
+    if(abt)abt.textContent=txt;else ab.textContent='⚔ '+txt;
   }
   for(const id in SKILLS){
     const btn=$('btn-sk-'+id);if(!btn)continue;
@@ -2082,6 +2262,10 @@ function renderBattleDyn(){
   }
   const pb=$('btn-pot');if(pb)pb.disabled=battle.potCd>0;
   const fb=$('btn-flee');if(fb)fb.disabled=battle.fleeCd>0;
+  const d=derive();
+  const bhp=$('battle-hp'),bmp=$('battle-mp');
+  if(bhp&&bhp.firstElementChild){bhp.firstElementChild.style.width=Math.max(0,100*S.hp/d.maxHp)+'%';bhp.lastElementChild.textContent=`HP ${Math.round(S.hp)} / ${d.maxHp}`;}
+  if(bmp&&bmp.firstElementChild){bmp.firstElementChild.style.width=Math.max(0,100*S.mp/d.maxMp)+'%';bmp.lastElementChild.textContent=`MP ${Math.round(S.mp)} / ${d.maxMp}`;}
   const cs=compStats();
   if(cs){
     const cbar=$('battle-comp-bar'),ctxt=$('battle-comp-txt');
@@ -2189,17 +2373,19 @@ function useRing(){
   if(!S.inv.some(x=>x.id==='ring_one'))return;
   const add=R(8,15);S.cor+=add;
   log(`<span class="purple">你戴上了至尊魔戒——世界化為灰白的影子，敵人的目光穿過了你。（腐化 +${add}）</span>`);
-  if(battle){battle=null;playBgm('town');log('<span class="purple">你悄然離開了戰場。</span>');}
+  const wasInBattle=!!battle;
+  if(battle){battle=null;log('<span class="purple">你悄然離開了戰場。</span>');}
   if(S.cor>=100){
     S.cor=50;S.hp=1;S.gold=Math.floor(S.gold*0.8);
     log('<span class="red">═══ 腐化爆發！═══</span>');
     log('<span class="red">戒靈的尖嘯貫穿了你的腦海——「我們看見你了。」你在陰影世界中被冰冷的劍刃刺穿，掙扎著醒來時已遍體鱗傷（HP 剩 1、金幣損失兩成）。</span>');
   }
-  renderAll();renderLoc();
+  renderAll();
+  if(!(wasInBattle&&tryAutoContinue())){if(wasInBattle)playBgm('town');renderLoc();}
 }
 function tryFlee(){
   if(!battle||battle.fleeCd>0)return;
-  if(R(1,100)<=60){log('<span class="dim">你成功脫離了戰鬥。</span>');battle=null;playBgm('town');renderLoc();renderStatus();}
+  if(R(1,100)<=60){log('<span class="dim">你成功脫離了戰鬥。</span>');battle=null;if(!tryAutoContinue()){playBgm('town');renderLoc();}renderStatus();}
   else{log('<span class="red">逃跑失敗！敵人纏了上來（5 秒內無法再逃）。</span>');battle.fleeCd=50;}
 }
 /* ── 夥伴行動（每 2 秒一動）── */
@@ -2440,8 +2626,9 @@ function winBattle(){
     if(S.kills>=q.kill)advanceChapter();
   }
   battle=null;
-  playBgm('town');
-  renderAll();renderLoc();autoSave();
+  renderAll();
+  if(!tryAutoContinue()){playBgm('town');renderLoc();}
+  autoSave();
   netSnap();
 }
 function gainExp(v){
@@ -2835,10 +3022,11 @@ function openCodex(kind){
     for(const id in MOBS){const m=MOBS[id];
       const habitats=Object.keys(MAPS).filter(k=>(MAPS[k].mobs&&MAPS[k].mobs.includes(id))||MAPS[k].boss===id).map(k=>MAPS[k].n);
       const drops=m[7].map(d=>`${ITEMS[d[0]].n} ${d[1]}%`).join('、');
-      const elT=m[10]?ELEMS[m[10]].ic+ELEMS[m[10]].n+'屬性':'無屬性';
+      const elT=m[10]?elemIc(m[10])+ELEMS[m[10]].n+'屬性':'無屬性';
       const fxT=m[11]==='poison'?'／☠攻擊帶毒':(m[11]==='stun'?'／💫攻擊帶暈':'');
-      h+=`<div style="padding:6px 0;border-bottom:1px solid #20242e">
-        <b class="${m[9]?'red':''}">${m[9]?'☠ ':''}${m[10]?ELEMS[m[10]].ic+' ':''}${m[0]}</b> <span class="dim">Lv.${m[1]}　${elT}${fxT}</span><br>
+      const cdxArt=MOB_ART[id]?`<img src="assets/mobs/${MOB_ART[id]}.png" alt="" onerror="this.remove()" style="float:right;width:52px;height:52px;object-fit:contain;image-rendering:pixelated;margin-left:8px">`:'';
+      h+=`<div style="padding:6px 0;border-bottom:1px solid #20242e;overflow:hidden">${cdxArt}
+        <b class="${m[9]?'red':''}">${m[9]?'☠ ':''}${elemIc(m[10])}${m[0]}</b> <span class="dim">Lv.${m[1]}　${elT}${fxT}</span><br>
         <span class="hint">HP ${m[2]}／攻 ${m[3]}／防 ${m[4]}／經驗 ${m[5]}／金幣 ${m[6]}${m[8]?'／半獸人類':''}<br>
         出沒：${habitats.join('、')||'—'}<br>掉落：${drops||'—'}</span></div>`;
     }
@@ -3162,6 +3350,18 @@ function autoRestock(){
     log(`<span class="dim">（自動補貨）購入【${ITEMS[id].n}】×${need}，花費 ${cost} 金幣。</span>`);
   }
 }
+/* 掛機續戰判斷：戰鬥剛結束時同步呼叫，該續戰就直接開新戰鬥（startBattle 內會自己 renderLoc），
+   跳過「先切回探索畫面、下一 tick 才切回戰鬥畫面」這中間一次重繪──閃屏/跳格的根源。
+   回傳 true 代表已經開了新戰鬥（呼叫端不用再自己 renderLoc/playBgm('town')）。 */
+function tryAutoContinue(){
+  if(battle||!$('auto-battle').checked)return false;
+  const d=derive();
+  if(S.hp<=d.maxHp*0.55)return false;
+  const m=MAPS[S.loc];
+  if(m.tower){towerChallenge();return true}
+  if(m.mobs){explore();return true}
+  return false;
+}
 function gameTick(){
   checkOffline();
   if(++saveTicker%75===0)autoSave();   // 定期存檔，讓離線時間戳保持最新
@@ -3185,11 +3385,7 @@ function gameTick(){
     if(cs&&S.compHp>0&&S.compHp<cs.maxHp){S.compHp=Math.min(cs.maxHp,S.compHp+Math.max(2,Math.floor(cs.maxHp*0.05)));renderComp();}
     if($('auto-battle').checked){
       if($('auto-potion').checked&&S.hp<d.maxHp*0.6){const i=bestHeal();if(i>=0)useIt(i,false);}
-      if(S.hp>d.maxHp*0.55){
-        const m=MAPS[S.loc];
-        if(m.tower)towerChallenge();
-        else if(m.mobs)explore();
-      }
+      tryAutoContinue();
     }
   }
 }
