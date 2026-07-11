@@ -93,6 +93,8 @@ body.in-battle #loc-body{display:flex;flex-direction:column}
 .battle-player{position:absolute;top:8px;left:8px;z-index:2;background:rgba(15,17,21,.62);border:1px solid var(--line);border-radius:8px;padding:5px 8px;max-width:210px;backdrop-filter:blur(2px)}
 /* 夥伴血條：主角立繪左下方（舞台左下角） */
 .battle-comp{position:absolute;left:10px;bottom:6px;z-index:2;width:232px;max-width:60%;display:flex;align-items:center;gap:6px;font-size:12px;background:rgba(15,17,21,.62);border:1px solid var(--line);border-radius:6px;padding:4px 8px;backdrop-filter:blur(2px)}
+/* 夥伴頭像：全身立繪裁切頭胸部位 */
+.comp-art{object-fit:cover;object-position:top center;border:1px solid var(--line);border-radius:6px;background:#0a0c10;flex-shrink:0}
 .battle-player .pn{font-size:12px;color:var(--gold);font-weight:700;margin-bottom:3px;white-space:nowrap}
 .battle-player .bar{height:11px;margin-top:3px}
 /* 像素小圖示（屬性/行動按鈕）：內縮對齊文字基線 */
@@ -2206,6 +2208,7 @@ function battleCompHtml(){
   const cs=compStats();
   if(!cs)return '';
   return `<div class="battle-comp">
+    <img class="comp-art" src="assets/companions/${S.comp}.png" alt="" onerror="this.remove()" style="width:24px;height:24px">
     <span class="dim" style="white-space:nowrap">${cs.n}${S.compHp<=0?'（倒下）':''}</span>
     <span class="bar" id="battle-comp-bar" style="flex:1;height:10px"><div style="background:#3f7a4f;width:${Math.max(0,100*S.compHp/cs.maxHp)}%"></div></span>
     <span class="dim" id="battle-comp-txt" style="white-space:nowrap">${S.compHp} / ${cs.maxHp}</span>
@@ -2915,6 +2918,13 @@ function recruit(){
     log(`<span class="gold">☆ ${COMP_TIER[tier].n}夥伴【${c.n}】Lv.${S.compLv[id]} 加入了你的名冊！（${COMP_ROLE[c.role]}）</span>`);
     log(`<span class="dim">${c.d}</span>`);
     if(!S.comp){S.comp=id;S.compHp=compStats().maxHp;}
+    /* 立繪揭曉：招募是手動操作，彈窗展示新夥伴 */
+    openModal(`<div style="text-align:center">
+      <img src="assets/companions/${id}.png" alt="" onerror="this.remove()" style="max-width:220px;max-height:280px;object-fit:contain;border:1px solid var(--gold);border-radius:8px;background:#0a0c10;margin-bottom:10px">
+      <h3 style="font-size:19px" class="${tier==='high'?'gold':''}">☆ ${c.n} 加入了！</h3>
+      <div class="dim" style="margin:6px 0">${COMP_TIER[tier].n}夥伴　Lv.${S.compLv[id]}　${COMP_ROLE[c.role]}</div>
+      <div class="hint" style="max-width:360px;margin:0 auto">${c.d}</div>
+    </div>`);
   }
   renderAll();autoSave();
 }
@@ -2933,7 +2943,8 @@ function openCompList(){
   if(!S.comps.length)h+='<div class="dim">還沒有任何夥伴。到任何城鎮點「旅店招募夥伴」碰碰運氣吧。</div>';
   for(const id of S.comps){
     const c=COMPS[id];
-    h+=`<div class="inv-row"><span><b class="${c.tier==='high'?'gold':(c.tier==='mid'?'blue':'')}">${c.n}</b> <span class="dim">Lv.${compLvOf(id)}　${COMP_TIER[c.tier].n}·${COMP_ROLE[c.role]}</span><br><span class="hint">${c.d}</span></span>
+    h+=`<div class="inv-row" style="align-items:center;gap:8px"><img class="comp-art" src="assets/companions/${id}.png" alt="" onerror="this.remove()" style="width:44px;height:56px">
+      <span style="flex:1"><b class="${c.tier==='high'?'gold':(c.tier==='mid'?'blue':'')}">${c.n}</b> <span class="dim">Lv.${compLvOf(id)}　${COMP_TIER[c.tier].n}·${COMP_ROLE[c.role]}</span><br><span class="hint">${c.d}</span></span>
       <span class="btns">${S.comp===id?'<span class="gold">隨行中</span>':`<button onclick="setComp('${id}')">出戰</button>`}</span></div>`;
   }
   if(S.comp)h+=`<div style="margin-top:10px"><button class="danger" onclick="setComp(null)">讓夥伴留守（單獨行動）</button></div>`;
@@ -2944,9 +2955,14 @@ function renderComp(){
   const cs=compStats();
   if(!cs){box.innerHTML='<div class="hint">尚無隨行夥伴。到城鎮的旅店可以招募——村民、遊俠，甚至傳說中的英雄都可能遇到。</div><button style="width:100%;margin-top:6px" onclick="openCompList()">夥伴名冊</button>';return}
   if(S.compHp>cs.maxHp)S.compHp=cs.maxHp;
-  box.innerHTML=`<div class="row"><b class="${COMPS[S.comp].tier==='high'?'gold':''}">${cs.n}</b><span class="dim">Lv.${cs.lv}　${COMP_ROLE[cs.role]}</span></div>
-  <div class="bar" style="margin:5px 0"><div style="background:#3f7a4f;width:${Math.max(0,100*S.compHp/cs.maxHp)}%"></div><span>HP ${S.compHp} / ${cs.maxHp}</span></div>
-  <div class="hint">攻 ${cs.atk}／防 ${cs.def}${cs.role==='heal'?'／每回合治療 '+cs.heal:''}　<span class="dim">EXP ${Math.floor(100*(S.compXp[S.comp]||0)/expNeed(cs.lv))}%</span>${S.compHp<=0?'　<span class="red">（已倒下，回城可恢復）</span>':''}</div>
+  box.innerHTML=`<div style="display:flex;gap:10px;align-items:flex-start">
+    <img class="comp-art" src="assets/companions/${S.comp}.png" alt="" onerror="this.remove()" style="width:58px;height:74px">
+    <div style="flex:1;min-width:0">
+      <div class="row"><b class="${COMPS[S.comp].tier==='high'?'gold':''}">${cs.n}</b><span class="dim">Lv.${cs.lv}　${COMP_ROLE[cs.role]}</span></div>
+      <div class="bar" style="margin:5px 0"><div style="background:#3f7a4f;width:${Math.max(0,100*S.compHp/cs.maxHp)}%"></div><span>HP ${S.compHp} / ${cs.maxHp}</span></div>
+      <div class="hint">攻 ${cs.atk}／防 ${cs.def}${cs.role==='heal'?'／每回合治療 '+cs.heal:''}　<span class="dim">EXP ${Math.floor(100*(S.compXp[S.comp]||0)/expNeed(cs.lv))}%</span>${S.compHp<=0?'　<span class="red">（已倒下，回城可恢復）</span>':''}</div>
+    </div>
+  </div>
   <button style="width:100%;margin-top:6px" onclick="openCompList()">夥伴名冊／更換</button>`;
 }
 function healComp(){const cs=compStats();if(cs)S.compHp=cs.maxHp;}
