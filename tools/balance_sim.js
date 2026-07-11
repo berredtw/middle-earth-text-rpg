@@ -11,7 +11,8 @@ function fakeEl(id){ const el={id,style:{},_html:'',textContent:'',value:'',chec
   return el; }
 const els=new Map();
 const document={getElementById(id){if(!els.has(id))els.set(id,fakeEl(id));return els.get(id)},
-  createElement(){return fakeEl('x'+Math.random())},querySelectorAll(){return[]},querySelector(){return null}};
+  createElement(){return fakeEl('x'+Math.random())},querySelectorAll(){return[]},querySelector(){return null},
+  body:fakeEl('body')};
 const localStorage={_s:{},getItem(k){return this._s[k]||null},setItem(k,v){this._s[k]=String(v)},removeItem(k){delete this._s[k]}};
 const html=fs.readFileSync('D:/魔戒文字版/index.html','utf8');
 const m=html.match(/<script>\r?\n([\s\S]*?)<\/script>/);

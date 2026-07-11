@@ -10,7 +10,8 @@ function fakeEl(id){ const el={id,style:{},_html:'',textContent:'',value:'',chec
   return el; }
 const els=new Map();
 const document={getElementById(id){if(!els.has(id))els.set(id,fakeEl(id));return els.get(id)},
-  createElement(){return fakeEl('x'+Math.random())},querySelectorAll(){return[]},querySelector(){return null}};
+  createElement(){return fakeEl('x'+Math.random())},querySelectorAll(){return[]},querySelector(){return null},
+  body:fakeEl('body')};
 const store={};
 const localStorage={getItem(k){return store[k]!==undefined?store[k]:null},setItem(k,v){store[k]=String(v)},removeItem(k){delete store[k]}};
 const window={addEventListener(){}};

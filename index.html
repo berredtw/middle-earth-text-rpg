@@ -56,9 +56,16 @@ h1,h2,h3{color:var(--gold);font-weight:700}
 .inv-row .btns{display:flex;gap:4px;flex-shrink:0}
 .inv-row .btns button{padding:2px 8px;font-size:12px}
 .mobcard{border:1px solid #5a3030;background:#1a1214;border-radius:6px;padding:12px 16px;margin:10px 0}
+.mobcard-big{padding:16px 18px;margin:0 0 4px;border-radius:8px}
 .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .actions button{padding:8px 16px}
 .battle-actions button{min-width:112px}
+/* 戰鬥主行動列：黏在戰鬥面板頂端，捲動日誌/敵人區時攻擊鍵仍可點（僅桌機面板內捲動時生效） */
+.battle-actions{position:sticky;top:-14px;z-index:5;background:var(--panel);margin:-14px -14px 8px;padding:14px 14px 10px;border-bottom:1px solid var(--line)}
+.battle-actions-util{margin-top:0;margin-bottom:10px}
+.battle-actions-util button{opacity:.85;padding:6px 12px;font-size:13px}
+.battle-actions-util button:hover{opacity:1}
+body.in-battle #log-panel{height:36%}
 .divider{border:none;border-top:1px dashed var(--line);margin:12px 0}
 #chatlog{height:180px;overflow-y:auto;background:#0f1218;border:1px solid var(--line);border-radius:4px;padding:8px;font-size:13px;line-height:1.7;margin:8px 0}
 .chat-me,.chat-other{display:flex;margin:4px 0}
@@ -94,6 +101,11 @@ h1,h2,h3{color:var(--gold);font-weight:700}
   #loc-panel{min-height:46vh}
   #loc-body{max-height:none}
   #log-panel{height:200px;min-height:200px}
+  /* 戰鬥中：手機版隱藏角色/夥伴/放置設定/存檔（col-l）與能力/裝備/背包等分頁（col-r），
+     戰鬥區＋日誌獨佔畫面，不用一路捲過一堆非戰鬥面板才找得到攻擊鍵 */
+  body.in-battle #col-l,body.in-battle #col-r{display:none}
+  body.in-battle #log-panel{height:260px}
+  body.in-battle .battle-actions{position:static;margin:0 0 8px;padding:0}
   #droplog{height:70px}
   #col-r>.panel{min-height:300px}
   .tabbody{max-height:52vh}
@@ -1733,6 +1745,7 @@ function renderLoc(){
   const m=MAPS[S.loc];
   $('loc-name').textContent=m.n;
   const box=$('loc-body');
+  document.body.classList.toggle('in-battle',!!battle);
   if(battle){renderBattle();return}
   let h=questBox()+`<div class="storybox">${m.d}</div>`;
   if(m.town){
@@ -1988,28 +2001,53 @@ function mobStHtml(mob,dead){
 function mobBarHtml(mob){
   return `<div style="background:#7a2f2f;width:${Math.max(0,100*mob.hp/mob.maxHp)}%"></div><span style="line-height:11px;font-size:10px">${mob.hp} / ${mob.maxHp}</span>`;
 }
+function battleHelp(){
+  openModal(`<h3>即時戰鬥說明</h3><div class="hint" style="margin-top:10px;line-height:1.9">
+    所有行動都有冷卻，冷卻中的按鈕會顯示剩餘秒數。<br>
+    點擊敵人卡片可切換攻擊目標。<br>
+    💥 標記的技能是範圍技，會攻擊全部敵人。<br>
+    ⚠ 表示敵人正在吟唱大招，此時用會暈眩的技能可以打斷它。<br>
+    勾選左側「自動掛機」可讓 AI 全自動接手戰鬥。</div>`);
+}
+function battleCompHtml(){
+  const cs=compStats();
+  if(!cs)return '';
+  return `<div class="row" style="align-items:center;gap:6px;margin-bottom:8px;font-size:12px">
+    <span class="dim" style="white-space:nowrap">${cs.n}${S.compHp<=0?'（倒下）':''}</span>
+    <span class="bar" id="battle-comp-bar" style="flex:1;height:10px"><div style="background:#3f7a4f;width:${Math.max(0,100*S.compHp/cs.maxHp)}%"></div></span>
+    <span class="dim" id="battle-comp-txt" style="white-space:nowrap">${S.compHp} / ${cs.maxHp}</span>
+  </div>`;
+}
 function renderBattle(){
   curTarget();
-  /* 行動列固定在最上方（按鈕有固定最小寬度，不隨怪物數量跳動） */
+  /* 主行動列（攻擊＋技能）：黏在面板頂端，捲動中也點得到 */
   const atkRdy=battle.pCd<=0&&battle.pStun<=0;
-  let h=`<div class="actions battle-actions" style="margin-top:0">
+  let h=`<div class="actions battle-actions">
     <button class="gold" id="btn-atk" onclick="pAttack()" ${atkRdy?'':'disabled'}>${battle.pStun>0?'💫 暈眩':(atkRdy?'⚔ 攻擊':`⚔ ${(battle.pCd/10).toFixed(1)}s`)}</button>`;
   for(const id in SKILLS){const sk=SKILLS[id];
     if(sk.race!==S.race||S.lv<sk.lv)continue;
     const cd=Math.max(battle.gcd,battle.skCd[id]||0);
     h+=`<button id="btn-sk-${id}" onclick="castSkill('${id}')" ${(S.mp<sk.mp||cd>0)?'disabled':''} title="${esc(sk.d)}（冷卻 ${sk.cd} 秒）">${sk.aoe?'💥':''}${sk.n}<span class="dim">(${cd>0?(cd/10).toFixed(0)+'s':sk.mp})</span></button>`;}
+  h+=`<button onclick="battleHelp()" title="戰鬥說明" style="min-width:auto;padding:5px 12px">❓</button></div>`;
+  /* 次要行動列（藥水／魔戒／逃跑）：權重較低、不黏頂，避免跟攻擊技能搶視覺焦點 */
   const heal=bestHeal();
+  h+=`<div class="actions battle-actions-util">`;
   if(heal>=0)h+=`<button id="btn-pot" onclick="useIt(${heal},true)" ${battle.potCd>0?'disabled':''}>🧪 ${ITEMS[S.inv[heal].id].n}</button>`;
   if(S.inv.some(x=>x.id==='ring_one'))h+=`<button class="purple" style="border-color:var(--purple)" onclick="useRing()">💍 戴上魔戒</button>`;
-  h+=`<button id="btn-flee" onclick="tryFlee()" ${battle.fleeCd>0?'disabled':''}>🏃 逃跑</button></div>
-  <div class="hint" style="margin:8px 0 6px">即時戰鬥：所有行動都有冷卻。點敵人卡片切換目標；💥 為範圍技能；⚠ 表示敵人正在吟唱大招（暈眩可打斷）。勾選左側「自動掛機」全自動戰鬥。</div>`;
-  /* 敵人區：固定格線與最小高度，1 隻或 5 隻版面都不跳動 */
-  h+=`<div id="mob-zone" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:6px;min-height:170px;align-content:start">`;
+  h+=`<button id="btn-flee" onclick="tryFlee()" ${battle.fleeCd>0?'disabled':''}>🏃 逃跑</button></div>`;
+  h+=battleCompHtml();
+  /* 敵人區：單一目標時放大顯示（血條/字級加大），多隻時維持密集格線 */
+  const single=battle.mobs.length===1;
+  h+=`<div id="mob-zone" style="display:grid;grid-template-columns:${single?'1fr':'repeat(auto-fill,minmax(180px,1fr))'};gap:6px;min-height:${single?'0':'170px'};align-content:start">`;
   battle.mobs.forEach((mob,i)=>{
     const dead=mob.hp<=0, isT=(i===battle.tgt&&!dead);
     const elTag=mob.el?`<span title="${ELEMS[mob.el].n}屬性">${ELEMS[mob.el].ic}</span> `:'';
     const fxTag=mob.fx==='poison'?' <span class="purple" title="攻擊 25% 使你中毒">☠</span>':(mob.fx==='stun'?' <span class="purple" title="攻擊 25% 使你暈眩">💫</span>':'');
-    h+=`<div class="mobcard" style="margin:0;padding:7px 10px;cursor:pointer;min-height:66px;${dead?'opacity:.35;':''}${isT?'border-color:var(--gold);':''}" onclick="setTarget(${i})">
+    h+=single?`<div class="mobcard mobcard-big" style="cursor:pointer;${dead?'opacity:.35;':''}" onclick="setTarget(${i})">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><b class="red" style="font-size:17px">${elTag}${mob.n}</b><span class="dim">Lv.${mob.lv}</span></div>
+      <div style="font-size:13px;min-height:18px;margin:4px 0" id="mobst-${i}">${mobStHtml(mob,dead)}${fxTag}</div>`+
+      (dead?'':`<div class="bar" style="height:20px" id="mobhp-${i}">${mobBarHtml(mob)}</div>`)+
+    `</div>`:`<div class="mobcard" style="margin:0;padding:7px 10px;cursor:pointer;min-height:66px;${dead?'opacity:.35;':''}${isT?'border-color:var(--gold);':''}" onclick="setTarget(${i})">
       <div style="display:flex;justify-content:space-between;gap:4px;font-size:13px"><b class="red">${isT?'▶ ':''}${elTag}${mob.n}</b><span class="dim" style="white-space:nowrap">Lv.${mob.lv}${fxTag}</span></div>
       <div style="font-size:11px;min-height:14px" id="mobst-${i}">${mobStHtml(mob,dead)}</div>`+
       (dead?'':`<div class="bar" style="margin-top:3px;height:13px" id="mobhp-${i}">${mobBarHtml(mob)}</div>`)+
@@ -2044,6 +2082,12 @@ function renderBattleDyn(){
   }
   const pb=$('btn-pot');if(pb)pb.disabled=battle.potCd>0;
   const fb=$('btn-flee');if(fb)fb.disabled=battle.fleeCd>0;
+  const cs=compStats();
+  if(cs){
+    const cbar=$('battle-comp-bar'),ctxt=$('battle-comp-txt');
+    if(cbar&&cbar.firstElementChild)cbar.firstElementChild.style.width=Math.max(0,100*S.compHp/cs.maxHp)+'%';
+    if(ctxt)ctxt.textContent=`${S.compHp} / ${cs.maxHp}`;
+  }
 }
 function bestHeal(){
   let bi=-1,bv=-1;

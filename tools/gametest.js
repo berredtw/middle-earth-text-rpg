@@ -23,6 +23,7 @@ const document = {
   createElement(tag){ return fakeEl('el_'+tag+Math.random()); },
   querySelectorAll(){ return []; },
   querySelector(){ return null; },
+  body: fakeEl('body'),
 };
 const store = {};
 const localStorage = {
