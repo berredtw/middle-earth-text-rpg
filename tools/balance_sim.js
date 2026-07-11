@@ -81,7 +81,6 @@ for(const [mk,lv,eq,pot,base] of SCENARIOS){
   document.getElementById('screen-game').style.display='flex';
   document.getElementById('auto-battle').checked=true;
   document.getElementById('auto-potion').checked=true;
-  document.getElementById('auto-explore')&&0;
   document.getElementById('auto-hastepot').checked=false;
   document.getElementById('auto-time').checked=false;
   document.getElementById('auto-restock').checked=false;

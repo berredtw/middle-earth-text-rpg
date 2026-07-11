@@ -171,7 +171,7 @@ F.destroyRing();
 check('銷毀魔戒結局觸發', G.S.ringGone===true);
 
 // 13. 放置循環執行一次不噴錯
-document.getElementById('auto-battle').checked=true; document.getElementById('auto-explore').checked=true; document.getElementById('auto-potion').checked=true;
+document.getElementById('auto-battle').checked=true; document.getElementById('auto-potion').checked=true;
 document.getElementById('screen-game').style.display='flex';
 G.S.loc='m_shire'; d=F.derive(); G.S.hp=d.maxHp;
 intervalFns.forEach(fn=>fn()); intervalFns.forEach(fn=>fn());

@@ -117,6 +117,7 @@ function handle(id, msg) {
   const me = clients.get(id);
   if (!me) return;
 
+  me.lastSeen = Date.now();
   if (!me.ready) {                       // 第一則訊息必須是 hello + 正確密語
     if (msg.t !== 'hello' || String(msg.code) !== CODE) {
       send(me, { t: 'deny', reason: '通關密語錯誤。提示：說「朋友」，進來吧。' });
@@ -128,7 +129,7 @@ function handle(id, msg) {
     }
     me.ready = true;
     me.name = String(msg.name || '無名旅人').slice(0, 12);
-    me.snap = msg.snap || { lv: 1, race: 'human' };
+    me.snap = cleanSnap(msg.snap);
     me.room = null;                      // 進場先在大廳
     send(me, { t: 'welcome', id, players: playerList(null), rooms: roomList() });
     areaBroadcast(null, { t: 'join', p: { id, name: me.name, lv: me.snap.lv, race: me.snap.race } }, id);
@@ -141,7 +142,7 @@ function handle(id, msg) {
       send(me, { t: 'pong' });
       break;
     case 'snap':
-      me.snap = msg.snap || me.snap;
+      me.snap = cleanSnap(msg.snap, me.snap);
       areaBroadcast(me.room, { t: 'plist', players: playerList(me.room) });
       { const pid = partyOf(id); if (pid) partyUpdate(pid); }
       break;
@@ -171,12 +172,13 @@ function handle(id, msg) {
       break;
     case 'invite': {
       const tgt = clients.get(msg.to);
-      if (tgt && tgt.room === me.room) send(tgt, { t: 'invite', from: id, name: me.name });
+      if (tgt && tgt.room === me.room) { invites.set(msg.to + '<-' + id, Date.now()); send(tgt, { t: 'invite', from: id, name: me.name }); }
       break;
     }
-    case 'accept': {                     // 受邀者同意加入邀請者的隊伍
+    case 'accept': {                     // 受邀者同意加入邀請者的隊伍（必須真的被邀請過）
       const inviter = clients.get(msg.from);
       if (!inviter || inviter.room !== me.room) break;
+      if (!invites.delete(id + '<-' + msg.from)) break;   // 沒被邀請不能硬擠進隊伍
       let pid = partyOf(msg.from);
       if (!pid) { pid = msg.from; parties.set(pid, new Set([msg.from])); }
       const set = parties.get(pid);
@@ -201,12 +203,12 @@ function handle(id, msg) {
     }
     case 'duel_result': {
       const tgt = clients.get(msg.to);
-      if (tgt && tgt.room === me.room) send(tgt, { t: 'duel_result', lines: msg.lines, winner: msg.winner });
+      if (tgt && tgt.room === me.room) send(tgt, { t: 'duel_result', lines: cleanLines(msg.lines), winner: String(msg.winner || '').slice(0, 20) });
       break;
     }
     case 'hunt_log': {
       const pid = partyOf(id);
-      if (pid === id) partyBroadcast(pid, { t: 'hunt_log', lines: msg.lines });
+      if (pid === id) partyBroadcast(pid, { t: 'hunt_log', lines: cleanLines(msg.lines) });
       break;
     }
     case 'hunt_result': {
@@ -216,6 +218,35 @@ function handle(id, msg) {
     }
   }
 }
+
+/* 快照欄位白名單：只收數字與已知字串，其他一律丟棄（防注入與超長字串） */
+function cleanSnap(s, prev) {
+  if (!s || typeof s !== 'object') return prev || { lv: 1, race: 'human' };
+  const num = (v, d) => (typeof v === 'number' && isFinite(v)) ? Math.floor(v) : d;
+  return {
+    name: String(s.name || '').slice(0, 12),
+    lv: num(s.lv, 1), hp: num(s.hp, 1), maxHp: num(s.maxHp, 1),
+    atk: num(s.atk, 1), def: num(s.def, 0), dex: num(s.dex, 5),
+    crit: num(s.crit, 5), eva: num(s.eva, 5),
+    aspd: (typeof s.aspd === 'number' && isFinite(s.aspd)) ? s.aspd : 1.2,
+    race: ['human', 'elf', 'dwarf', 'hobbit'].includes(s.race) ? s.race : 'human',
+  };
+}
+/* 戰報行清理：最多 200 行、每行 400 字（實際 HTML 淨化在客戶端 sanLine） */
+function cleanLines(lines) {
+  if (!Array.isArray(lines)) return [];
+  return lines.slice(0, 200).map(l => String(l).slice(0, 400));
+}
+const invites = new Map();               // 'to<-from' → 時間戳
+/* 殭屍連線清掃：交握後 10 秒內沒完成 hello、或 75 秒無任何訊框（客戶端每 25 秒心跳）→ 踢除 */
+setInterval(() => {
+  const now = Date.now();
+  for (const [cid, c] of clients) {
+    if (!c.ready && now - (c.bornAt || 0) > 10000) { try { c.sock.end(); } catch (e) {} clients.delete(cid); }
+    else if (c.ready && now - (c.lastSeen || 0) > 75000) { try { c.sock.end(); } catch (e) {} }
+  }
+  for (const [k, t] of invites) if (now - t > 120000) invites.delete(k);
+}, 10000);
 
 /* ── HTTP + WebSocket 交握 ── */
 const server = http.createServer((req, res) => {
@@ -234,7 +265,7 @@ server.on('upgrade', (req, sock) => {
     `Sec-WebSocket-Accept: ${accept}\r\n\r\n`);
 
   const id = 'p' + (nextId++);
-  const me = { sock, name: '', snap: { lv: 1, race: 'human' }, ready: false };
+  const me = { sock, name: '', snap: { lv: 1, race: 'human' }, ready: false, bornAt: Date.now(), lastSeen: Date.now() };
   clients.set(id, me);
   let buf = Buffer.alloc(0);
 
