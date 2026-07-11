@@ -43,7 +43,7 @@ function fight(hpPct,maxG,follow){
   while(G.battle&&(follow||G.battle===cur)&&g++<(maxG||60000)){
     const dd=F.derive();
     if(G.S.hp<dd.maxHp*(hpPct||0.7))G.S.hp=dd.maxHp;
-    if(G.S.mp<dd.maxMp*0.2)G.S.mp=dd.maxMp;
+    if(G.S.mp<dd.maxMp*0.5)G.S.mp=dd.maxMp;   /* 模擬自動喝露水（v20 起 <50% 觸發） */
     F.battleTick();
   }
   if(!follow&&G.battle&&G.battle!==cur)G.battle=null;
@@ -113,7 +113,7 @@ while(G.S.ch<21&&guard++<1500000){
     const cur=G.battle;
     const dd=F.derive();
     if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp;   // 模擬玩家喝藥（活力之水商店有售）
-    if(G.S.mp<dd.maxMp*0.2)G.S.mp=dd.maxMp;
+    if(G.S.mp<dd.maxMp*0.5)G.S.mp=dd.maxMp;   /* 模擬自動喝露水（v20 起 <50% 觸發） */
     F.battleTick();
     if(G.battle&&G.battle!==cur)G.battle=null;   // 取消掛機同步續戰，讓迴圈自己決定下一場
   }
@@ -147,7 +147,7 @@ while(G.S.ch<32&&guard++<1500000){
     const cur=G.battle;
     const dd=F.derive();
     if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp;
-    if(G.S.mp<dd.maxMp*0.2)G.S.mp=dd.maxMp;
+    if(G.S.mp<dd.maxMp*0.5)G.S.mp=dd.maxMp;   /* 模擬自動喝露水（v20 起 <50% 觸發） */
     F.battleTick();
     if(G.battle&&G.battle!==cur)G.battle=null;   // 取消掛機同步續戰，讓迴圈自己決定下一場
   }
@@ -182,7 +182,7 @@ while(G.S.ch<42&&guard++<1500000){
     const cur=G.battle;
     const dd=F.derive();
     if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp;
-    if(G.S.mp<dd.maxMp*0.2)G.S.mp=dd.maxMp;
+    if(G.S.mp<dd.maxMp*0.5)G.S.mp=dd.maxMp;   /* 模擬自動喝露水（v20 起 <50% 觸發） */
     F.battleTick();
     if(G.battle&&G.battle!==cur)G.battle=null;   // 取消掛機同步續戰，讓迴圈自己決定下一場
   }
@@ -214,7 +214,7 @@ while(G.S.ch<55&&guard++<2000000){
     const cur=G.battle;
     const dd=F.derive();
     if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp;
-    if(G.S.mp<dd.maxMp*0.2)G.S.mp=dd.maxMp;
+    if(G.S.mp<dd.maxMp*0.5)G.S.mp=dd.maxMp;   /* 模擬自動喝露水（v20 起 <50% 觸發） */
     F.battleTick();
     if(G.battle&&G.battle!==cur)G.battle=null;   // 取消掛機同步續戰，讓迴圈自己決定下一場
   }
@@ -285,7 +285,7 @@ F.moveTo('m_stair');
 let tg=0,floorFights=0,firstFloorBefore=G.S.tw['m_stair']||0;
 while((G.S.tw['m_stair']||0)<100&&tg++<800000){
   if(!G.battle){if(G.S.loc!=='m_stair')F.moveTo('m_stair');const dd=F.derive();G.S.hp=dd.maxHp;F.towerChallenge();floorFights++;}
-  else{AB().checked=true;const cur=G.battle;const dd=F.derive();if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp;if(G.S.mp<dd.maxMp*0.2)G.S.mp=dd.maxMp;F.battleTick();if(G.battle&&G.battle!==cur)G.battle=null;}
+  else{AB().checked=true;const cur=G.battle;const dd=F.derive();if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp;if(G.S.mp<dd.maxMp*0.5)G.S.mp=dd.maxMp;   /* 模擬自動喝露水（v20 起 <50% 觸發） */F.battleTick();if(G.battle&&G.battle!==cur)G.battle=null;}
 }
 check(`無盡階梯攻頂（進度 ${G.S.tw['m_stair']}/100，共戰鬥 ${floorFights} 場）`,G.S.tw['m_stair']===100);
 check(`樓梯機率生效（100 層共打了 ${floorFights} 場 > 150 場，代表不是一場一層）`,floorFights>150);
@@ -302,7 +302,7 @@ F.moveTo('m_tower');
 tg=0;
 while((G.S.tw['m_tower']||0)<100&&tg++<800000){
   if(!G.battle){if(G.S.loc!=='m_tower')F.moveTo('m_tower');const dd=F.derive();G.S.hp=dd.maxHp;F.towerChallenge();}
-  else{AB().checked=true;const cur=G.battle;const dd=F.derive();if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp;if(G.S.mp<dd.maxMp*0.2)G.S.mp=dd.maxMp;F.battleTick();if(G.battle&&G.battle!==cur)G.battle=null;}
+  else{AB().checked=true;const cur=G.battle;const dd=F.derive();if(G.S.hp<dd.maxHp*0.7)G.S.hp=dd.maxHp;if(G.S.mp<dd.maxMp*0.5)G.S.mp=dd.maxMp;   /* 模擬自動喝露水（v20 起 <50% 觸發） */F.battleTick();if(G.battle&&G.battle!==cur)G.battle=null;}
 }
 check(`歐爾桑克塔攻頂（進度 ${G.S.tw['m_tower']}/100）`,G.S.tw['m_tower']===100);
 check('百層制霸獲得【異界·執行者之斧】',G.S.inv.some(x=>x.id==='w_exec'));
@@ -352,7 +352,7 @@ if(G.battle){
 F.moveTo('m_gate');
 F.challengeBoss();
 check('首領保留屬性（水中監視者=水）',G.battle&&G.battle.mobs[0].el==='water');
-check('首領強化欄位生效（dr/rg/血量倍率）',G.battle&&G.battle.mobs[0].dr>0&&G.battle.mobs[0].rg>0&&G.battle.mobs[0].maxHp>D.MOBS[G.battle.mobs[0].id][2]*2);
+check('首領強化欄位生效（dr/rg/血量倍率）',G.battle&&G.battle.mobs[0].dr>0&&G.battle.mobs[0].rg>0&&G.battle.mobs[0].maxHp>=D.MOBS[G.battle.mobs[0].id][2]*1.8);   // 水怪 hpm 1.9（新手保護）
 settle();
 // 第九章起（摩瑞亞）屬性恢復、可 4~5 隻
 F.moveTo('m_moria');
