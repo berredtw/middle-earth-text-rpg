@@ -79,6 +79,12 @@ body.in-battle #loc-body{display:flex;flex-direction:column}
 .mob-chip .mn span{color:var(--dim);font-size:10px;white-space:nowrap;flex-shrink:0}
 .mob-chip .mst{font-size:10px;min-height:12px;color:var(--dim);line-height:1.4}
 .mob-chip .bar{height:12px;margin-top:3px}
+/* 首領卡：原創立繪加大顯示，氣勢要足 */
+.mob-chip.boss{width:176px;padding:7px 8px 9px}
+.mob-chip.boss .mob-art{height:132px}
+.mob-chip.boss .mn{font-size:13px;margin-top:4px}
+.mob-chip.boss .mn b{font-size:14px}
+.mob-chip.boss .bar{height:14px}
 /* 底部固定操作列：攻擊/技能＋藥水/魔戒/逃跑，黏在戰鬥面板底端（捲動也不跑位） */
 .battle-bottom{position:sticky;bottom:-14px;z-index:5;background:rgba(22,25,31,.94);margin:0 -14px -14px;padding:8px 12px;border-top:1px solid var(--line);backdrop-filter:blur(2px)}
 .battle-bottom .battle-actions-util{margin:6px 0 0}
@@ -164,6 +170,8 @@ body.in-town .actions button{padding:5px 12px;font-size:13px}
   .battle-comp{width:200px}
   .mob-chip{width:88px}
   .mob-chip .mob-art{height:48px}
+  .mob-chip.boss{width:132px}
+  .mob-chip.boss .mob-art{height:96px}
   .battle-hero{height:78px}
   .spot{font-size:12px;padding:3px 8px;min-height:0}
   #col-r>.panel{min-height:300px}
@@ -2223,7 +2231,7 @@ function renderBattle(){
     const fxTag=mob.fx==='poison'?'<span class="purple" title="攻擊 25% 使你中毒">☠</span>':(mob.fx==='stun'?'<span class="purple" title="攻擊 25% 使你暈眩">💫</span>':'');
     const art=mobArtSrc(mob);
     const artTag=art?`<img class="mob-art" src="${art}" alt="" onerror="this.remove()">`:'';
-    h+=`<div class="mob-chip${isT?' target':''}" style="${dead?'opacity:.35;':''}" onclick="setTarget(${i})">
+    h+=`<div class="mob-chip${mob.boss?' boss':''}${isT?' target':''}" style="${dead?'opacity:.35;':''}" onclick="setTarget(${i})">
       ${isT?'<img class="target-mark" src="assets/ui/target_marker.png" alt="" onerror="this.remove()">':''}
       ${artTag}
       <div class="mn"><b>${elTag}${mob.n}</b><span>Lv.${mob.lv}${fxTag}</span></div>
