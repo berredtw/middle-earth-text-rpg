@@ -35,7 +35,7 @@ h1,h2,h3{color:var(--gold);font-weight:700}
 #create-box{width:860px;max-width:96vw;max-height:94vh;overflow-y:auto;padding:26px}
 .race-btn{width:100%;text-align:left;padding:10px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
 .race-btn.sel{border-color:var(--gold);background:#242018;color:var(--gold)}
-.race-thumb{width:36px;height:54px;object-fit:cover;object-position:top center;border-radius:3px;border:1px solid var(--line);flex-shrink:0}
+.race-thumb{width:36px;height:54px;object-fit:cover;object-position:top center;border-radius:3px;border:1px solid var(--line);flex-shrink:0;image-rendering:pixelated}
 #screen-game{display:none;height:100vh;padding:10px;gap:10px}
 #col-l{width:290px;display:flex;flex-direction:column;gap:10px;min-height:0}
 #col-c{flex:1;display:flex;flex-direction:column;gap:10px;min-width:0;min-height:0}
@@ -73,7 +73,7 @@ body.in-battle #loc-body{display:flex;flex-direction:column}
 .battle-ground{position:absolute;left:16px;right:16px;bottom:14%;display:flex;align-items:flex-end;justify-content:flex-end;flex-wrap:wrap-reverse;gap:6px;z-index:1}
 .mob-chip{width:96px;flex-shrink:0;background:rgba(15,17,21,.72);border:1px solid #5a3030;border-radius:8px;padding:5px 6px 7px;cursor:pointer;backdrop-filter:blur(2px)}
 .mob-chip.target{border-color:var(--gold)}
-.mob-chip .mob-art{display:block;width:100%;height:50px;object-fit:contain;object-position:bottom center}
+.mob-chip .mob-art{display:block;width:100%;height:50px;object-fit:contain;object-position:bottom center;image-rendering:pixelated}
 .mob-chip .mn{display:flex;justify-content:space-between;align-items:baseline;gap:4px;font-size:11px;margin-top:3px}
 .mob-chip .mn b{font-weight:600;color:var(--red);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mob-chip .mn span{color:var(--dim);font-size:10px;white-space:nowrap;flex-shrink:0}
@@ -90,12 +90,12 @@ body.in-battle #loc-body{display:flex;flex-direction:column}
 .battle-player .pn{font-size:12px;color:var(--gold);font-weight:700;margin-bottom:3px;white-space:nowrap}
 .battle-player .bar{height:11px;margin-top:3px}
 /* 像素小圖示（屬性/行動按鈕）：內縮對齊文字基線 */
-.px-ico{width:17px;height:17px;vertical-align:-3px;margin-right:2px}
+.px-ico{width:17px;height:17px;vertical-align:-3px;image-rendering:pixelated;margin-right:2px}
 /* 主角立繪：戰鬥時站在怪物列左側（flex margin-right:auto 把怪物推到右邊） */
-.battle-hero{height:94px;align-self:flex-end;margin-right:auto;filter:drop-shadow(0 5px 6px rgba(0,0,0,.65))}
+.battle-hero{height:94px;align-self:flex-end;margin-right:auto;image-rendering:pixelated;filter:drop-shadow(0 5px 6px rgba(0,0,0,.65))}
 /* 目標標記：金色準星浮在被選中的怪物卡上方 */
 .mob-chip{position:relative}
-.target-mark{position:absolute;top:-13px;left:50%;width:22px;height:22px;transform:translateX(-50%);animation:tmark 1s ease-in-out infinite;pointer-events:none;filter:drop-shadow(0 0 4px rgba(212,169,78,.7));z-index:2}
+.target-mark{position:absolute;top:-13px;left:50%;width:22px;height:22px;transform:translateX(-50%);image-rendering:pixelated;animation:tmark 1s ease-in-out infinite;pointer-events:none;filter:drop-shadow(0 0 4px rgba(212,169,78,.7));z-index:2}
 @keyframes tmark{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-4px)}}
 /* 玩家 HP/MP 條：像素金屬框（border-image 只取邊框、中央挖空，保留原本的動態填色） */
 .bar-fx{height:24px;border:5px solid transparent;border-left-width:9px;border-right-width:9px;border-radius:6px;
@@ -113,7 +113,7 @@ body.in-town .questbox{padding:5px 10px !important;margin-bottom:6px !important;
 body.in-town .actions{margin-top:6px}
 body.in-town .actions button{padding:5px 12px;font-size:13px}
 .town-scene{position:relative;width:100%;max-height:100%;aspect-ratio:16/9;background-size:cover;background-position:center;
-  border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  border:1px solid var(--line);border-radius:8px;image-rendering:pixelated;overflow:hidden}
 .spot{position:absolute;transform:translate(-50%,-50%);background:rgba(13,15,18,.78);border:1px solid var(--gold);
   border-radius:6px;color:var(--gold);padding:4px 10px;font-size:13px;cursor:pointer;white-space:nowrap;backdrop-filter:blur(2px);min-height:0}
 .spot:hover{background:#242018;box-shadow:0 0 12px rgba(212,169,78,.55)}
@@ -210,7 +210,7 @@ body.in-town .actions button{padding:5px 12px;font-size:13px}
       </div>
       <div style="flex:1">
         <div class="dim" style="margin-bottom:8px">二、種族介紹</div>
-        <img id="race-portrait" style="display:none;max-width:150px;max-height:220px;float:right;margin:0 0 10px 14px;border:1px solid var(--line);border-radius:6px">
+        <img id="race-portrait" style="display:none;max-width:150px;max-height:220px;float:right;margin:0 0 10px 14px;border:1px solid var(--line);border-radius:6px;image-rendering:pixelated">
         <div id="race-desc" class="storybox" style="min-height:130px">請先選擇種族。</div>
         <div class="dim" style="margin:14px 0 8px">三、分配能力（剩餘點數 <span id="cr-pts" class="gold">10</span>）</div>
         <div id="cr-stats"></div>
@@ -240,7 +240,7 @@ body.in-town .actions button{padding:5px 12px;font-size:13px}
     <div class="panel">
       <div class="phead" style="display:flex;justify-content:space-between"><span id="st-name">－</span><span id="st-race" class="dim" style="letter-spacing:0"></span></div>
       <div style="padding:12px 14px">
-        <img id="char-portrait" style="display:none;width:100%;max-height:200px;object-fit:contain;margin-bottom:10px;border:1px solid var(--line);border-radius:6px;background:#0a0c10">
+        <img id="char-portrait" style="display:none;width:100%;max-height:200px;object-fit:contain;margin-bottom:10px;border:1px solid var(--line);border-radius:6px;background:#0a0c10;image-rendering:pixelated">
         <div class="row"><span class="dim">等級</span><b id="st-lv" style="color:#fff">1</b></div>
         <div class="row"><span class="dim">攻擊力</span><b id="st-atk" style="color:#fff">0</b></div>
         <div class="row"><span class="dim">防禦力</span><b id="st-def" style="color:#fff">0</b></div>
@@ -3044,7 +3044,7 @@ function openCodex(kind){
       const drops=m[7].map(d=>`${ITEMS[d[0]].n} ${d[1]}%`).join('、');
       const elT=m[10]?elemIc(m[10])+ELEMS[m[10]].n+'屬性':'無屬性';
       const fxT=m[11]==='poison'?'／☠攻擊帶毒':(m[11]==='stun'?'／💫攻擊帶暈':'');
-      const cdxArt=MOB_ART[id]?`<img src="assets/mobs/${MOB_ART[id]}.png" alt="" onerror="this.remove()" style="float:right;width:52px;height:52px;object-fit:contain;margin-left:8px">`:'';
+      const cdxArt=MOB_ART[id]?`<img src="assets/mobs/${MOB_ART[id]}.png" alt="" onerror="this.remove()" style="float:right;width:52px;height:52px;object-fit:contain;image-rendering:pixelated;margin-left:8px">`:'';
       h+=`<div style="padding:6px 0;border-bottom:1px solid #20242e;overflow:hidden">${cdxArt}
         <b class="${m[9]?'red':''}">${m[9]?'☠ ':''}${elemIc(m[10])}${m[0]}</b> <span class="dim">Lv.${m[1]}　${elT}${fxT}</span><br>
         <span class="hint">HP ${m[2]}／攻 ${m[3]}／防 ${m[4]}／經驗 ${m[5]}／金幣 ${m[6]}${m[8]?'／半獸人類':''}<br>
