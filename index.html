@@ -69,19 +69,25 @@ body.in-battle #logrow{flex-basis:200px}
    .battle-ground＝站位列（主角立繪靠左、怪物卡靠右，底邊對齊＝腳踩同一條地面線）；
    怪物太多放不下時 wrap-reverse 讓第一排保持在地面線、多的往上疊 */
 body.in-battle #loc-body{display:flex;flex-direction:column}
-.battle-stage{position:relative;flex:1 1 auto;margin:-14px -14px 8px;min-height:220px}
-.battle-ground{position:absolute;left:16px;right:16px;bottom:14%;display:flex;align-items:flex-end;justify-content:flex-end;flex-wrap:wrap-reverse;gap:6px;z-index:1}
-.mob-chip{width:96px;flex-shrink:0;background:rgba(15,17,21,.72);border:1px solid #5a3030;border-radius:8px;padding:5px 6px 7px;cursor:pointer;backdrop-filter:blur(2px)}
+.battle-stage{position:relative;flex:1 1 auto;margin:-14px -14px 8px;min-height:250px}
+.battle-ground{position:absolute;left:16px;right:16px;bottom:6%;display:flex;align-items:flex-end;justify-content:flex-end;flex-wrap:wrap-reverse;gap:8px;z-index:1}
+/* 怪物上下交錯站位（偶數隻墊高，用 transform 不受 wrap-reverse 軸向影響），多怪更有戰場縱深 */
+.battle-ground div.mob-chip:nth-of-type(even){transform:translateY(-46px)}
+.battle-ground div.mob-chip.target:nth-of-type(even){transform:translateY(-46px)}
+/* 擁擠模式（4隻以上）：縮小卡片保持單排 */
+.battle-ground.crowd .mob-chip{width:118px}
+.battle-ground.crowd .mob-chip .mob-art{height:78px}
+.mob-chip{width:142px;flex-shrink:0;background:rgba(15,17,21,.72);border:1px solid #5a3030;border-radius:8px;padding:6px 7px 8px;cursor:pointer;backdrop-filter:blur(2px)}
 .mob-chip.target{border-color:var(--gold)}
-.mob-chip .mob-art{display:block;width:100%;height:50px;object-fit:contain;object-position:bottom center;image-rendering:pixelated}
-.mob-chip .mn{display:flex;justify-content:space-between;align-items:baseline;gap:4px;font-size:11px;margin-top:3px}
+.mob-chip .mob-art{display:block;width:100%;height:98px;object-fit:contain;object-position:bottom center;image-rendering:pixelated}
+.mob-chip .mn{display:flex;justify-content:space-between;align-items:baseline;gap:4px;font-size:12px;margin-top:4px}
 .mob-chip .mn b{font-weight:600;color:var(--red);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mob-chip .mn span{color:var(--dim);font-size:10px;white-space:nowrap;flex-shrink:0}
 .mob-chip .mst{font-size:10px;min-height:12px;color:var(--dim);line-height:1.4}
 .mob-chip .bar{height:12px;margin-top:3px}
 /* 首領卡：原創立繪加大顯示，氣勢要足 */
-.mob-chip.boss{width:176px;padding:7px 8px 9px}
-.mob-chip.boss .mob-art{height:132px}
+.mob-chip.boss{width:204px;padding:7px 8px 9px}
+.mob-chip.boss .mob-art{height:154px}
 .mob-chip.boss .mn{font-size:13px;margin-top:4px}
 .mob-chip.boss .mn b{font-size:14px}
 .mob-chip.boss .bar{height:14px}
@@ -90,9 +96,10 @@ body.in-battle #loc-body{display:flex;flex-direction:column}
 .battle-bottom .battle-actions-util{margin:6px 0 0}
 .battle-bottom .actions{gap:6px}
 /* 主角資訊卡：舞台左上角 */
-.battle-player{position:absolute;top:8px;left:8px;z-index:2;background:rgba(15,17,21,.62);border:1px solid var(--line);border-radius:8px;padding:5px 8px;max-width:210px;backdrop-filter:blur(2px)}
+.battle-tophud{position:absolute;top:8px;left:8px;z-index:2;display:flex;gap:8px;align-items:flex-start}
+.battle-player{background:rgba(15,17,21,.62);border:1px solid var(--line);border-radius:8px;padding:5px 8px;max-width:210px;backdrop-filter:blur(2px)}
 /* 夥伴血條：主角立繪左下方（舞台左下角） */
-.battle-comp{position:absolute;left:10px;bottom:6px;z-index:2;width:232px;max-width:60%;display:flex;align-items:center;gap:6px;font-size:12px;background:rgba(15,17,21,.62);border:1px solid var(--line);border-radius:6px;padding:4px 8px;backdrop-filter:blur(2px)}
+.battle-comp{width:212px;display:flex;align-items:center;gap:6px;font-size:12px;background:rgba(15,17,21,.62);border:1px solid var(--line);border-radius:6px;padding:4px 8px;backdrop-filter:blur(2px)}
 /* 夥伴頭像：全身立繪裁切頭胸部位 */
 .comp-art{object-fit:cover;object-position:top center;border:1px solid var(--line);border-radius:6px;background:#0a0c10;flex-shrink:0}
 .battle-player .pn{font-size:12px;color:var(--gold);font-weight:700;margin-bottom:3px;white-space:nowrap}
@@ -100,7 +107,9 @@ body.in-battle #loc-body{display:flex;flex-direction:column}
 /* 像素小圖示（屬性/行動按鈕）：內縮對齊文字基線 */
 .px-ico{width:17px;height:17px;vertical-align:-3px;image-rendering:pixelated;margin-right:2px}
 /* 主角立繪：戰鬥時站在怪物列左側（flex margin-right:auto 把怪物推到右邊） */
-.battle-hero{height:94px;align-self:flex-end;margin-right:auto;image-rendering:pixelated;filter:drop-shadow(0 5px 6px rgba(0,0,0,.65))}
+.battle-hero{height:122px;align-self:flex-end;margin-right:auto;image-rendering:pixelated;filter:drop-shadow(0 5px 6px rgba(0,0,0,.65))}
+/* 隨行夥伴立繪：站在主角身後（左側、稍小、稍疊） */
+.battle-mate{height:104px;align-self:flex-end;margin-right:-30px;image-rendering:pixelated;filter:drop-shadow(0 5px 6px rgba(0,0,0,.65)) brightness(.92)}
 /* 目標標記：金色準星浮在被選中的怪物卡上方 */
 .mob-chip{position:relative}
 .target-mark{position:absolute;top:-13px;left:50%;width:22px;height:22px;transform:translateX(-50%);image-rendering:pixelated;animation:tmark 1s ease-in-out infinite;pointer-events:none;filter:drop-shadow(0 0 4px rgba(212,169,78,.7));z-index:2}
@@ -170,11 +179,16 @@ body.in-town .actions button{padding:5px 12px;font-size:13px}
   body.in-battle #logrow{flex-basis:190px}
   .battle-stage{min-height:300px}
   .battle-comp{width:200px}
-  .mob-chip{width:88px}
-  .mob-chip .mob-art{height:48px}
-  .mob-chip.boss{width:132px}
-  .mob-chip.boss .mob-art{height:96px}
-  .battle-hero{height:78px}
+  .mob-chip{width:106px}
+  .mob-chip .mob-art{height:66px}
+  .mob-chip.boss{width:150px}
+  .mob-chip.boss .mob-art{height:110px}
+  .battle-ground div.mob-chip:nth-of-type(even){transform:translateY(-26px)}
+  .battle-ground.crowd .mob-chip{width:92px}
+  .battle-ground.crowd .mob-chip .mob-art{height:58px}
+  .battle-hero{height:92px}
+  .battle-mate{height:78px;margin-right:-22px}
+  .battle-comp{width:170px}
   .spot{font-size:12px;padding:3px 8px;min-height:0}
   #col-r>.panel{min-height:300px}
   .tabbody{max-height:52vh}
@@ -2226,7 +2240,9 @@ function renderBattle(){
   curTarget();
   /* 舞台層：主角資訊卡（左上）＋站位列（主角立繪靠左、怪物卡靠右，腳踩背景地平線＝約圖高下半）
      ＋夥伴血條（主角左下方）。1隻或5隻怪都用同一種固定尺寸血條卡片（避免戰鬥間版面忽大忽小） */
-  let h=`<div class="battle-stage">${battlePlayerHtml()}<div class="battle-ground">`;
+  let h=`<div class="battle-stage"><div class="battle-tophud">${battleCompHtml()}${battlePlayerHtml()}</div><div class="battle-ground${battle.mobs.length>=4?' crowd':''}">`;
+  const mateCs=compStats();
+  if(mateCs)h+=`<img class="battle-mate" src="assets/companions/${S.comp}.png" alt="" onerror="this.remove()" style="${S.compHp<=0?'opacity:.3;filter:grayscale(1)':''}">`;
   h+=`<img class="battle-hero" src="assets/races/${S.race}.png" alt="" onerror="this.remove()">`;
   battle.mobs.forEach((mob,i)=>{
     const dead=mob.hp<=0, isT=(i===battle.tgt&&!dead);
@@ -2242,7 +2258,7 @@ function renderBattle(){
       (dead?'':`<div class="bar" id="mobhp-${i}">${mobBarHtml(mob)}</div>`)+
     `</div>`;
   });
-  h+=`</div>${battleCompHtml()}</div>`;
+  h+=`</div></div>`;
   /* 底部固定操作列：主行動（攻擊＋技能）在上、次要行動（藥水／魔戒／逃跑）在下 */
   const atkRdy=battle.pCd<=0&&battle.pStun<=0;
   h+=`<div class="battle-bottom"><div class="actions battle-actions">
